@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ekipman_cihaz_list" model="ir.ui.view">
+        <field name="name">ekipman.cihaz.list</field>
+        <field name="model">ekipman.cihaz</field>
+        <field name="arch" type="xml">
+            <list string="Ekipmanlar">
+                <field name="etiket_no"/>
+                <field name="name"/>
+                <field name="kategori_id"/>
+                <field name="seri_no" optional="hide"/>
+                <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'musait'" decoration-warning="fiziksel_durum == 'zimmette'"/>
+                <field name="su_an_kimde_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ekipman_cihaz_form" model="ir.ui.view">
+        <field name="name">ekipman.cihaz.form</field>
+        <field name="model">ekipman.cihaz</field>
+        <field name="arch" type="xml">
+            <form string="Ekipman">
+                <sheet>
+                    <widget name="web_ribbon" title="Arşivlendi" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="Cihaz Adı"/>
+                        <h1>
+                            <field name="name" placeholder="Örn: Tektronix TBS1102B"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="etiket_no"/>
+                            <field name="seri_no"/>
+                            <field name="kategori_id"/>
+                        </group>
+                        <group>
+                            <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'musait'" decoration-warning="fiziksel_durum == 'zimmette'"/>
+                            <field name="su_an_kimde_id"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Müsaitlik Bilgisi" name="musaitlik">
+                            <group>
+                                <field name="dolu_tarihler" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Zimmet Geçmişi" name="zimmet_gecmisi">
+                            <field name="zimmet_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="calisan_id"/>
+                                    <field name="planlanan_baslangic"/>
+                                    <field name="planlanan_bitis"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ekipman_cihaz_search" model="ir.ui.view">
+        <field name="name">ekipman.cihaz.search</field>
+        <field name="model">ekipman.cihaz</field>
+        <field name="arch" type="xml">
+            <search string="Ekipman Ara">
+                <field name="name"/>
+                <field name="etiket_no"/>
+                <field name="seri_no"/>
+                <field name="kategori_id"/>
+                <field name="su_an_kimde_id"/>
+                <filter string="Müsait Cihazlar" name="musait" domain="[('fiziksel_durum', '=', 'musait')]"/>
+                <filter string="Zimmetteki Cihazlar" name="zimmette" domain="[('fiziksel_durum', '=', 'zimmette')]"/>
+                <separator/>
+                <filter string="Arşivlenenler" name="archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Grupla">
+                    <filter string="Kategori" name="group_kategori" context="{'group_by': 'kategori_id'}"/>
+                    <filter string="Fiziksel Durum" name="group_fiziksel_durum" context="{'group_by': 'fiziksel_durum'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ekipman_cihaz" model="ir.actions.act_window">
+        <field name="name">Ekipmanlar</field>
+        <field name="res_model">ekipman.cihaz</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Yeni bir ekipman kaydı oluşturun.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ekipman_zimmet_list" model="ir.ui.view">
+        <field name="name">ekipman.zimmet.list</field>
+        <field name="model">ekipman.zimmet</field>
+        <field name="arch" type="xml">
+            <list string="Zimmet Talepleri"
+                  decoration-muted="state in ('iade_edildi', 'reddedildi', 'iptal')">
+                <field name="name"/>
+                <field name="cihaz_id"/>
+                <field name="calisan_id"/>
+                <field name="planlanan_baslangic"/>
+                <field name="planlanan_bitis"/>
+                <field name="fiili_baslangic" optional="hide"/>
+                <field name="fiili_bitis" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state in ('taslak', 'talep_edildi')"
+                       decoration-warning="state == 'onaylandi'"
+                       decoration-success="state == 'teslim_edildi'"
+                       decoration-muted="state in ('iade_edildi', 'reddedildi', 'iptal')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ekipman_zimmet_form" model="ir.ui.view">
+        <field name="name">ekipman.zimmet.form</field>
+        <field name="model">ekipman.zimmet</field>
+        <field name="arch" type="xml">
+            <form string="Zimmet">
+                <header>
+                    <button name="action_talep_et" string="Talep Et" type="object" class="oe_highlight" invisible="state != 'taslak'"/>
+                    <button name="action_geri_cek" string="Geri Çek" type="object" invisible="state != 'talep_edildi'"/>
+                    <button name="action_onayla" string="Onayla" type="object" class="oe_highlight" invisible="state != 'talep_edildi'"/>
+                    <button name="action_reddet" string="Reddet" type="object" invisible="state != 'talep_edildi'"/>
+                    <button name="action_teslim_et" string="Teslim Et" type="object" class="oe_highlight" invisible="state != 'onaylandi'"/>
+                    <button name="action_iade_al" string="İade Al" type="object" class="oe_highlight" invisible="state != 'teslim_edildi'"/>
+                    <button name="action_iptal" string="İptal Et" type="object" invisible="state not in ('taslak', 'talep_edildi', 'onaylandi')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="taslak,talep_edildi,onaylandi,teslim_edildi,iade_edildi"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Talep Bilgileri">
+                            <field name="cihaz_id" readonly="state != 'taslak'"/>
+                            <field name="calisan_id" readonly="1"/>
+                        </group>
+                        <group string="Tarihler">
+                            <field name="planlanan_baslangic" readonly="state != 'taslak'"/>
+                            <field name="planlanan_bitis" readonly="state != 'taslak'"/>
+                            <field name="fiili_baslangic" invisible="state in ('taslak', 'talep_edildi', 'onaylandi')" readonly="1"/>
+                            <field name="fiili_bitis" invisible="state in ('taslak', 'talep_edildi', 'onaylandi')" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Red Gerekçesi" invisible="state != 'reddedildi' and not red_gerekcesi">
+                        <field name="red_gerekcesi" readonly="state != 'talep_edildi'"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ekipman_zimmet_search" model="ir.ui.view">
+        <field name="name">ekipman.zimmet.search</field>
+        <field name="model">ekipman.zimmet</field>
+        <field name="arch" type="xml">
+            <search string="Zimmet Ara">
+                <field name="name"/>
+                <field name="cihaz_id"/>
+                <field name="calisan_id"/>
+                <filter string="Taslak" name="taslak" domain="[('state', '=', 'taslak')]"/>
+                <filter string="Talep Edildi" name="talep_edildi" domain="[('state', '=', 'talep_edildi')]"/>
+                <filter string="Onaylandı" name="onaylandi" domain="[('state', '=', 'onaylandi')]"/>
+                <filter string="Teslim Edildi" name="teslim_edildi" domain="[('state', '=', 'teslim_edildi')]"/>
+                <filter string="İade Edildi" name="iade_edildi" domain="[('state', '=', 'iade_edildi')]"/>
+                <separator/>
+                <group expand="0" string="Grupla">
+                    <filter string="Cihaz" name="group_cihaz" context="{'group_by': 'cihaz_id'}"/>
+                    <filter string="Çalışan" name="group_calisan" context="{'group_by': 'calisan_id'}"/>
+                    <filter string="Durum" name="group_durum" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ekipman_zimmet" model="ir.actions.act_window">
+        <field name="name">Zimmet Talepleri</field>
+        <field name="res_model">ekipman.zimmet</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Yeni bir zimmet talebi oluşturun.
+            </p>
+        </field>
+    </record>
+</odoo>

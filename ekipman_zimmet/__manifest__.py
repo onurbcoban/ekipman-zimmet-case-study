@@ -9,7 +9,13 @@
         'mail',
         'hr',
     ],
-    'data': [],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/kategori_views.xml',
+        'views/cihaz_views.xml',
+        'views/zimmet_views.xml',
+        'views/menu_views.xml',
+    ],
     'installable': True,
     'application': True,
 }

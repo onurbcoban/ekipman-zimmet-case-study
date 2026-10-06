@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ekipman_kategori_user,ekipman.kategori.user,model_ekipman_kategori,base.group_user,1,1,1,1
+access_ekipman_cihaz_user,ekipman.cihaz.user,model_ekipman_cihaz,base.group_user,1,1,1,1
+access_ekipman_zimmet_user,ekipman.zimmet.user,model_ekipman_zimmet,base.group_user,1,1,1,1

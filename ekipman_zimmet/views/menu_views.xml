@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ana Menü (Root) -->
+    <menuitem id="menu_ekipman_zimmet_root"
+              name="Ekipman Zimmet"
+              sequence="10"/>
+
+    <!-- Alt Menüler -->
+    <menuitem id="menu_ekipman_zimmet_talep"
+              name="Zimmet Talepleri"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_zimmet"
+              sequence="10"/>
+
+    <menuitem id="menu_ekipman_cihaz"
+              name="Ekipmanlar"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_cihaz"
+              sequence="20"/>
+
+    <menuitem id="menu_ekipman_kategori"
+              name="Kategoriler"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_kategori"
+              sequence="30"/>
+</odoo>
