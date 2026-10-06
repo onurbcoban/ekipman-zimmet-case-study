@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 
 class EkipmanZimmet(models.Model):
@@ -80,32 +81,60 @@ class EkipmanZimmet(models.Model):
 
     def action_talep_et(self):
         for rec in self:
+            if rec.state != 'taslak':
+                raise UserError('Yalnızca taslak durumundaki kayıtlar talep edilebilir.')
             rec.state = 'talep_edildi'
 
     def action_geri_cek(self):
         for rec in self:
+            if rec.state != 'talep_edildi':
+                raise UserError('Yalnızca talep edildi durumundaki kayıtlar geri çekilebilir.')
             rec.state = 'taslak'
 
     def action_onayla(self):
         for rec in self:
+            if rec.state != 'talep_edildi':
+                raise UserError('Yalnızca talep edildi durumundaki kayıtlar onaylanabilir.')
             rec.state = 'onaylandi'
 
     def action_reddet(self):
         for rec in self:
+            if rec.state != 'talep_edildi':
+                raise UserError('Yalnızca talep edildi durumundaki kayıtlar reddedilebilir.')
+            if not rec.red_gerekcesi:
+                raise UserError('Reddetmek için red gerekçesi doldurulmalıdır.')
             rec.state = 'reddedildi'
 
     def action_teslim_et(self):
         for rec in self:
+            if rec.state != 'onaylandi':
+                raise UserError('Yalnızca onaylanmış kayıtlar teslim edilebilir.')
             rec.state = 'teslim_edildi'
-            if not rec.fiili_baslangic:
-                rec.fiili_baslangic = fields.Date.context_today(self)
+            rec.fiili_baslangic = fields.Date.context_today(self)
 
     def action_iade_al(self):
         for rec in self:
+            if rec.state != 'teslim_edildi':
+                raise UserError('Yalnızca teslim edilmiş kayıtlar iade alınabilir.')
             rec.state = 'iade_edildi'
-            if not rec.fiili_bitis:
-                rec.fiili_bitis = fields.Date.context_today(self)
+            rec.fiili_bitis = fields.Date.context_today(self)
 
     def action_iptal(self):
         for rec in self:
+            if rec.state not in ['taslak', 'talep_edildi', 'onaylandi']:
+                raise UserError('Bu durumdaki bir kayıt iptal edilemez.')
             rec.state = 'iptal'
+
+    def write(self, vals):
+        restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis'}
+        if restricted_fields.intersection(vals.keys()):
+            for rec in self:
+                if rec.state != 'taslak':
+                    raise UserError('Taslak durumunda olmayan kayıtların cihaz ve planlanan tarih bilgileri değiştirilemez.')
+        return super().write(vals)
+
+    def unlink(self):
+        for rec in self:
+            if rec.state not in ['taslak', 'iptal']:
+                raise UserError('Yalnızca taslak veya iptal durumundaki kayıtlar silinebilir.')
+        return super().unlink()
