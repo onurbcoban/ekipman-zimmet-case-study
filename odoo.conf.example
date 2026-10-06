@@ -1,0 +1,9 @@
+[options]
+; Master password for database operations
+admin_passwd = super_secret_master_password
+db_host = False
+db_port = False
+db_user = your_db_user
+db_password = your_db_password
+; Addons path must include both core addons and this repository
+addons_path = /opt/odoo/addons,/path/to/ekipman-zimmet-case-study
