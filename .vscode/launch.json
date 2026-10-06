@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Odoo 18: Zimmet",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/odoo/odoo-bin",
+            "args": ["-c", "${workspaceFolder}/odoo.conf", "-d", "zimmet_db"],
+            "python": "${workspaceFolder}/venv/bin/python",
+            "console": "integratedTerminal"
+        }
+    ]
+}
