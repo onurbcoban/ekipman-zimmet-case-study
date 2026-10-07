@@ -16,11 +16,16 @@ class EkipmanCihaz(models.Model):
     )
     active = fields.Boolean(string='Aktif', default=True)
 
-    # A5 Kararı: zimmet_ids One2many ilişkisi
     zimmet_ids = fields.One2many(
         'ekipman.zimmet',
         'cihaz_id',
         string='Zimmet Kayıtları',
+    )
+    gecmis_zimmet_ids = fields.One2many(
+        'ekipman.zimmet',
+        'cihaz_id',
+        string='Geçmiş Zimmetler',
+        domain=[('state', 'in', ['teslim_edildi', 'iade_edildi'])],
     )
 
     # A3 ve E1 Kararları
@@ -65,15 +70,19 @@ class EkipmanCihaz(models.Model):
 
     @api.depends('zimmet_ids.state', 'zimmet_ids.planlanan_baslangic', 'zimmet_ids.planlanan_bitis')
     def _compute_dolu_tarihler(self):
+        today = fields.Date.context_today(self)
         for rec in self:
             bloklayanlar = rec.sudo().zimmet_ids.filtered(
                 lambda z: z.state in ('onaylandi', 'teslim_edildi') and z.planlanan_bitis
-            ).sorted(key=lambda z: z.planlanan_baslangic or fields.Date.context_today(self))
+            ).sorted(key=lambda z: z.planlanan_baslangic or today)
 
             satirlar = []
             for z in bloklayanlar:
-                if z.planlanan_baslangic and z.planlanan_bitis:
-                    satirlar.append(f"{z.planlanan_baslangic.strftime('%d.%m.%Y')} - {z.planlanan_bitis.strftime('%d.%m.%Y')}")
+                if z.planlanan_bitis >= today:
+                    if z.planlanan_baslangic and z.planlanan_bitis:
+                        satirlar.append(f"{z.planlanan_baslangic.strftime('%d.%m.%Y')} - {z.planlanan_bitis.strftime('%d.%m.%Y')}")
+                elif z.state == 'teslim_edildi' and z.planlanan_bitis < today:
+                    satirlar.append("Şu an elde, iade bekleniyor")
             rec.dolu_tarihler = "\n".join(satirlar) if satirlar else False
 
     def _compute_display_name(self):

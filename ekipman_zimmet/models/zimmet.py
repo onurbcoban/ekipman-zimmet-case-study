@@ -88,8 +88,15 @@ class EkipmanZimmet(models.Model):
             if vals.get('name', 'Yeni') == 'Yeni':
                 vals['name'] = self.env['ir.sequence'].next_by_code('ekipman.zimmet') or 'Yeni'
             if not self.env.su:
-                if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
-                    vals['calisan_id'] = self.env.user.employee_id.id
+                if not self.env.user.employee_id:
+                    raise UserError('Çalışan profiliniz bulunmuyor.')
+                user_emp_id = self.env.user.employee_id.id
+                if vals.get('calisan_id'):
+                    calisan_val = vals['calisan_id']
+                    calisan_val_id = calisan_val if isinstance(calisan_val, int) else getattr(calisan_val, 'id', calisan_val)
+                    if calisan_val_id != user_emp_id:
+                        raise UserError('Sadece kendi adınıza talep açabilirsiniz.')
+                vals['calisan_id'] = user_emp_id
                 vals['state'] = 'taslak'
         return super().create(vals_list)
 
@@ -201,11 +208,13 @@ class EkipmanZimmet(models.Model):
 
     def write(self, vals):
         if not self.env.su:
-            restricted_for_all = {'state', 'fiili_baslangic', 'fiili_bitis'}
+            restricted_for_all = {'state', 'fiili_baslangic', 'fiili_bitis', 'calisan_id'}
             if restricted_for_all.intersection(vals.keys()):
-                raise UserError('Durum ve fiili tarihler doğrudan güncellenemez.')
-                
-        restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis', 'calisan_id'}
+                raise UserError('Durum, çalışan ve fiili tarihler doğrudan güncellenemez.')
+            if 'red_gerekcesi' in vals and not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
+                raise UserError('Red gerekçesini yalnızca yetkililer düzenleyebilir.')
+
+        restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis'}
         if restricted_fields.intersection(vals.keys()):
             for rec in self:
                 if rec.state != 'taslak':

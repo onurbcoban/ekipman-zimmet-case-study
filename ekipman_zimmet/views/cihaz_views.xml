@@ -47,7 +47,7 @@
                             </group>
                         </page>
                         <page string="Zimmet Geçmişi" name="zimmet_gecmisi" groups="ekipman_zimmet.group_zimmet_yetkili">
-                            <field name="zimmet_ids" readonly="1" domain="[('state', 'in', ['teslim_edildi', 'iade_edildi'])]" groups="ekipman_zimmet.group_zimmet_yetkili">
+                            <field name="gecmis_zimmet_ids" readonly="1" groups="ekipman_zimmet.group_zimmet_yetkili">
                                 <list>
                                     <field name="name"/>
                                     <field name="calisan_id"/>
@@ -72,14 +72,16 @@
                 <field name="etiket_no"/>
                 <field name="seri_no"/>
                 <field name="kategori_id"/>
-                <field name="su_an_kimde_id"/>
+                <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                 <filter string="Şu an müsait" name="musait" domain="[('fiziksel_durum', '=', 'musait')]"/>
                 <filter string="Zimmetteki Cihazlar" name="zimmette" domain="[('fiziksel_durum', '=', 'zimmette')]"/>
+                <filter string="Şu An Kimde" name="su_an_kimde" domain="[('su_an_kimde_id', '!=', False)]" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                 <separator/>
                 <filter string="Arşivlenenler" name="archived" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Grupla">
                     <filter string="Kategori" name="group_kategori" context="{'group_by': 'kategori_id'}"/>
                     <filter string="Fiziksel Durum" name="group_fiziksel_durum" context="{'group_by': 'fiziksel_durum'}"/>
+                    <filter string="Şu An Kimde" name="group_su_an_kimde" context="{'group_by': 'su_an_kimde_id'}" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                 </group>
             </search>
         </field>

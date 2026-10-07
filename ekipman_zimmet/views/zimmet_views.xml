@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <list string="Zimmet Talepleri"
                   decoration-danger="state == 'teslim_edildi' and planlanan_bitis &lt; context_today().strftime('%Y-%m-%d')"
-                  decoration-warning="state == 'talep_edildi' and planlanan_baslangic &lt; context_today().strftime('%Y-%m-%d')"
+                  decoration-warning="state == 'onaylandi' and planlanan_bitis &lt; current_date"
                   decoration-info="state == 'talep_edildi'"
                   decoration-muted="state in ('iade_edildi', 'reddedildi', 'iptal')">
                 <field name="name"/>
@@ -33,10 +33,10 @@
                 <header>
                     <button name="action_gonder" string="Talep Et" type="object" class="oe_highlight" invisible="state != 'taslak'"/>
                     <button name="action_geri_cek" string="Geri Çek" type="object" invisible="state != 'talep_edildi'"/>
-                    <button name="action_onayla" string="Onayla" type="object" class="oe_highlight" invisible="state != 'talep_edildi'"/>
-                    <button name="action_reddet" string="Reddet" type="object" invisible="state != 'talep_edildi'"/>
-                    <button name="action_teslim_et" string="Teslim Et" type="object" class="oe_highlight" invisible="state != 'onaylandi'"/>
-                    <button name="action_iade_al" string="İade Al" type="object" class="oe_highlight" invisible="state != 'teslim_edildi'"/>
+                    <button name="action_onayla" string="Onayla" type="object" class="oe_highlight" invisible="state != 'talep_edildi'" groups="ekipman_zimmet.group_zimmet_yetkili"/>
+                    <button name="action_reddet" string="Reddet" type="object" invisible="state != 'talep_edildi'" groups="ekipman_zimmet.group_zimmet_yetkili"/>
+                    <button name="action_teslim_et" string="Teslim Et" type="object" class="oe_highlight" invisible="state != 'onaylandi'" groups="ekipman_zimmet.group_zimmet_yetkili"/>
+                    <button name="action_iade_al" string="İade Al" type="object" class="oe_highlight" invisible="state != 'teslim_edildi'" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                     <button name="action_iptal" string="İptal Et" type="object" invisible="state not in ('taslak', 'talep_edildi', 'onaylandi')"/>
                     <field name="state" widget="statusbar" statusbar_visible="taslak,talep_edildi,onaylandi,teslim_edildi,iade_edildi"/>
                 </header>
@@ -78,12 +78,14 @@
                 <field name="calisan_id"/>
                 <filter string="Taslak" name="taslak" domain="[('state', '=', 'taslak')]"/>
                 <filter string="Talep Edildi" name="talep_edildi" domain="[('state', '=', 'talep_edildi')]"/>
+                <filter string="Onay Bekleyenler" name="onay_bekleyenler" domain="[('state', '=', 'talep_edildi')]"/>
                 <filter string="Onaylandı" name="onaylandi" domain="[('state', '=', 'onaylandi')]"/>
+                <filter string="Teslim Bekleyenler" name="teslim_bekleyenler" domain="[('state', '=', 'onaylandi')]"/>
                 <filter string="Teslim Edildi" name="teslim_edildi" domain="[('state', '=', 'teslim_edildi')]"/>
                 <filter string="İade Edildi" name="iade_edildi" domain="[('state', '=', 'iade_edildi')]"/>
                 <separator/>
                 <filter string="Gecikenler" name="gecikenler" domain="[('state', '=', 'teslim_edildi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter string="Süresi Geçmiş Onaylar" name="suresi_gecmis_onaylar" domain="[('state', '=', 'talep_edildi'), ('planlanan_baslangic', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Süresi Geçmiş Onaylar" name="suresi_gecmis_onaylar" domain="[('state', '=', 'onaylandi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
                 <separator/>
                 <group expand="0" string="Grupla">
                     <filter string="Cihaz" name="group_cihaz" context="{'group_by': 'cihaz_id'}"/>

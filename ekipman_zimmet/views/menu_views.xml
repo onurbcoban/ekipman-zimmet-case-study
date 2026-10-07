@@ -17,7 +17,7 @@
         <field name="name">Onay Bekleyenler</field>
         <field name="res_model">ekipman.zimmet</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'talep_edildi')]</field>
+        <field name="context">{'search_default_onay_bekleyenler': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Onay bekleyen zimmet talebi bulunmamaktadır.
@@ -29,7 +29,7 @@
         <field name="name">Teslim Bekleyenler</field>
         <field name="res_model">ekipman.zimmet</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'onaylandi')]</field>
+        <field name="context">{'search_default_teslim_bekleyenler': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Teslim bekleyen zimmet kaydı bulunmamaktadır.
@@ -41,7 +41,7 @@
         <field name="name">Gecikenler</field>
         <field name="res_model">ekipman.zimmet</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'teslim_edildi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]</field>
+        <field name="context">{'search_default_gecikenler': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Geciken zimmet kaydı bulunmamaktadır.
@@ -53,7 +53,7 @@
         <field name="name">Süresi Geçmiş Onaylar</field>
         <field name="res_model">ekipman.zimmet</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'talep_edildi'), ('planlanan_baslangic', '&lt;', context_today().strftime('%Y-%m-%d'))]</field>
+        <field name="context">{'search_default_suresi_gecmis_onaylar': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Süresi geçmiş onay bekleyen zimmet kaydı bulunmamaktadır.
