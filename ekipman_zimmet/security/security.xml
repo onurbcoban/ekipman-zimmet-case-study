@@ -9,7 +9,7 @@
 
         <!-- Mühendis Grubu -->
         <record id="group_zimmet_muhendis" model="res.groups">
-            <field name="name">Mühendis / Talep Eden</field>
+            <field name="name">Mühendis</field>
             <field name="category_id" ref="module_category_ekipman_zimmet"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
