@@ -285,9 +285,9 @@ README özeti: Arayüz metinleri Türkçedir; çeviri altyapısı kapsam dışı
 ## G1 — Hazır ekipman modülü kullanılsın mı?
 Karar: Kendi modelimiz (`ekipman.cihaz`) kullanılır; Odoo'nun `maintenance` modülü genişletilmez.
 Alternatifler: `maintenance` modülünün ekipman modelini genişletmek.
-Gerekçe: [`maintenance` modelini incele ve doldur: ne yapar, ne yapmaz (tarih aralığı rezervasyonu, onay akışı)]
-Etkisi: Bağımlılıklar yalnızca `mail` ve `hr` kalır.
-README özeti: [İnceleme sonucuna göre bir cümle]
+Gerekçe: `maintenance.equipment` bir cihaz sicili ve bakım talebi modelidir (ad, seri no, model, konum, garanti ve hurda tarihi; `maintenance.request` ile bakım talepleri ve bakım ekipleri). `hr` ile birlikte kurulunca otomatik kurulan `hr_maintenance` köprüsü cihazı bir çalışana veya departmana atar (`employee_id`, `assign_date`). Ancak bu atama tek bir anlık alandır: tarih aralıklı rezervasyon, talep–onay akışı, çakışma kontrolü ve atama geçmişi yoktur. Genişletmek bu özelliklerin yine yazılmasını, üstüne bakım ekipleri ve bakım talepleri gibi gereksiz kavramların bağımlılık olarak gelmesini gerektirirdi; ayrıca mevcut `employee_id` alanı "şu an kimde" (E1) hesabıyla iki doğruluk kaynağı oluştururdu.
+Etkisi: Bağımlılıklar yalnızca `mail` ve `hr` kalır. Bakım süreci (bakım ekipleri, bakım talepleri, planlı bakım) gerekirse `maintenance` modülü kurulup cihaz modeli ona bağlanabilir.
+README özeti: Odoo'nun bakım modülü cihazı bir çalışana atamayı destekler ama tarih aralıklı rezervasyon, onay akışı ve atama geçmişi sunmadığı için kendi modelimiz kullanılmıştır.
 
 ## G2 — Kurulan modüller ve gerekçeleri
 Karar: Belgede istenen iki modülden başka modül kurulmaz: `mail` (Discuss; chatter ve durum izleme) ve `hr` (Employees; çalışan modeli).
