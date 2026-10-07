@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError, AccessError
 
 
 class EkipmanZimmet(models.Model):
@@ -76,8 +76,15 @@ class EkipmanZimmet(models.Model):
 
     @api.model
     def _default_calisan_id(self):
-        employee = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
-        return employee.id if employee else False
+        return self.env.user.employee_id.id or False
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+                vals['calisan_id'] = self.env.user.employee_id.id
+            vals['state'] = 'taslak'
+        return super().create(vals_list)
 
     @api.constrains('cihaz_id', 'planlanan_baslangic', 'planlanan_bitis', 'state')
     def _check_tarih_cakismasi(self):
@@ -111,29 +118,39 @@ class EkipmanZimmet(models.Model):
         for rec in self:
             if rec.state != 'taslak':
                 raise UserError('Yalnızca taslak durumundaki kayıtlar talep edilebilir.')
-            rec.state = 'talep_edildi'
+            if not self.env.user.has_group('ekipman_zimmet.group_yetkili') and rec.calisan_id.user_id != self.env.user:
+                raise UserError('Yalnızca kendi taleplerinizi iletebilirsiniz.')
+            rec.sudo().write({'state': 'talep_edildi'})
 
     def action_geri_cek(self):
         for rec in self:
             if rec.state != 'talep_edildi':
                 raise UserError('Yalnızca talep edildi durumundaki kayıtlar geri çekilebilir.')
-            rec.state = 'taslak'
+            if not self.env.user.has_group('ekipman_zimmet.group_yetkili') and rec.calisan_id.user_id != self.env.user:
+                raise UserError('Yalnızca kendi taleplerinizi geri çekebilirsiniz.')
+            rec.sudo().write({'state': 'taslak'})
 
     def action_onayla(self):
+        if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+            raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         for rec in self:
             if rec.state != 'talep_edildi':
                 raise UserError('Yalnızca talep edildi durumundaki kayıtlar onaylanabilir.')
-            rec.state = 'onaylandi'
+            rec.sudo().write({'state': 'onaylandi'})
 
     def action_reddet(self):
+        if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+            raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         for rec in self:
             if rec.state != 'talep_edildi':
                 raise UserError('Yalnızca talep edildi durumundaki kayıtlar reddedilebilir.')
             if not rec.red_gerekcesi:
                 raise UserError('Reddetmek için red gerekçesi doldurulmalıdır.')
-            rec.state = 'reddedildi'
+            rec.sudo().write({'state': 'reddedildi'})
 
     def action_teslim_et(self):
+        if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+            raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         for rec in self:
             if rec.state != 'onaylandi':
                 raise UserError('Yalnızca onaylanmış kayıtlar teslim edilebilir.')
@@ -142,23 +159,36 @@ class EkipmanZimmet(models.Model):
             if not (rec.planlanan_baslangic <= bugun <= rec.planlanan_bitis):
                 raise UserError('Teslimat yalnızca planlanan tarih aralığında yapılabilir. Erken veya süresi geçmiş teslimat yapılamaz.')
                 
-            rec.state = 'teslim_edildi'
-            rec.fiili_baslangic = bugun
+            rec.sudo().write({
+                'state': 'teslim_edildi',
+                'fiili_baslangic': bugun
+            })
 
     def action_iade_al(self):
+        if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+            raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         for rec in self:
             if rec.state != 'teslim_edildi':
                 raise UserError('Yalnızca teslim edilmiş kayıtlar iade alınabilir.')
-            rec.state = 'iade_edildi'
-            rec.fiili_bitis = fields.Date.context_today(self)
+            rec.sudo().write({
+                'state': 'iade_edildi',
+                'fiili_bitis': fields.Date.context_today(self)
+            })
 
     def action_iptal(self):
         for rec in self:
             if rec.state not in ['taslak', 'talep_edildi', 'onaylandi']:
                 raise UserError('Bu durumdaki bir kayıt iptal edilemez.')
-            rec.state = 'iptal'
+            if not self.env.user.has_group('ekipman_zimmet.group_yetkili') and rec.calisan_id.user_id != self.env.user:
+                raise UserError('Başkasının talebini iptal edemezsiniz.')
+            rec.sudo().write({'state': 'iptal'})
 
     def write(self, vals):
+        if not self.env.su:
+            restricted_for_all = {'state', 'fiili_baslangic', 'fiili_bitis'}
+            if restricted_for_all.intersection(vals.keys()):
+                raise UserError('Durum ve fiili tarihler doğrudan güncellenemez.')
+                
         restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis'}
         if restricted_fields.intersection(vals.keys()):
             for rec in self:
