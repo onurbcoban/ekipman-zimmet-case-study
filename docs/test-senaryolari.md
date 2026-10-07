@@ -3,7 +3,7 @@
 ## A Bölümü - Veri Modeli
 1. **Fiziksel durum hesaplaması:** Cihaz teslim edilince durum "Zimmette", iade alınınca "Şu an müsait" olur. Yalnızca `onaylandi` durumundaki kayıt fiziksel durumu değiştirmez (A3).
 2. **Çalışanı olmayan kullanıcı:** Bağlı çalışan kaydı olmayan kullanıcı talep açmaya çalışırsa `UserError` alır (A4).
-3. **Başkası adına talep:** Mühendis RPC ile başka bir çalışanı `calisan_id` olarak vererek talep oluşturmaya çalışırsa hata verir (A4, D3).
+3. **Başkası adına talep:** Mühendis RPC ile başka bir çalışanı `calisan_id` olarak vererek talep oluşturmaya çalışırsa hata verir; kendi çalışanını açıkça vererek oluşturursa kayıt oluşur. Oluşmuş kaydın `calisan_id` alanı RPC ile değiştirilemez (A4, D3, B8).
 4. **Silme kısıtı:** Geçmiş zimmet kaydı olan cihaz veya çalışan silinemez (A5).
 5. **Cihaz arşivleme:** Aktif zimmeti (`onaylandi` veya `teslim_edildi`) olan cihaz arşivlenemez; aktif zimmeti olmayan cihaz arşivlenebilir (A5).
 6. **Çalışan arşivleme:** Teslim edilmiş zimmeti olan çalışan arşivlenebilir; zimmet kayıtları korunur ve geciken listesinde görünmeye devam eder (A5).
@@ -15,7 +15,7 @@
 4. **Erken teslim:** Başlangıç tarihi henüz gelmemiş onaylı talep için "Teslim Et" `UserError` verir (B4).
 5. **Aralığı geçmiş onaylı teslim:** Bitiş tarihi geçmiş onaylı kayıt teslim edilmeye çalışılırsa `UserError` verilir (B4).
 6. **Teslim edilmiş kaydı iptal:** `teslim_edildi` durumundaki kayıt iptal edilmeye çalışılırsa hata verir; yalnızca iade alınabilir (B3).
-7. **Yetkisiz geçiş (RPC):** Mühendis, arayüzde gizlenen `action_onayla` veya `action_teslim_et` metotlarını RPC/Python shell ile çağırırsa rol kontrolünden hata alır (B8).
+7. **Yetkisiz geçiş (RPC):** Mühendis, arayüzde gizlenen `action_onayla` veya `action_teslim_et` metotlarını RPC/Python shell ile çağırırsa rol kontrolünden `AccessError` alır (B8).
 8. **Son durumdan çıkış:** `iade_edildi`, `reddedildi` veya `iptal` durumundaki kayıt tekrar bir aktif duruma geçirilemez (B5).
 9. **Geri çekme:** Mühendis bekleyen talebi geri çeker, düzenler ve tekrar gönderir (B5).
 10. **Onaylı talebi geri çekme:** `onaylandi` durumundaki kayıt geri çekilemez, hata verir (B5).
@@ -26,6 +26,8 @@
 15. **Onaylı kaydı değiştirme:** Onaylı kaydın cihazı veya tarihi RPC ile değiştirilmeye çalışılırsa hata verir (B5).
 16. **Chatter izlenebilirliği:** Onay sonrası chatter kaydında onaylayan kullanıcı görünür; geçişler `sudo()` ile yazılsa da kayıt gerçek kullanıcıyı gösterir (B7).
 17. **Reddedilen talep akışı:** Yetkili tarihi yanlış talebi gerekçeyle reddeder, mühendis doğru tarihlerle yeni talep açar (B2, B3).
+18. **Geçmiş tarihli talep:** Başlangıç tarihi bugünden önce olan taslak gönderilemez ve taslak kalır; bugün başlayan talep gönderilebilir. Taslak geçmiş tarihle kaydedilebilir, tarih düzeltilip gönderilir (B2).
+19. **Red gerekçesinin sunucu kontrolü:** Mühendis RPC ile `red_gerekcesi` yazamaz; yetkili de onaylanmış veya reddedilmiş bir talebin gerekçesini sonradan değiştiremez (B3, D5).
 
 ## C Bölümü - Çakışma ve Takvim Kontrolleri
 1. **İki çakışan bekleyen talep:** İlk onay geçer, ikincisi onaylanırken hata verir (C1, C2).
@@ -33,7 +35,7 @@
 3. **Erken iade:** İade edilen kayıt takvimi bloklamaz, kalan günler için yeni talep onaylanabilir (C1).
 4. **Gecikmiş cihaz:** Sonraki rezervasyon onaylanır, ancak "Teslim Et" aşamasında iade kaydı alınmadığı için hata verir (C4).
 5. **Onaylı kaydın tarihini değiştirme:** Arayüz veya RPC üzerinden çakışacak şekilde değiştirme B5 hatasıyla durur. `sudo` ortamında (Odoo shell) aynı değişiklik yapılırsa C2 `constrains` çakışmayı yakalar (C2).
-6. **Çakışma mesajı:** Yetkili çakışan bir onayı denediğinde hata mesajında çakışan kaydın referansı ve tarihleri görünür. Bloklayan duruma geçmeye çalışan mühendis B8 hatası alır (C6).
+6. **Çakışma mesajı:** Yetkili çakışan bir onayı denediğinde hata mesajında çakışan kaydın referansı ve tarihleri görünür. Bloklayan duruma geçmeye çalışan mühendis çakışma kontrolüne ulaşmadan rol kontrolünden yetki hatası alır (C6, B8).
 7. **Ters aralık:** Bitiş tarihi < başlangıç tarihi seçilirse hata verir (C3).
 8. **Kendi kaydını dışlama:** Onaylı bir kayıt, değişiklik yapılmadan tekrar kaydedildiğinde kendiyle çakışma hatası vermez (C2).
 
@@ -49,21 +51,21 @@
 2. **Geçmiş:** Cihaz geçmişinde yalnızca teslim edilmiş ve iade edilmiş kayıtlar görünür; reddedilen ve iptal edilenler görünmez (E2).
 3. **Geciken filtresi:** Teslim edilmiş ve bitişi geçmiş kayıt "Geciken" filtresinde ve menüsünde çıkar (E3).
 4. **Süresi geçmiş onay:** Bitişi geçmiş ve hiç teslim edilmemiş onaylı kayıt "Süresi geçmiş onay" filtresinde çıkar (E3).
-5. **Dolu tarihler:** Onaylı kaydın aralığı mühendisin formunda görünür, isim ve referans görünmez. Bekleyen talebin aralığı görünmez (E4).
+5. **Dolu tarihler:** Onaylı kaydın aralığı mühendisin formunda görünür, isim ve referans görünmez. Bekleyen talebin aralığı ve bitişi geçmiş aralıklar görünmez (E4).
 6. **Gecikmiş cihaz:** Gecikmiş cihaz dolu tarihlerde "şu an elde, iade bekleniyor" olarak görünür (E4).
 7. **Form görünürlüğü:** Dolu tarihler alanı talep formunda yalnızca taslak durumunda görünür (E4).
 ## F Bölümü - Ekranlar ve Menüler
-1. **Menü görünürlüğü:** Yetkili hesabında Zimmet Talepleri, Onay Bekleyenler, Teslim Bekleyenler, Geciken Zimmetler, Süresi Geçmiş Onaylar, Ekipmanlar ve Kategoriler görünür. Mühendis hesabında yalnızca Zimmet Talepleri ve Ekipmanlar görünür (F1).
-2. **Kuyruk içerikleri:** Onay Bekleyenler yalnızca `talep_edildi`, Teslim Bekleyenler yalnızca `onaylandi` kayıtları listeler (F1).
-3. **Buton görünürlüğü:** Taslakta sahibinde Gönder ve İptal; bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte Teslim Et; teslim edilmişte İade Al; kapalı durumlarda (iade, red, iptal) hiçbir buton görünmez (F2).
+1. **Menü görünürlüğü:** Yetkili hesabında Zimmet Talepleri, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Ekipmanlar ve Kategoriler görünür. Mühendis hesabında yalnızca Zimmet Talepleri ve Ekipmanlar görünür (F1).
+2. **Kuyruk içerikleri:** Onay Bekleyenler yalnızca `talep_edildi`, Teslim Bekleyenler yalnızca `onaylandi` kayıtları listeler. Kuyruk menüsü ilgili filtreyi arama çubuğunda etiket olarak açar; filtre kaldırılınca tüm kayıtlar görünür (F1).
+3. **Buton görünürlüğü:** Taslakta sahibinde Talep Et ve İptal Et; bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte yetkilide Teslim Et; teslim edilmişte yetkilide İade Al; kapalı durumlarda (iade, red, iptal) hiçbir buton görünmez. Yetkili başkasının taslağını açtığında Talep Et, bekleyen talebinde Geri Çek görünmez (F2).
 4. **Statusbar:** Statusbar'a tıklanarak durum değiştirilemez (F2, B8).
 5. **Çalışan alanı:** Talep formunda çalışan kullanıcının kendi adıyla dolu ve düzenlenemezdir (F2, A4).
 6. **Fiili tarihler:** Fiili tarih alanları taslakta ve onaylı durumda gizlidir, teslimden sonra salt okunur görünür (F2).
-7. **Red gerekçesi alanı:** Yalnızca yetkiye ve yalnızca bekleyen talepte düzenlenebilir; boşken Reddet hata verir (F2, B3).
-8. **Liste vurgusu:** Geciken satır kırmızı, süresi geçmiş onay sarı, kapalı durumlar soluk görünür; sıralama planlanan başlangıca göre azalandır (F3).
+7. **Red gerekçesi alanı:** Yalnızca yetkiye ve yalnızca bekleyen talepte düzenlenebilir; reddedilen talepte salt okunur görünür; boşken Reddet hata verir (F2, B3).
+8. **Liste vurgusu:** Geciken satır kırmızı, süresi geçmiş onay sarı, bekleyen talep mavi, kapalı durumlar soluk görünür; sıralama planlanan başlangıca göre azalandır (F3).
 9. **Ekipman ekranı:** Ekipman listesinde "şu an kimde" kolonu yetkide görünür, mühendiste görünmez. Ekipman formunda "Geçmiş" sekmesi yalnızca yetkide görünür (F4, D6).
 10. **Görünüm türleri:** Zimmet ve ekipman modelleri yalnızca liste ve form görünümü sunar; takvim, pivot ve kanban yoktur (F5).
-11. **Arama ve gruplama:** Referans, cihaz ve çalışana göre arama çalışır; Geciken ve Süresi geçmiş onay filtreleri doğru kayıtları getirir; cihaz, çalışan ve duruma göre gruplama çalışır (F6).
+11. **Arama ve gruplama:** Referans, cihaz ve çalışana göre arama çalışır; Onay Bekleyenler, Teslim Bekleyenler, Gecikenler ve Süresi Geçmiş Onaylar filtreleri doğru kayıtları getirir; cihaz, çalışan ve duruma göre gruplama çalışır (F6).
 12. **Arayüz dili:** Menüler, alan etiketleri, butonlar ve hata mesajları Türkçedir (F7).
 
 ## G Bölümü - Mimari ve Kurulum
@@ -85,6 +87,30 @@
 5. **Demo kapalı veritabanı:** Demo kapalı oluşturulan veritabanında modül kurulur; gruplar ve yapı gelir, senaryo kayıtları gelmez (H5).
 6. **Sunum akışı:** H6'daki beş adım sırayla hatasız tamamlanır; her adımda beklenen hata ve sonuçlar görülür (H6).
 7. **Çakışan talepler:** 3 ve 4 numaralı bekleyen talepten biri onaylanır, diğeri onaylanmaya çalışılınca çakışma hatası verir (H3, C2).
+8. **Gecikmiş cihazın teslim hatası:** 2 numaralı kaydın aralığı bugünü kapsar; yetkili "Teslim Et"e basınca hata teslim zamanlaması kuralından (B4) değil, cihaz hâlâ 1 numaralı kayıtta olduğu için C4'ten gelir ("Önce iade alınması gerekir") (H3, C4).
 
 ## Otomatik / elle ayrımı (G8)
-Aşağıdaki senaryolar Odoo test altyapısıyla otomatikleştirilecek çekirdektir: A/3, B/11, B/12, B/13, C/1, C/2, C/3, C/4. Diğerleri elle denenir.
+Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir.
+
+| Senaryo | Test |
+|---|---|
+| A/2 | `test_07_calisan_profili_olmayan_kullanici` |
+| A/3 | `test_06_baskasi_adina_talep_acma_engeli`, `test_08_calisan_id_degistirilemez`, `test_17_create_korumalari` |
+| B/1 | `test_12_erken_iade` (gönder, onayla, teslim et, iade al) |
+| B/2 | `test_01_tarih_cakismasi` (yetkili kendi talebini onaylar) |
+| B/3 | `test_02_red_gerekcesi` |
+| B/11 | `test_15_geri_cekme_yetkisi` |
+| B/12 | `test_03_unlink_kisiti`, `test_04_muhendis_taslak_unlink` |
+| B/13 | `test_14_state_dogrudan_yazilamaz` |
+| B/14 | `test_17_create_korumalari` |
+| B/16 | `test_20_chatter_onaylayani_gosterir` |
+| B/18 | `test_16_gecmis_tarihli_talep_gonderilemez` |
+| B/19 | `test_09_red_gerekcesi_yetki_kontrolu`, `test_18_red_gerekcesi_yalnizca_bekleyen_talepte` |
+| C/1 | `test_01_tarih_cakismasi` |
+| C/2 | `test_11_sinir_gunu` |
+| C/3 | `test_12_erken_iade` |
+| C/4 | `test_13_gecikmis_cihaz_teslim` |
+| E/2, E/6 | `test_10_gecmis_zimmet_ve_dolu_tarihler_overdue` |
+| E/5 | `test_05_dolu_tarihler_related` (kısmen: onaylı aralığın görünmesi) |
+| F/3 | `test_19_talep_sahibi_mi` (sahiplik alanı; butonların görünürlüğü elle denenir) |
+| F/5 | `test_17_create_korumalari` (form üzerinden oluşturmada çalışan alanı) |
