@@ -1,6 +1,5 @@
 from odoo import models, fields, api
-
-
+from odoo.exceptions import UserError
 class EkipmanCihaz(models.Model):
     _name = 'ekipman.cihaz'
     _description = 'Ekipman Cihazı'
@@ -67,16 +66,14 @@ class EkipmanCihaz(models.Model):
         today = fields.Date.context_today(self)
         for rec in self:
             bloklayanlar = rec.sudo().zimmet_ids.filtered(
-                lambda z: z.state in ('onaylandi', 'teslim_edildi')
+                lambda z: z.state in ('onaylandi', 'teslim_edildi') and z.planlanan_bitis and z.planlanan_bitis >= today
             ).sorted(key=lambda z: z.planlanan_baslangic or today)
 
             satirlar = []
             for z in bloklayanlar:
-                if z.state == 'teslim_edildi' and z.planlanan_bitis and z.planlanan_bitis < today:
-                    satirlar.append(f"{z.planlanan_baslangic} - {z.planlanan_bitis} (Şu an elde, iade bekleniyor)")
-                elif z.planlanan_bitis and z.planlanan_bitis >= today:
-                    satirlar.append(f"{z.planlanan_baslangic} - {z.planlanan_bitis}")
-            rec.dolu_tarihler = "\n".join(satirlar) if satirlar else "Müsait"
+                if z.planlanan_baslangic and z.planlanan_bitis:
+                    satirlar.append(f"{z.planlanan_baslangic.strftime('%d.%m.%Y')} - {z.planlanan_bitis.strftime('%d.%m.%Y')}")
+            rec.dolu_tarihler = "\n".join(satirlar) if satirlar else False
 
     def _compute_display_name(self):
         for rec in self:
@@ -84,3 +81,17 @@ class EkipmanCihaz(models.Model):
                 rec.display_name = f"[{rec.etiket_no}] {rec.name}"
             else:
                 rec.display_name = rec.name or rec.etiket_no or ''
+
+    def unlink(self):
+        for rec in self:
+            if rec.zimmet_ids:
+                raise UserError("Geçmiş zimmet kaydı olan cihaz silinemez, arşivleyiniz.")
+        return super().unlink()
+
+    def write(self, vals):
+        if vals.get('active') is False:
+            for rec in self:
+                aktif_zimmet = rec.zimmet_ids.filtered(lambda z: z.state in ('onaylandi', 'teslim_edildi'))
+                if aktif_zimmet:
+                    raise UserError("Aktif zimmeti olan cihaz arşivlenemez.")
+        return super().write(vals)
