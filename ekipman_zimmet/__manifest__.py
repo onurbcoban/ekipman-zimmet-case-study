@@ -5,7 +5,6 @@
     'author': 'Onur',
     'license': 'LGPL-3',
     'depends': [
-        'base',
         'mail',
         'hr',
     ],
