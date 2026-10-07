@@ -10,6 +10,7 @@
         'hr',
     ],
     'data': [
+        'security/security.xml',
         'security/ir.model.access.csv',
         'views/kategori_views.xml',
         'views/cihaz_views.xml',

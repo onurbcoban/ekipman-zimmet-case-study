@@ -1,4 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_ekipman_kategori_user,ekipman.kategori.user,model_ekipman_kategori,base.group_user,1,1,1,1
-access_ekipman_cihaz_user,ekipman.cihaz.user,model_ekipman_cihaz,base.group_user,1,1,1,1
-access_ekipman_zimmet_user,ekipman.zimmet.user,model_ekipman_zimmet,base.group_user,1,1,1,1
+access_ekipman_zimmet_muhendis,ekipman.zimmet.muhendis,model_ekipman_zimmet,ekipman_zimmet.group_muhendis,1,1,1,0
+access_ekipman_cihaz_muhendis,ekipman.cihaz.muhendis,model_ekipman_cihaz,ekipman_zimmet.group_muhendis,1,0,0,0
+access_ekipman_kategori_muhendis,ekipman.kategori.muhendis,model_ekipman_kategori,ekipman_zimmet.group_muhendis,1,0,0,0
+access_ekipman_zimmet_yetkili,ekipman.zimmet.yetkili,model_ekipman_zimmet,ekipman_zimmet.group_yetkili,1,1,1,1
+access_ekipman_cihaz_yetkili,ekipman.cihaz.yetkili,model_ekipman_cihaz,ekipman_zimmet.group_yetkili,1,1,1,1
+access_ekipman_kategori_yetkili,ekipman.kategori.yetkili,model_ekipman_kategori,ekipman_zimmet.group_yetkili,1,1,1,1

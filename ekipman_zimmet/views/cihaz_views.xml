@@ -10,7 +10,7 @@
                 <field name="kategori_id"/>
                 <field name="seri_no" optional="hide"/>
                 <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'musait'" decoration-warning="fiziksel_durum == 'zimmette'"/>
-                <field name="su_an_kimde_id"/>
+                <field name="su_an_kimde_id" groups="ekipman_zimmet.group_yetkili"/>
             </list>
         </field>
     </record>
@@ -36,7 +36,7 @@
                         </group>
                         <group>
                             <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'musait'" decoration-warning="fiziksel_durum == 'zimmette'"/>
-                            <field name="su_an_kimde_id"/>
+                            <field name="su_an_kimde_id" groups="ekipman_zimmet.group_yetkili"/>
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
@@ -46,8 +46,8 @@
                                 <field name="dolu_tarihler" readonly="1"/>
                             </group>
                         </page>
-                        <page string="Zimmet Geçmişi" name="zimmet_gecmisi">
-                            <field name="zimmet_ids" readonly="1">
+                        <page string="Zimmet Geçmişi" name="zimmet_gecmisi" groups="ekipman_zimmet.group_yetkili">
+                            <field name="zimmet_ids" readonly="1" groups="ekipman_zimmet.group_yetkili">
                                 <list>
                                     <field name="name"/>
                                     <field name="calisan_id"/>
