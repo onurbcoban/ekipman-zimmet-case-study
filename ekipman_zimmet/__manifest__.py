@@ -12,6 +12,7 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
+        'security/ir_rule.xml',
         'data/sequence.xml',
         'views/kategori_views.xml',
         'views/cihaz_views.xml',

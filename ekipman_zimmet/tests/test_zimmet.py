@@ -25,9 +25,11 @@ class TestZimmet(TransactionCase):
         
         # Test Çalışan 2 requires a separate user to test permission failures if needed, 
         # or we just let it fail. Let's create a separate user for it.
+        self.group_muhendis = self.env.ref('ekipman_zimmet.group_zimmet_muhendis')
         self.user2 = self.env['res.users'].create({
             'name': 'Test User 2',
             'login': 'testuser2',
+            'groups_id': [(6, 0, [self.env.ref('base.group_user').id, self.group_muhendis.id])],
         })
         self.employee2 = self.env['hr.employee'].create({
             'name': 'Test Çalışan 2',
@@ -97,3 +99,33 @@ class TestZimmet(TransactionCase):
         # unlink() metodu ile silmeye çalış, UserError fırlatıldığını doğrula.
         with self.assertRaises(UserError):
             zimmet.unlink()
+
+    def test_04_muhendis_taslak_unlink(self):
+        # Mühendis kullanıcısı kendi taslak talebini oluşturur ve silebilir
+        zimmet = self.env['ekipman.zimmet'].with_user(self.user2).create({
+            'cihaz_id': self.cihaz.id,
+            'planlanan_baslangic': date.today(),
+            'planlanan_bitis': date.today() + timedelta(days=5),
+        })
+        self.assertEqual(zimmet.state, 'taslak')
+        self.assertEqual(zimmet.calisan_id, self.employee2)
+        # Kendi taslak kaydını başarıyla silebilir
+        zimmet_id = zimmet.id
+        zimmet.unlink()
+        self.assertFalse(self.env['ekipman.zimmet'].browse(zimmet_id).exists())
+
+    def test_05_dolu_tarihler_related(self):
+        # Cihazın onaylanmış veya teslim edilmiş zimmeti varsa dolu_tarihler zimmet modelinde de görünür
+        zimmet = self.env['ekipman.zimmet'].create({
+            'cihaz_id': self.cihaz.id,
+            'calisan_id': self.employee1.id,
+            'planlanan_baslangic': date.today(),
+            'planlanan_bitis': date.today() + timedelta(days=5),
+            'state': 'taslak',
+        })
+        zimmet.action_gonder()
+        zimmet.action_onayla()
+        self.assertEqual(zimmet.state, 'onaylandi')
+        self.assertTrue(self.cihaz.dolu_tarihler)
+        self.assertEqual(zimmet.dolu_tarihler, self.cihaz.dolu_tarihler)
+

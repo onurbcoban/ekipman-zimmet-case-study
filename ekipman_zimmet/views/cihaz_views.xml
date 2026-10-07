@@ -10,7 +10,7 @@
                 <field name="kategori_id"/>
                 <field name="seri_no" optional="hide"/>
                 <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'musait'" decoration-warning="fiziksel_durum == 'zimmette'"/>
-                <field name="su_an_kimde_id" groups="ekipman_zimmet.group_yetkili"/>
+                <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
             </list>
         </field>
     </record>
@@ -36,7 +36,7 @@
                         </group>
                         <group>
                             <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'musait'" decoration-warning="fiziksel_durum == 'zimmette'"/>
-                            <field name="su_an_kimde_id" groups="ekipman_zimmet.group_yetkili"/>
+                            <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
@@ -46,8 +46,8 @@
                                 <field name="dolu_tarihler" readonly="1"/>
                             </group>
                         </page>
-                        <page string="Zimmet Geçmişi" name="zimmet_gecmisi" groups="ekipman_zimmet.group_yetkili">
-                            <field name="zimmet_ids" readonly="1" groups="ekipman_zimmet.group_yetkili">
+                        <page string="Zimmet Geçmişi" name="zimmet_gecmisi" groups="ekipman_zimmet.group_zimmet_yetkili">
+                            <field name="zimmet_ids" readonly="1" domain="[('state', 'in', ['teslim_edildi', 'iade_edildi'])]" groups="ekipman_zimmet.group_zimmet_yetkili">
                                 <list>
                                     <field name="name"/>
                                     <field name="calisan_id"/>
@@ -73,7 +73,7 @@
                 <field name="seri_no"/>
                 <field name="kategori_id"/>
                 <field name="su_an_kimde_id"/>
-                <filter string="Müsait Cihazlar" name="musait" domain="[('fiziksel_durum', '=', 'musait')]"/>
+                <filter string="Şu an müsait" name="musait" domain="[('fiziksel_durum', '=', 'musait')]"/>
                 <filter string="Zimmetteki Cihazlar" name="zimmette" domain="[('fiziksel_durum', '=', 'zimmette')]"/>
                 <separator/>
                 <filter string="Arşivlenenler" name="archived" domain="[('active', '=', False)]"/>

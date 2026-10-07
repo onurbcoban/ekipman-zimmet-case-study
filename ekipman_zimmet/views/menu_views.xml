@@ -12,6 +12,84 @@
               action="action_ekipman_zimmet"
               sequence="10"/>
 
+    <!-- Kuyruk Action'ları -->
+    <record id="action_ekipman_zimmet_onay_bekleyenler" model="ir.actions.act_window">
+        <field name="name">Onay Bekleyenler</field>
+        <field name="res_model">ekipman.zimmet</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'talep_edildi')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Onay bekleyen zimmet talebi bulunmamaktadır.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_ekipman_zimmet_teslim_bekleyenler" model="ir.actions.act_window">
+        <field name="name">Teslim Bekleyenler</field>
+        <field name="res_model">ekipman.zimmet</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'onaylandi')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Teslim bekleyen zimmet kaydı bulunmamaktadır.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_ekipman_zimmet_gecikenler" model="ir.actions.act_window">
+        <field name="name">Gecikenler</field>
+        <field name="res_model">ekipman.zimmet</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'teslim_edildi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Geciken zimmet kaydı bulunmamaktadır.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_ekipman_zimmet_suresi_gecmis_onaylar" model="ir.actions.act_window">
+        <field name="name">Süresi Geçmiş Onaylar</field>
+        <field name="res_model">ekipman.zimmet</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'talep_edildi'), ('planlanan_baslangic', '&lt;', context_today().strftime('%Y-%m-%d'))]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Süresi geçmiş onay bekleyen zimmet kaydı bulunmamaktadır.
+            </p>
+        </field>
+    </record>
+
+    <!-- Kuyruk Menüleri -->
+    <menuitem id="menu_ekipman_zimmet_onay_bekleyenler"
+              name="Onay Bekleyenler"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_zimmet_onay_bekleyenler"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
+              sequence="12"/>
+
+    <menuitem id="menu_ekipman_zimmet_teslim_bekleyenler"
+              name="Teslim Bekleyenler"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_zimmet_teslim_bekleyenler"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
+              sequence="14"/>
+
+    <menuitem id="menu_ekipman_zimmet_gecikenler"
+              name="Gecikenler"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_zimmet_gecikenler"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
+              sequence="16"/>
+
+    <menuitem id="menu_ekipman_zimmet_suresi_gecmis_onaylar"
+              name="Süresi Geçmiş Onaylar"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_zimmet_suresi_gecmis_onaylar"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
+              sequence="18"/>
+
     <menuitem id="menu_ekipman_cihaz"
               name="Ekipmanlar"
               parent="menu_ekipman_zimmet_root"
@@ -22,5 +100,6 @@
               name="Kategoriler"
               parent="menu_ekipman_zimmet_root"
               action="action_ekipman_kategori"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
               sequence="30"/>
 </odoo>

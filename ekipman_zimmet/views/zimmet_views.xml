@@ -5,7 +5,8 @@
         <field name="model">ekipman.zimmet</field>
         <field name="arch" type="xml">
             <list string="Zimmet Talepleri"
-                  decoration-danger="state == 'teslim_edildi' and planlanan_bitis &lt; current_date"
+                  decoration-danger="state == 'teslim_edildi' and planlanan_bitis &lt; context_today().strftime('%Y-%m-%d')"
+                  decoration-warning="state == 'talep_edildi' and planlanan_baslangic &lt; context_today().strftime('%Y-%m-%d')"
                   decoration-info="state == 'talep_edildi'"
                   decoration-muted="state in ('iade_edildi', 'reddedildi', 'iptal')">
                 <field name="name"/>
@@ -48,6 +49,7 @@
                     <group>
                         <group string="Talep Bilgileri">
                             <field name="cihaz_id" readonly="state != 'taslak'"/>
+                            <field name="dolu_tarihler" invisible="state != 'taslak'"/>
                             <field name="calisan_id" readonly="1"/>
                         </group>
                         <group string="Tarihler">
@@ -81,6 +83,7 @@
                 <filter string="İade Edildi" name="iade_edildi" domain="[('state', '=', 'iade_edildi')]"/>
                 <separator/>
                 <filter string="Gecikenler" name="gecikenler" domain="[('state', '=', 'teslim_edildi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Süresi Geçmiş Onaylar" name="suresi_gecmis_onaylar" domain="[('state', '=', 'talep_edildi'), ('planlanan_baslangic', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
                 <separator/>
                 <group expand="0" string="Grupla">
                     <filter string="Cihaz" name="group_cihaz" context="{'group_by': 'cihaz_id'}"/>

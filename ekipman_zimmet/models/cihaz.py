@@ -39,7 +39,7 @@ class EkipmanCihaz(models.Model):
         string='Şu An Kimde',
         compute='_compute_durum_ve_kimde',
         store=True,
-        groups="ekipman_zimmet.group_yetkili",
+        groups="ekipman_zimmet.group_zimmet_yetkili",
     )
 
     # E4 Kararı

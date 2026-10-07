@@ -38,6 +38,10 @@ class EkipmanZimmet(models.Model):
         ondelete='restrict',
         tracking=True,
     )
+    dolu_tarihler = fields.Text(
+        related='cihaz_id.dolu_tarihler',
+        string='Dolu Tarihler',
+    )
     calisan_id = fields.Many2one(
         'hr.employee',
         string='Çalışan',
@@ -84,7 +88,7 @@ class EkipmanZimmet(models.Model):
             if vals.get('name', 'Yeni') == 'Yeni':
                 vals['name'] = self.env['ir.sequence'].next_by_code('ekipman.zimmet') or 'Yeni'
             if not self.env.su:
-                if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+                if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
                     vals['calisan_id'] = self.env.user.employee_id.id
                 vals['state'] = 'taslak'
         return super().create(vals_list)
@@ -108,7 +112,7 @@ class EkipmanZimmet(models.Model):
                 ]
                 cakisan_kayitlar = self.sudo().search(domain)
                 if cakisan_kayitlar:
-                    if self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+                    if self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
                         raise ValidationError(f"{cakisan_kayitlar[0].name} referanslı kayıtla {cakisan_kayitlar[0].planlanan_baslangic} / {cakisan_kayitlar[0].planlanan_bitis} tarihleri arasında çakışıyor.")
                     else:
                         raise ValidationError(f"Seçilen tarihlerde ({rec.planlanan_baslangic} / {rec.planlanan_bitis}) bu cihaz doludur.")
@@ -143,7 +147,7 @@ class EkipmanZimmet(models.Model):
             rec.sudo().write({'state': 'taslak'})
 
     def action_onayla(self):
-        if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+        if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
             raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         for rec in self:
             if rec.state != 'talep_edildi':
@@ -151,7 +155,7 @@ class EkipmanZimmet(models.Model):
             rec.sudo().write({'state': 'onaylandi'})
 
     def action_reddet(self):
-        if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+        if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
             raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         for rec in self:
             if rec.state != 'talep_edildi':
@@ -161,7 +165,7 @@ class EkipmanZimmet(models.Model):
             rec.sudo().write({'state': 'reddedildi'})
 
     def action_teslim_et(self):
-        if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+        if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
             raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         for rec in self:
             if rec.state != 'onaylandi':
@@ -177,7 +181,7 @@ class EkipmanZimmet(models.Model):
             })
 
     def action_iade_al(self):
-        if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+        if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
             raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         for rec in self:
             if rec.state != 'teslim_edildi':
@@ -191,7 +195,7 @@ class EkipmanZimmet(models.Model):
         for rec in self:
             if rec.state not in ['taslak', 'talep_edildi', 'onaylandi']:
                 raise UserError('Bu durumdaki bir kayıt iptal edilemez.')
-            if not self.env.user.has_group('ekipman_zimmet.group_yetkili') and rec.calisan_id.user_id != self.env.user:
+            if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili') and rec.calisan_id.user_id != self.env.user:
                 raise UserError('Başkasının talebini iptal edemezsiniz.')
             rec.sudo().write({'state': 'iptal'})
 

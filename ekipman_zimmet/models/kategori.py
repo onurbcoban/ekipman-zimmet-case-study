@@ -7,4 +7,4 @@ class EkipmanKategori(models.Model):
     _order = 'name'
 
     name = fields.Char(string='Kategori Adı', required=True)
-    description = fields.Text(string='Açıklama')
+    description = fields.Text(string="Açıklama")
