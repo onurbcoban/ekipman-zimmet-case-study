@@ -135,7 +135,7 @@ class EkipmanZimmet(models.Model):
                     ('state', '=', 'teslim_edildi'),
                     ('id', '!=', rec.id),
                 ]
-                teslim_edilenler = self.search(domain)
+                teslim_edilenler = self.sudo().search(domain)
                 if teslim_edilenler:
                     raise ValidationError("Bu cihaz şu anda başka bir çalışana teslim edilmiş durumdadır. Önce iade alınması gerekir.")
 
