@@ -55,7 +55,7 @@
                             <field name="fiili_bitis" invisible="state in ('taslak', 'talep_edildi', 'onaylandi')" readonly="1"/>
                         </group>
                     </group>
-                    <group string="Red Gerekçesi" invisible="state != 'reddedildi' and not red_gerekcesi">
+                    <group string="Red Gerekçesi" invisible="state not in ('talep_edildi', 'reddedildi')">
                         <field name="red_gerekcesi" readonly="state != 'talep_edildi'"/>
                     </group>
                 </sheet>
