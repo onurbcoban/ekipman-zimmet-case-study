@@ -15,7 +15,7 @@ README özeti: Tek cihaz kuralı gereği 1:1 tablo ilişkisinden kaçınılarak 
 ## A2 — Tarih alanları ayrı mı tutulacak, veri tipi ne olacak?
 Karar: Planlanan ile fiili tarihler ayrı alanlarda tutulacak. `Date` tipi kullanılacak. Fiili tarihler arayüzde (readonly) düzenlemeye kapalı olacak ve butonlarla (`context_today(self)`) otomatik basılacak.
 Alternatifler: `Datetime` kullanmak veya fiili tarihleri elle düzeltmeye açmak.
-Gerekçe: `Date` tipi saat dilimi çakışma manipülasyonlarını önler. `context_today` ile kullanıcının saat dilimine göre "bugün" alınır (sunucu saati hatası önlenir). "İade etmeyi unutma" için geçmişe dönük elle düzeltme yetkisi kapsam dışı bırakılmıştır; iade kaydı geç basılırsa kayıttaki tarih gerçek tarihten geç olur.
+Gerekçe: `Datetime` UTC olarak saklanır ve gün sınırı kullanıcının saat dilimine göre kayar; `Date` ise gün bazlı bir kavramı doğrudan ifade eder. `context_today` ile kullanıcının saat dilimine göre "bugün" alınır (sunucu saati hatası önlenir). "İade etmeyi unutma" için geçmişe dönük elle düzeltme yetkisi kapsam dışı bırakılmıştır; iade kaydı geç basılırsa kayıttaki tarih gerçek tarihten geç olur.
 Etkisi: Arayüzde fiili tarihler `readonly` olacak; sunucu tarafında doğrudan yazma `write()` korumasıyla engellenir (B8). Python'da `context_today` çağrılacak.
 README özeti: Saat dilimi karmaşasını önlemek için gün bazlı `Date` kullanılmış, fiili tarihler yalnızca işlem butonlarıyla otomatik doldurulur; geçmişe dönük elle düzeltme yoktur.
 
@@ -30,7 +30,7 @@ README özeti: Her cihaz tekil kayıttır; fiziksel durum yalnızca cihazın şu
 Karar: Zimmet kaydı `hr.employee` modeline bağlanacak (`calisan_id`). Talep yalnızca giriş yapan kullanıcının kendi çalışan profili adına açılır; alan varsayılan olarak doldurulur ve düzenlenemez. Kullanıcının bağlı çalışanı yoksa talep açılamaz (`UserError`).
 Alternatifler: Zimmeti `res.users` hesabına bağlamak; başkası adına talebe izin vermek (D3).
 Gerekçe: `hr` modülü zorunlu kurulum olarak isteniyor ve çalışan, kişinin standart Odoo modelidir. Kullanıcısı olmayan personel için süreç eklenirse veri modeli değişmez.
-Etkisi: Sunucu tarafı doğrulama `create()`/`write()` içindedir (B8); `readonly` yalnızca arayüzdür (A2, D5).
+Etkisi: Sunucu tarafı kural (B8): `create`'te değer gönderilmezse ya da kullanıcının kendi çalışanı gönderilirse kayıt kullanıcının çalışanıyla oluşur, başka bir çalışan gönderilirse `UserError`; `write`'ta `calisan_id` `sudo` dışında hiç değiştirilemez. `readonly` yalnızca arayüzdür (A2, D5).
 README özeti: Zimmet çalışan profiline bağlanır; kullanıcı yalnızca kendi adına talep açabilir.
 
 ## A5 — Cihaz veya çalışan silinirse / arşivlenirse geçmiş kayıtlara ne olacak?
@@ -71,8 +71,8 @@ README özeti: Tablo olduğu gibi README'ye girer.
 Karar: Red gerekçesi zorunludur. Onaylanmış bir talebi talep sahibi de iptal edebilir. `teslim_edildi` durumundaki kayıt iptal edilemez, yalnızca iade alınır. Zimmet kaydı yalnızca `taslak` durumundayken silinebilir; gönderilmiş kayıtlar iptal edilir ve geçmişte kalır.
 Alternatifler: Red için wizard (açılır pencere); gerekçesiz red; kayıtların her durumda silinebilmesi.
 Gerekçe: Gerekçesiz red kullanıcıyı belirsizlikte bırakır. Wizard ek model demek, basit bir alan yeterli. Onaylı talebi sahibinin iptal edebilmesi, takvimi serbest bırakmanın en ucuz yoludur. Hiç gönderilmemiş taslağın denetim değeri yoktur, gönderilmiş kayıtlar ise izlenebilirlik için (A5) silinemez.
-Etkisi: İptal edilen onaylı talep takvimi bloklamaz (C1). Silme kontrolü `unlink()` içindedir (B8).
-Zayıf nokta: Gerekçe alanı butona basmadan önce elle doldurulmalıdır, kullanıcı deneyimi kabadır.
+Etkisi: İptal edilen onaylı talep takvimi bloklamaz (C1). Silme kontrolü `unlink()` içindedir (B8). `red_gerekcesi` alanına `write()` içinde yalnızca Yetkili grubu ve yalnızca `talep_edildi` durumunda yazabilir; karar verildikten sonra gerekçe değiştirilemez. Alan `sudo`'ya kısıtlanmaz, çünkü yetkili formdan normal yolla yazar.
+Zayıf nokta: Gerekçe, Reddet'e basmadan önce formda yazılmalıdır. Form butonları çalışmadan önce kaydı kaydettiği için bu aynı ekranda yapılır, ayrı pencere gerekmez; ancak alanın boş olduğu butona basınca fark edilir.
 README özeti: Reddedilen taleplerde gerekçe zorunludur; onaylı talep iptal edilirse takvim hemen serbest kalır; yalnızca taslak kayıtlar silinebilir.
 
 ## B4 — Teslim ve iade zamanlaması
@@ -106,7 +106,7 @@ Zayıf nokta: Bir yetkili kendi talebini denetimsiz onaylayabilir; denetim yaln�
 README özeti: Tıkanmayı önlemek için yetkili kendi talebini onaylayabilir; işlemler chatter'da izlenir.
 
 ## B8 — Geçişlerin uygulanışı ve izlenebilirlik
-Karar: Her geçiş metodu rol ve kaynak durumu kendisi kontrol eder, ardından yazmayı `sudo()` ile yapar. `write()` ve `create()`, `state`, fiili tarih ve `calisan_id` alanlarına yalnızca `sudo` ortamında (`self.env.su`) yazılmasına izin verir; arayüz veya RPC üzerinden doğrudan yazma `UserError` verir. Statusbar tıklanabilir yapılmaz. `mail.thread` ile `state` izlenir (`tracking=True`).
+Karar: Her geçiş metodu rol ve kaynak durumu kendisi kontrol eder, ardından yazmayı `sudo()` ile yapar. `sudo` ortamı (`self.env.su`) dışında: `write()` `state`, fiili tarih ve `calisan_id` alanlarına yazmayı `UserError` ile reddeder; `create()` `taslak` dışında bir `state` veya fiili tarih verilirse `UserError` verir, `calisan_id` için A4'teki kuralı uygular. `create`'te `state='taslak'` kabul edilir, çünkü web istemcisi yeni kayıtta durum çubuğundaki varsayılan değeri de gönderir (testle doğrulandı). Statusbar tıklanabilir yapılmaz. `mail.thread` ile `state` izlenir (`tracking=True`).
 Alternatifler: Yalnızca butonların `invisible` koşuluna güvenmek; context bayrağıyla yazma izni.
 Gerekçe: Buton gizlemek yetki sağlamaz. Mühendisin kendi kayıtlarında yazma hakkı olduğu için `write({'state': 'onaylandi'})` çağrısı metot kontrolünü atlar; aynısı `create` için de geçerlidir. Context bayrağı istemci tarafından gönderilebileceği için güvenilmez; `su` ortamı istemci tarafından ayarlanamaz.
 Etkisi: Geçiş metotları (`action_onayla` vb.) kendi içlerinde durum (`state != beklenen`) ve yetki (`has_group`) kontrolü yapar; ihlalde `UserError` fırlatır, ardından `rec.sudo().write(...)` kullanır.
@@ -143,9 +143,9 @@ README özeti: Onay planı, teslim ise cihazın fiziksel durumunu kontrol eder; 
 ## C5 — Uygulama yeri ve eşzamanlılık
 Karar: Çakışma kuralı Python `@api.constrains` ile uygulanır. PostgreSQL `EXCLUDE` kısıtı kapsam dışıdır; eşzamanlı onayda oluşabilecek yarış durumu bilinen sınırlama olarak belgelenir.
 Alternatifler: Yalnızca veritabanı kısıtı; onay anında cihaz kaydını kilitlemek.
-Gerekçe: Odoo veritabanı bağlantılarını `REPEATABLE_READ` (Tekrarlanabilir Okuma) yalıtım seviyesinde (isolation level) çalıştırır. Bu sebeple aynı anda onay tuşuna basan iki yetkili birbirinin değişikliğini göremez (race condition). Ancak bunu PostgreSQL seviyesinde engellemek için gereken `EXCLUDE` kısıtı, `btree_gist` eklentisi gerektirir. Odoo normalde süper kullanıcı olmayan bir veritabanı kullanıcısıyla çalışır, bu yüzden eklentiyi kuracak biri (veritabanı yöneticisi) gerekir ve bu durum modülün tak-çalıştır kurulumuna ek bir bağımlılık ekler.
-Etkisi: Yarış durumu gerçekleşse bile C4'teki tek-zimmet kuralı çifte fiziksel teslimi yine engeller. Yani yarış yalnızca çakışan iki onay üretebilir, iki fiziksel teslim değil. Bu sınırlama README'de yazılır.
-README özeti: Çakışma kontrolü Python tarafında yapılır; PostgreSQL eklenti kurulum zorluğu nedeniyle eşzamanlı onayda oluşabilecek yarış durumu bilinen sınırlama olarak kabul edilmiştir (ancak C4 kuralı çifte teslimi engeller).
+Gerekçe: Odoo işlemleri `REPEATABLE READ` yalıtım seviyesinde çalıştırır; aynı anda onaya basan iki yetkilinin işlemi birbirinin henüz kaydedilmemiş değişikliğini göremez ve iki Python kontrolü de geçebilir (yarış durumu). Bunu kesin olarak yalnızca veritabanı kısıtı engeller. Tarih çakışması için `EXCLUDE` kısıtı gerekir; `btree_gist` eklentisi olmadan da cihaz kimliği tek elemanlı bir aralık (`int4range`) olarak yazılarak kurulabilir. Eşzamanlı onayın bu ölçekte (birkaç yetkili, düşük işlem hacmi) nadir olması nedeniyle bu kısıt kapsam dışı bırakılmış, süre çekirdek gereksinimlere ayrılmıştır.
+Etkisi: C4'teki tek-zimmet kontrolü de Python'da olduğu için aynı yarışa teorik olarak açıktır. Pratikte iki eşzamanlı teslim aynı cihaz kaydındaki saklanan hesaplanan alanları (A3, E1) güncellemeye çalışacağından biri serileştirme hatası alıp yeniden denenebilir; ancak bu bir garanti olarak varsayılmaz. Sınırlama README'de yazılır.
+README özeti: Çakışma kontrolü Python tarafında yapılır; eşzamanlı onayda oluşabilecek yarış durumu, bu ölçekte nadir olduğu için bilinen sınırlama olarak kabul edilmiştir. Çözüm yolu (eklentisiz `EXCLUDE` kısıtı) belirlenmiştir.
 
 ## C6 — Çakışma mesajı ve görünürlük
 Karar: Çakışma sorgusu `sudo()` ile çalışır. Hata mesajında çakışan kaydın referansı ve tarihleri yalnızca yetkiliye gösterilir; diğer yollardan gelen çağrılar (ör. içe aktarma) için genel mesaj verilir.
@@ -158,7 +158,7 @@ README özeti: Çakışma kontrolü `sudo()` ile tüm kayıtlara bakar; ayrınt�
 Karar: İki grup: Mühendis (`group_zimmet_muhendis`) ve Yetkili (`group_zimmet_yetkili`). Yetkili, Mühendis'i kapsar (`implied_ids`); Mühendis standart iç kullanıcı grubunu kapsar.
 Alternatifler: Üçüncü bir "teslim sorumlusu" rolü; tek grup ve alan bazlı kontrol.
 Gerekçe: Belge iki rol istiyor (madde 8). Yetkili de kendi adına talep açabildiği için (B7) Mühendis haklarını kapsaması kural tekrarını önler.
-Etkisi: Menü ve model yetkileri bu iki gruba bağlanır. Demo verisinde yönetici kullanıcı da Yetkili grubuna eklenir, aksi halde menüleri görmeyebilir.
+Etkisi: Menü ve model yetkileri bu iki gruba bağlanır. Yönetici kullanıcı (`admin`) modül verisinde (`security.xml`) Yetkili grubuna eklenir, aksi halde menüleri görmeyebilir. Sistem hesabı (OdooBot) gruba eklenmez; testler kendi yetkili kullanıcısını oluşturur.
 README özeti: Mühendis kendi taleplerini yönetir, yetkili onay, teslim, iade ve ekipman yönetimini yapar; yetkili mühendis haklarını kapsar.
 
 ## D2 — Mühendisin görünürlüğü
@@ -216,11 +216,11 @@ README özeti: Şu an kimde bilgisi zimmet kayıtlarından hesaplanır ve saklan
 Karar: Ayrı log yok. Cihaz formunda zimmet kayıtlarının tarihe göre azalan listesi, varsayılan olarak yalnızca `teslim_edildi` ve `iade_edildi` kayıtları (gerçekten cihazı taşıyanlar). Tüm durumlar zimmet menüsünde filtreyle görülür. Çalışan tarafında "Zimmetler" butonu kapsam dışıdır. Sekme yalnızca Yetkili'ye açıktır (D6).
 Alternatifler: Ayrı geçmiş log modeli; yalnızca chatter kayıtları.
 Gerekçe: Aynı bilgiyi iki yerde tutmamak. Zimmet kayıtları zaten kimde olduğunun tarihçesidir.
-Etkisi: Mevcut `zimmet_ids` ilişkisi kullanılır.
+Etkisi: Cihaz modelinde, alan tanımında `domain` bulunan ayrı bir One2many (`gecmis_zimmet_ids`, yalnızca `teslim_edildi` ve `iade_edildi`) geçmiş sekmesinde gösterilir; tüm kayıtlar için `zimmet_ids` kullanılmaya devam eder.
 README özeti: Geçmiş ayrı bir log değil, cihazın zimmet kayıtlarının tarihçesidir.
 
 ## E3 — Gecikmiş ve süresi geçmiş onaylar
-Karar: İki arama filtresi: "Geciken" (`teslim_edildi` ve planlanan bitiş bugünden önce) ve "Süresi geçmiş onay" (`onaylandi` ve bitiş bugünden önce, B4). Yetkili için "Geciken Zimmetler" menüsü bu filtreyle açılır; listede geciken satırlar vurgulanır. Mühendis kendi gecikenlerini kendi listesinde filtreyle görür.
+Karar: İki arama filtresi: "Geciken" (`teslim_edildi` ve planlanan bitiş bugünden önce) ve "Süresi geçmiş onay" (`onaylandi` ve bitiş bugünden önce, B4). Yetkili için "Gecikenler" menüsü bu filtreyle (varsayılan arama filtresi olarak) açılır; listede geciken satırlar vurgulanır. Mühendis kendi gecikenlerini kendi listesinde filtreyle görür.
 Alternatifler: Saklanan gecikme alanı ve zamanlanmış görev; saklanmayan alan ve arama metodu.
 Gerekçe: B6 gereği gecikme türetilmiş bir koşuldur; filtre her zaman günceldir ve zamanlayıcı gerektirmez.
 Etkisi: Bildirim gönderilmez (kapsam dışı).
@@ -234,21 +234,21 @@ Etkisi: Yalnızca bloklayan durumlar gösterildiği için bekleyen talepler gör
 README özeti: Cihazın onaylı ve teslim edilmiş tarih aralıkları isimsiz olarak gösterilir; bekleyen talepler görünmez.
 
 ## F1 — Menü yapısı
-Karar: "Ekipman Zimmet" uygulaması altında: Zimmet Talepleri (herkes; mühendis kayıt kuralı gereği yalnızca kendi kayıtlarını görür); yalnızca yetkiye açık kuyruk menüleri: Onay Bekleyenler (`talep_edildi`), Teslim Bekleyenler (`onaylandi`), Geciken Zimmetler, Süresi Geçmiş Onaylar; Ekipmanlar (herkes okur); Kategoriler (yalnızca yetkili).
+Karar: "Ekipman Zimmet" uygulaması altında: Zimmet Talepleri (herkes; mühendis kayıt kuralı gereği yalnızca kendi kayıtlarını görür); yalnızca yetkiye açık kuyruk menüleri: Onay Bekleyenler (`talep_edildi`), Teslim Bekleyenler (`onaylandi`), Gecikenler, Süresi Geçmiş Onaylar; Ekipmanlar (herkes okur); Kategoriler (yalnızca yetkili). Kuyruk menüleri sabit `domain` yerine arama görünümündeki ilgili filtreyi varsayılan olarak açar (`search_default_*`).
 Alternatifler: Tek menü ve yalnızca filtreler; her durum için ayrı menü.
-Gerekçe: Kuyruk menüleri B2'deki geçiş tablosunu ekrana taşır ve yetkilinin günlük işini tek tıkla gösterir. Aynı görünümlerin farklı domain'lerle yeniden kullanılması maliyeti düşük tutar.
+Gerekçe: Kuyruk menüleri B2'deki geçiş tablosunu ekrana taşır ve yetkilinin günlük işini tek tıkla gösterir. Koşullar yalnızca arama filtrelerinde tanımlı olduğu için tek bir yerde tutulur (B6, E3); menü ve filtre birbirinden ayrışamaz. Filtre arama çubuğunda görünür, kullanıcı listenin neden süzüldüğünü görür.
 Etkisi: Birkaç `ir.actions.act_window` ve menü satırı; menü erişimi gruplara bağlanır (D1).
 README özeti: Yetkili için süreç adımlarına göre kuyruk menüleri, mühendis için tek bir kendi talepleri listesi vardır.
 
 ## F2 — Zimmet formu
-Karar: Üstte tıklanamayan statusbar (B8) ve durumlara göre görünen butonlar: Gönder ve Geri Çek (talep sahibi); Onayla, Reddet, Teslim Et, İade Al (yetkili); İptal (B2'ye göre). Gövdede: cihaz, çalışan (salt okunur), planlanan tarihler (yalnızca taslakta düzenlenebilir, B5), fiili tarihler (salt okunur, teslimden sonra görünür), red gerekçesi (yetkili, yalnızca bekleyen talepte), dolu tarihler (yalnızca taslakta, E4). Altta chatter (G6). Buton görünürlüğü `invisible` ifadeleriyle sağlanır; asıl yetki kontrolü metottadır (B8).
+Karar: Üstte tıklanamayan statusbar (B8) ve durumlara göre görünen butonlar: Talep Et ve Geri Çek (yalnızca talep sahibi); Onayla, Reddet, Teslim Et, İade Al (yalnızca yetkili, `groups`); İptal Et (B2'ye göre). Gövdede: cihaz, çalışan (salt okunur), planlanan tarihler (yalnızca taslakta düzenlenebilir, B5), fiili tarihler (salt okunur, teslimden sonra görünür), red gerekçesi (bekleyen talepte yetkili tarafından düzenlenebilir, reddedilen talepte salt okunur görünür), dolu tarihler (yalnızca taslakta, E4). Altta chatter (G6). Buton görünürlüğü `invisible` ve `groups` ile sağlanır; asıl yetki kontrolü metottadır (B8). Talep sahipliği, ekrana bakan kullanıcıya göre değiştiği için saklanmayan hesaplanan bir alanla (`talep_sahibi_mi`, `depends_context('uid')`) belirlenir.
 Alternatifler: Red için wizard (B3); tek bir "durumu değiştir" menüsü.
 Gerekçe: Her buton B2'deki bir geçişe karşılık gelir; formun yapısı tabloyu birebir yansıtır.
 Etkisi: Reddet butonu boş red gerekçesinde `UserError` verir (B3).
 README özeti: Form, geçiş tablosundaki her adımı bir buton olarak sunar; yetki kontrolü arayüzde değil sunucuda yapılır.
 
 ## F3 — Zimmet listesi
-Karar: Kolonlar: referans, cihaz, çalışan, planlanan başlangıç, planlanan bitiş, durum. Geciken satırlar kırmızı, süresi geçmiş onaylar sarı, kapalı durumlar (iade, red, iptal) soluk. Sıralama planlanan başlangıca göre azalan.
+Karar: Kolonlar: referans, cihaz, çalışan, planlanan başlangıç, planlanan bitiş, durum; fiili tarihler isteğe bağlı (varsayılan gizli). Geciken satırlar kırmızı, süresi geçmiş onaylar sarı, bekleyen talepler mavi, kapalı durumlar (iade, red, iptal) soluk. Sıralama planlanan başlangıca göre azalan.
 Alternatifler: Vurgusuz sade liste.
 Gerekçe: Vurgu E3'teki türetilmiş koşulları kullanır; yetkili gecikmeyi ayrı menüye girmeden görür.
 Etkisi: Liste satırı vurgu ifadeleri filtre koşullarıyla tutarlı olmalıdır.
@@ -269,7 +269,7 @@ Etkisi: Gerekirse tarih alanlarıyla bir takvim görünümü eklenir ve yetkiye 
 README özeti: Takvim, pivot ve kanban görünümleri kapsam dışıdır.
 
 ## F6 — Arama, filtre ve gruplama
-Karar: Arama alanları referans, cihaz, çalışan. Filtreler: durumlar, Geciken, Süresi geçmiş onay (E3). Gruplama: cihaz, çalışan, durum.
+Karar: Arama alanları referans, cihaz, çalışan. Filtreler: durumlar, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar (E3, F1). Gruplama: cihaz, çalışan, durum.
 Alternatifler: Kategoriye göre gruplama (ek saklanan alan gerektirir).
 Gerekçe: Gereksinimleri karşılayan en küçük küme.
 Etkisi: Filtreler E3 ile aynı koşulları kullanır.
@@ -304,7 +304,7 @@ Etkisi: Grup kimlikleri `group_zimmet_muhendis` ve `group_zimmet_yetkili`. Zimme
 README özeti: Odoo'nun kendi adları İngilizce, bizim eklediklerimiz Türkçe ASCII yazılmıştır.
 
 ## G4 — Dosya yapısı ve yükleme sırası
-Karar: `models/` (model başına bir dosya), `views/` (model başına bir dosya ve `menus.xml`), `security/` (`groups.xml`, `ir.model.access.csv`, `ir_rule.xml`), `data/`, `demo/`, `tests/`. Manifest'te `data` sırası: gruplar, erişim dosyası, kayıt kuralları, sıra numarası verisi, görünümler, menüler.
+Karar: `models/` (model başına bir dosya), `views/` (model başına bir dosya ve `menu_views.xml`), `security/` (`security.xml`, `ir.model.access.csv`, `ir_rule.xml`), `data/` (`sequence.xml`), `demo/`, `tests/`. Manifest'te `data` sırası: gruplar, erişim dosyası, kayıt kuralları, sıra numarası verisi, görünümler, menüler.
 Alternatifler: Tek dosyada toplamak.
 Gerekçe: Erişim dosyası ve kurallar gruplara, menüler görünümlerdeki action'lara başvurduğu için bu sıra zorunludur.
 Etkisi: Yanlış sırada yükleme "kayıt bulunamadı" hatası verir; kurulum notlarına yazılır.
@@ -318,7 +318,7 @@ Etkisi: `create()` override'ı (B8) sıra atamasını da yapar.
 README özeti: Her zimmet kaydına ardışık bir referans numarası verilir.
 
 ## G6 — Chatter ve izleme
-Karar: Yalnızca `mail.thread`; `state` izlenir. Aktivite mixin'i kullanılmaz.
+Karar: Yalnızca `mail.thread`; durum ile birlikte cihaz, çalışan, planlanan ve fiili tarihler ve red gerekçesi izlenir (`tracking=True`). Aktivite mixin'i kullanılmaz.
 Alternatifler: Aktivite ve bildirimler.
 Gerekçe: Bildirimler kapsam dışı (E3); izleme denetim ihtiyacını karşılıyor (B7).
 Etkisi: Geçişlerin kim tarafından yapıldığı chatter'dan okunur.
@@ -332,7 +332,7 @@ Etkisi: Aynı etiket no ikinci kez girilemez; hata mesajı anlaşılır yazılı
 README özeti: Her cihazın etiket numarası benzersizdir.
 
 ## G8 — Otomatik testler
-Karar: Mantık içeren çekirdek senaryolar Odoo test altyapısıyla otomatikleştirilir (tek dosya): çakışma ve sınır günü, erken iade, gecikmiş teslim, `state`'in doğrudan yazılması, geri çekme yetkisi, taslak silme, `create` çalışan kontrolü. Arayüz senaryoları elle denenir.
+Karar: Mantık içeren çekirdek senaryolar Odoo test altyapısıyla otomatikleştirilir (tek dosya, `tests/test_zimmet.py`): çakışma ve sınır günü, erken iade, gecikmiş teslim, `state`'in doğrudan yazılması, `create`'te durum ve fiili tarih verilmesi, geri çekme yetkisi, geçmiş tarihli talebin gönderilmesi, taslak silme, `create` ve `write`'ta çalışan kontrolü, red gerekçesinin yetki ve durum kontrolü, talep sahipliği alanı, dolu tarihler ve geçmiş listesi. Testler `self.env` (süper kullanıcı, korumaları atlar) yerine `with_user` ile gerçek mühendis ve yetkili kullanıcılarla çalışır. Arayüz senaryoları elle denenir.
 Alternatifler: Yalnızca elle test.
 Gerekçe: Bu testler aynı zamanda `env.su`, chatter kullanıcısı ve kayıt kuralı birleşimi gibi varsayımların doğrulamasıdır.
 Etkisi: Zaman daralırsa ilk elenecek kalemdir.
@@ -372,7 +372,7 @@ Karar: Aşağıdaki 12 kayıt, bugüne göre göreli tarihlerle oluşturulur (G 
 | # | Cihaz | Çalışan | Durum | Planlanan aralık | Gösterdiği |
 |---|---|---|---|---|---|
 | 1 | OSC-001 | Defne | teslim_edildi | G-10 … G-3 | Geciken zimmet (E3), "kimde" (E1), "şu an elde" (E4) |
-| 2 | OSC-001 | Tuna | onaylandi | G+2 … G+6 | Gecikme onayı bloklamaz, teslim hata verir (C4) |
+| 2 | OSC-001 | Tuna | onaylandi | G … G+4 | Gecikme onayı bloklamaz; aralık bugünü kapsadığı halde teslim, cihaz hâlâ 1'de olduğu için hata verir (C4) |
 | 3 | LTP-001 | Tuna | talep_edildi | G+3 … G+7 | Çakışan bekleyen talep 1 (C1, C2) |
 | 4 | LTP-001 | Işıl | talep_edildi | G+5 … G+9 | Çakışan bekleyen talep 2: biri onaylanınca diğeri hata verir |
 | 5 | SPK-001 | Defne | iade_edildi | G-25 … G-20 | Geçmiş (E2) |
@@ -386,7 +386,7 @@ Karar: Aşağıdaki 12 kayıt, bugüne göre göreli tarihlerle oluşturulur (G 
 
 Fiili tarihler: 1 için G-10 başlangıç; 5 için G-25 / G-21; 6 için G-12 / G-9; 7 için G-2 başlangıç. 9 numaralı kayıtta red gerekçesi: "Aynı tarihlerde başka bir talep onaylandı; lütfen farklı tarihlerle yeniden talep açın."
 Alternatifler: Yalnızca birkaç sade kayıt; sabit tarihli kayıtlar.
-Gerekçe: Her kayıt bir gereksinimi veya kararı canlı gösterir; yukarıdaki tablo sunumdaki demo akışının iskeletidir. Bloklayan durumdaki kayıtlar birbiriyle çakışmaz, çakışan taleplerin ikisi de bekleyen durumdadır.
+Gerekçe: Her kayıt bir gereksinimi veya kararı canlı gösterir; yukarıdaki tablo sunumdaki demo akışının iskeletidir. Bloklayan durumdaki kayıtlar birbiriyle çakışmaz, çakışan taleplerin ikisi de bekleyen durumdadır. Teslim hatası gösterecek kaydın (2) aralığı bugünü kapsar; aksi halde hata, gösterilmek istenen kuraldan (C4) değil teslim zamanlaması kuralından (B4) gelirdi.
 Etkisi: Demo kayıtları durumlarıyla doğrudan oluşturulur; bu `create()` korumasından (B8) yalnızca `sudo` ortamında, yani veri yüklemesinde geçer.
 README özeti: Demo veri, her biri bir gereksinimi gösteren on iki zimmet kaydı içerir (çakışma, gecikme, red, geçmiş, canlı akış).
 
@@ -424,7 +424,7 @@ README özeti: Demo hesaplarıyla sunum akışı README'de adım adım verilir.
 ### Bilinen sınırlamalar
 - İade kaydı geç basılırsa kayıttaki tarih gerçek tarihten geç olur; geçmişe dönük düzeltme yok (A2)
 - Ardışık zimmetler arasında en az bir gün boşluk kalır (C3)
-- Eşzamanlı onayda çakışan iki onay oluşabilir; çifte fiziksel teslim engellenir (C5)
+- Eşzamanlı onayda çakışan iki onay oluşabilir; veritabanı kısıtı kapsam dışıdır, çözüm yolu belirlenmiştir (C5)
 - Bekleyen talepler dolu tarihlerde görünmez, mühendis müsaitliği talep açmadan önce eksiksiz göremez (E4)
 - Üzerinde cihaz olan çalışanın arşivlenmesi engellenmez (A5)
 - Onay sonrası çakışan talepler otomatik reddedilmez (C1)
