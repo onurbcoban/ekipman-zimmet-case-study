@@ -15,6 +15,7 @@ class TestZimmet(TransactionCase):
             'name': 'Test Cihaz',
             'kategori_id': self.kategori.id,
             'seri_no': 'TEST-001',
+            'etiket_no': 'ETK-001',
         })
         
         self.employee1 = self.env['hr.employee'].create({
