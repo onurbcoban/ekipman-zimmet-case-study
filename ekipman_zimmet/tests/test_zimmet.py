@@ -296,3 +296,8 @@ class TestZimmet(TransactionCase):
         with self.assertRaises(UserError):
             zimmet.with_user(self.user_yetkili).write({'red_gerekcesi': 'Sonradan eklenen gerekçe'})
 
+    def test_19_talep_sahibi_mi(self):
+        zimmet = self._talep(self.user2, 0, 3)
+        self.assertTrue(zimmet.talep_sahibi_mi)
+        self.assertFalse(zimmet.with_user(self.user_yetkili).talep_sahibi_mi)
+

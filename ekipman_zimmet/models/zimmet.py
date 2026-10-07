@@ -77,6 +77,13 @@ class EkipmanZimmet(models.Model):
         copy=False,
         tracking=True,
     )
+    talep_sahibi_mi = fields.Boolean(compute='_compute_talep_sahibi_mi')
+
+    @api.depends('calisan_id.user_id')
+    @api.depends_context('uid')
+    def _compute_talep_sahibi_mi(self):
+        for rec in self:
+            rec.talep_sahibi_mi = rec.calisan_id.user_id == self.env.user
 
     @api.model
     def _default_calisan_id(self):
