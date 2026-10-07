@@ -15,8 +15,10 @@
             <field name="cihaz_id" ref="cihaz_osc_001"/>
             <field name="calisan_id" ref="employee_tuna_akgun"/>
             <field name="state">onaylandi</field>
-            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
-            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=6)).strftime('%Y-%m-%d')"/>
+            <!-- Aralık bugünü kapsar: teslim denemesindeki hata tarih kuralından değil,
+                 cihazın hâlâ 1 numaralı kayıtta olmasından (C4) gelmeli. -->
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=4)).strftime('%Y-%m-%d')"/>
         </record>
         <!-- 3 -->
         <record id="zimmet_demo_3" model="ekipman.zimmet">
