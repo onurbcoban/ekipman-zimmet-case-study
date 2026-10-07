@@ -83,9 +83,10 @@ class EkipmanZimmet(models.Model):
         for vals in vals_list:
             if vals.get('name', 'Yeni') == 'Yeni':
                 vals['name'] = self.env['ir.sequence'].next_by_code('ekipman.zimmet') or 'Yeni'
-            if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
-                vals['calisan_id'] = self.env.user.employee_id.id
-            vals['state'] = 'taslak'
+            if not self.env.su:
+                if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+                    vals['calisan_id'] = self.env.user.employee_id.id
+                vals['state'] = 'taslak'
         return super().create(vals_list)
 
     @api.constrains('planlanan_baslangic', 'planlanan_bitis')
@@ -108,9 +109,9 @@ class EkipmanZimmet(models.Model):
                 cakisan_kayitlar = self.sudo().search(domain)
                 if cakisan_kayitlar:
                     if self.env.user.has_group('ekipman_zimmet.group_yetkili'):
-                        raise ValidationError(f"{cakisan_kayitlar[0].name} referanslı onaylanmış veya teslim edilmiş bir kayıtla çakışıyor.")
+                        raise ValidationError(f"{cakisan_kayitlar[0].name} referanslı kayıtla {cakisan_kayitlar[0].planlanan_baslangic} / {cakisan_kayitlar[0].planlanan_bitis} tarihleri arasında çakışıyor.")
                     else:
-                        raise ValidationError("Seçilen tarihlerde bu cihaz doludur.")
+                        raise ValidationError(f"Seçilen tarihlerde ({rec.planlanan_baslangic} / {rec.planlanan_bitis}) bu cihaz doludur.")
 
     @api.constrains('cihaz_id', 'state')
     def _check_fiziksel_teslim(self):
@@ -125,11 +126,11 @@ class EkipmanZimmet(models.Model):
                 if teslim_edilenler:
                     raise ValidationError("Bu cihaz şu anda başka bir çalışana teslim edilmiş durumdadır. Önce iade alınması gerekir.")
 
-    def action_talep_et(self):
+    def action_gonder(self):
         for rec in self:
             if rec.state != 'taslak':
                 raise UserError('Yalnızca taslak durumundaki kayıtlar talep edilebilir.')
-            if not self.env.user.has_group('ekipman_zimmet.group_yetkili') and rec.calisan_id.user_id != self.env.user:
+            if rec.calisan_id.user_id != self.env.user:
                 raise UserError('Yalnızca kendi taleplerinizi iletebilirsiniz.')
             rec.sudo().write({'state': 'talep_edildi'})
 
@@ -137,7 +138,7 @@ class EkipmanZimmet(models.Model):
         for rec in self:
             if rec.state != 'talep_edildi':
                 raise UserError('Yalnızca talep edildi durumundaki kayıtlar geri çekilebilir.')
-            if not self.env.user.has_group('ekipman_zimmet.group_yetkili') and rec.calisan_id.user_id != self.env.user:
+            if rec.calisan_id.user_id != self.env.user:
                 raise UserError('Yalnızca kendi taleplerinizi geri çekebilirsiniz.')
             rec.sudo().write({'state': 'taslak'})
 
@@ -200,7 +201,7 @@ class EkipmanZimmet(models.Model):
             if restricted_for_all.intersection(vals.keys()):
                 raise UserError('Durum ve fiili tarihler doğrudan güncellenemez.')
                 
-        restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis'}
+        restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis', 'calisan_id'}
         if restricted_fields.intersection(vals.keys()):
             for rec in self:
                 if rec.state != 'taslak':
@@ -209,6 +210,6 @@ class EkipmanZimmet(models.Model):
 
     def unlink(self):
         for rec in self:
-            if rec.state not in ['taslak', 'iptal']:
-                raise UserError('Yalnızca taslak veya iptal durumundaki kayıtlar silinebilir.')
+            if rec.state != 'taslak':
+                raise UserError('Yalnızca taslak durumundaki kayıtlar silinebilir.')
         return super().unlink()

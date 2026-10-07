@@ -30,7 +30,7 @@
         <field name="arch" type="xml">
             <form string="Zimmet">
                 <header>
-                    <button name="action_talep_et" string="Talep Et" type="object" class="oe_highlight" invisible="state != 'taslak'"/>
+                    <button name="action_gonder" string="Talep Et" type="object" class="oe_highlight" invisible="state != 'taslak'"/>
                     <button name="action_geri_cek" string="Geri Çek" type="object" invisible="state != 'talep_edildi'"/>
                     <button name="action_onayla" string="Onayla" type="object" class="oe_highlight" invisible="state != 'talep_edildi'"/>
                     <button name="action_reddet" string="Reddet" type="object" invisible="state != 'talep_edildi'"/>

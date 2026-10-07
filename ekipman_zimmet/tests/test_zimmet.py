@@ -20,10 +20,18 @@ class TestZimmet(TransactionCase):
         
         self.employee1 = self.env['hr.employee'].create({
             'name': 'Test Çalışan 1',
+            'user_id': self.env.user.id,
         })
         
+        # Test Çalışan 2 requires a separate user to test permission failures if needed, 
+        # or we just let it fail. Let's create a separate user for it.
+        self.user2 = self.env['res.users'].create({
+            'name': 'Test User 2',
+            'login': 'testuser2',
+        })
         self.employee2 = self.env['hr.employee'].create({
             'name': 'Test Çalışan 2',
+            'user_id': self.user2.id,
         })
 
     def test_01_tarih_cakismasi(self):
@@ -35,7 +43,7 @@ class TestZimmet(TransactionCase):
             'planlanan_bitis': date.today() + timedelta(days=10),
             'state': 'taslak'
         })
-        zimmet1.action_talep_et()
+        zimmet1.action_gonder()
         zimmet1.action_onayla()
         self.assertEqual(zimmet1.state, 'onaylandi')
 
@@ -47,11 +55,14 @@ class TestZimmet(TransactionCase):
             'planlanan_bitis': date.today() + timedelta(days=15),
             'state': 'taslak'
         })
-        zimmet2.action_talep_et()
         
-        # Onaylamaya çalış, ValidationError fırlatıldığını doğrula
+        # Test Çalışan 2 (user2) işlemi yapmalı
+        zimmet2 = zimmet2.with_user(self.user2)
+        zimmet2.action_gonder()
+        
+        # Onaylamaya çalış (yetkili admin onaylayabilir), ValidationError fırlatıldığını doğrula
         with self.assertRaises(ValidationError):
-            zimmet2.action_onayla()
+            zimmet2.with_user(self.env.user).action_onayla()
 
     def test_02_red_gerekcesi(self):
         # Durumu talep_edildi olan bir kayıt oluştur.
@@ -62,7 +73,7 @@ class TestZimmet(TransactionCase):
             'planlanan_bitis': date.today() + timedelta(days=10),
             'state': 'taslak'
         })
-        zimmet.action_talep_et()
+        zimmet.action_gonder()
         self.assertEqual(zimmet.state, 'talep_edildi')
 
         # red_gerekcesi boşken action_reddet() metodunu çağır, UserError fırlatıldığını doğrula.
@@ -79,7 +90,7 @@ class TestZimmet(TransactionCase):
             'planlanan_bitis': date.today() + timedelta(days=10),
             'state': 'taslak'
         })
-        zimmet.action_talep_et()
+        zimmet.action_gonder()
         zimmet.action_onayla()
         self.assertEqual(zimmet.state, 'onaylandi')
 

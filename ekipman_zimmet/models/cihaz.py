@@ -39,6 +39,7 @@ class EkipmanCihaz(models.Model):
         string='Şu An Kimde',
         compute='_compute_durum_ve_kimde',
         store=True,
+        groups="ekipman_zimmet.group_yetkili",
     )
 
     # E4 Kararı
@@ -62,12 +63,12 @@ class EkipmanCihaz(models.Model):
                 rec.fiziksel_durum = 'musait'
                 rec.su_an_kimde_id = False
 
+    @api.depends('zimmet_ids.state', 'zimmet_ids.planlanan_baslangic', 'zimmet_ids.planlanan_bitis')
     def _compute_dolu_tarihler(self):
-        today = fields.Date.context_today(self)
         for rec in self:
             bloklayanlar = rec.sudo().zimmet_ids.filtered(
-                lambda z: z.state in ('onaylandi', 'teslim_edildi') and z.planlanan_bitis and z.planlanan_bitis >= today
-            ).sorted(key=lambda z: z.planlanan_baslangic or today)
+                lambda z: z.state in ('onaylandi', 'teslim_edildi') and z.planlanan_bitis
+            ).sorted(key=lambda z: z.planlanan_baslangic or fields.Date.context_today(self))
 
             satirlar = []
             for z in bloklayanlar:
