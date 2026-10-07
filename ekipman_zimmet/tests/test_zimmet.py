@@ -18,13 +18,20 @@ class TestZimmet(TransactionCase):
             'etiket_no': 'ETK-001',
         })
         
+        # Testlerdeki yetkili kullanıcı. self.env süper kullanıcı (env.su) olduğu için
+        # write/create korumalarını atlar; yetki gerektiren adımlar bu kullanıcıyla yapılır.
+        self.group_yetkili = self.env.ref('ekipman_zimmet.group_zimmet_yetkili')
+        self.user_yetkili = self.env['res.users'].create({
+            'name': 'Test Yetkili',
+            'login': 'testyetkili',
+            'groups_id': [(6, 0, [self.env.ref('base.group_user').id, self.group_yetkili.id])],
+        })
         self.employee1 = self.env['hr.employee'].create({
             'name': 'Test Çalışan 1',
-            'user_id': self.env.user.id,
+            'user_id': self.user_yetkili.id,
         })
-        
-        # Test Çalışan 2 requires a separate user to test permission failures if needed, 
-        # or we just let it fail. Let's create a separate user for it.
+
+        # Mühendis kullanıcısı
         self.group_muhendis = self.env.ref('ekipman_zimmet.group_zimmet_muhendis')
         self.user2 = self.env['res.users'].create({
             'name': 'Test User 2',
@@ -38,12 +45,11 @@ class TestZimmet(TransactionCase):
 
     def test_01_tarih_cakismasi(self):
         # Bir zimmet kaydını oluşturup onaylandi yap
-        zimmet1 = self.env['ekipman.zimmet'].create({
+        zimmet1 = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
             'planlanan_baslangic': date.today(),
             'planlanan_bitis': date.today() + timedelta(days=10),
-            'state': 'taslak'
         })
         zimmet1.action_gonder()
         zimmet1.action_onayla()
@@ -54,22 +60,20 @@ class TestZimmet(TransactionCase):
             'cihaz_id': self.cihaz.id,
             'planlanan_baslangic': date.today() + timedelta(days=5),
             'planlanan_bitis': date.today() + timedelta(days=15),
-            'state': 'taslak'
         })
         zimmet2.action_gonder()
         
-        # Onaylamaya çalış (yetkili admin onaylayabilir), ValidationError fırlatıldığını doğrula
+        # Yetkili onaylamaya çalışır, ValidationError fırlatıldığını doğrula
         with self.assertRaises(ValidationError):
-            zimmet2.with_user(self.env.user).action_onayla()
+            zimmet2.with_user(self.user_yetkili).action_onayla()
 
     def test_02_red_gerekcesi(self):
         # Durumu talep_edildi olan bir kayıt oluştur.
-        zimmet = self.env['ekipman.zimmet'].create({
+        zimmet = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
             'planlanan_baslangic': date.today(),
             'planlanan_bitis': date.today() + timedelta(days=10),
-            'state': 'taslak'
         })
         zimmet.action_gonder()
         self.assertEqual(zimmet.state, 'talep_edildi')
@@ -81,12 +85,11 @@ class TestZimmet(TransactionCase):
 
     def test_03_unlink_kisiti(self):
         # Durumu onaylandi olan bir kaydı oluştur
-        zimmet = self.env['ekipman.zimmet'].create({
+        zimmet = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
             'planlanan_baslangic': date.today(),
             'planlanan_bitis': date.today() + timedelta(days=10),
-            'state': 'taslak'
         })
         zimmet.action_gonder()
         zimmet.action_onayla()
@@ -112,12 +115,11 @@ class TestZimmet(TransactionCase):
 
     def test_05_dolu_tarihler_related(self):
         # Cihazın onaylanmış veya teslim edilmiş zimmeti varsa dolu_tarihler zimmet modelinde de görünür
-        zimmet = self.env['ekipman.zimmet'].create({
+        zimmet = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
             'planlanan_baslangic': date.today(),
             'planlanan_bitis': date.today() + timedelta(days=5),
-            'state': 'taslak',
         })
         zimmet.action_gonder()
         zimmet.action_onayla()
@@ -166,22 +168,22 @@ class TestZimmet(TransactionCase):
             'planlanan_baslangic': date.today(),
             'planlanan_bitis': date.today() + timedelta(days=5),
         })
+        zimmet.action_gonder()  # red gerekçesi bekleyen talepte anlamlıdır (F2)
         with self.assertRaises(UserError):
             zimmet.with_user(self.user2).write({'red_gerekcesi': 'Yetkisiz red'})
 
         # Yetkili kullanıcı red gerekçesi yazabilir
-        zimmet.with_user(self.env.user).write({'red_gerekcesi': 'Yetkili red gerekçesi'})
+        zimmet.with_user(self.user_yetkili).write({'red_gerekcesi': 'Yetkili red gerekçesi'})
         self.assertEqual(zimmet.red_gerekcesi, 'Yetkili red gerekçesi')
 
     def test_10_gecmis_zimmet_ve_dolu_tarihler_overdue(self):
         today = date.today()
         # Taslak ve talep_edildi gecmis_zimmet_ids'de görünmemeli
-        zimmet = self.env['ekipman.zimmet'].create({
+        zimmet = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
             'planlanan_baslangic': today - timedelta(days=10),
             'planlanan_bitis': today - timedelta(days=2),
-            'state': 'taslak',
         })
         self.assertNotIn(zimmet, self.cihaz.gecmis_zimmet_ids)
 
@@ -195,12 +197,11 @@ class TestZimmet(TransactionCase):
 
         # Süresi geçmiş onaylandi kaydı dolu_tarihler'de görünmemeli
         zimmet.sudo().write({'state': 'iade_edildi'})
-        zimmet_onay = self.env['ekipman.zimmet'].create({
+        zimmet_onay = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
             'planlanan_baslangic': today - timedelta(days=10),
             'planlanan_bitis': today - timedelta(days=2),
-            'state': 'taslak',
         })
         zimmet_onay.sudo().write({'state': 'onaylandi'})
         self.cihaz._compute_dolu_tarihler()
