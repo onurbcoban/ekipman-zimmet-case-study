@@ -256,3 +256,13 @@ class TestZimmet(TransactionCase):
         zimmet.action_geri_cek()
         self.assertEqual(zimmet.state, 'taslak')
 
+    def test_16_gecmis_tarihli_talep_gonderilemez(self):
+        gecmis = self._talep(self.user2, -1, 3)
+        with self.assertRaises(UserError):
+            gecmis.action_gonder()
+        self.assertEqual(gecmis.state, 'taslak')
+
+        bugun_baslayan = self._talep(self.user2, 0, 3)
+        bugun_baslayan.action_gonder()
+        self.assertEqual(bugun_baslayan.state, 'talep_edildi')
+

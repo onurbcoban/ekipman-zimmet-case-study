@@ -138,11 +138,14 @@ class EkipmanZimmet(models.Model):
                     raise ValidationError("Bu cihaz şu anda başka bir çalışana teslim edilmiş durumdadır. Önce iade alınması gerekir.")
 
     def action_gonder(self):
+        bugun = fields.Date.context_today(self)
         for rec in self:
             if rec.state != 'taslak':
                 raise UserError('Yalnızca taslak durumundaki kayıtlar talep edilebilir.')
             if rec.calisan_id.user_id != self.env.user:
                 raise UserError('Yalnızca kendi taleplerinizi iletebilirsiniz.')
+            if rec.planlanan_baslangic < bugun:
+                raise UserError('Başlangıç tarihi geçmiş bir talep gönderilemez. Lütfen tarihleri güncelleyin.')
             rec.sudo().write({'state': 'talep_edildi'})
 
     def action_geri_cek(self):
