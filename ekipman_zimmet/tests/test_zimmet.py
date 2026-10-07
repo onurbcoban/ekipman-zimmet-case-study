@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests.common import TransactionCase
 from odoo.exceptions import ValidationError, UserError
 from datetime import date, timedelta
@@ -18,8 +19,8 @@ class TestZimmet(TransactionCase):
             'etiket_no': 'ETK-001',
         })
         
-        # Testlerdeki yetkili kullanıcı. self.env süper kullanıcı (env.su) olduğu için
-        # write/create korumalarını atlar; yetki gerektiren adımlar bu kullanıcıyla yapılır.
+        # self.env süper kullanıcıdır (env.su) ve write/create korumalarını atlar;
+        # yetki gerektiren adımlar bu kullanıcıyla yapılır.
         self.group_yetkili = self.env.ref('ekipman_zimmet.group_zimmet_yetkili')
         self.user_yetkili = self.env['res.users'].create({
             'name': 'Test Yetkili',
@@ -31,7 +32,6 @@ class TestZimmet(TransactionCase):
             'user_id': self.user_yetkili.id,
         })
 
-        # Mühendis kullanıcısı
         self.group_muhendis = self.env.ref('ekipman_zimmet.group_zimmet_muhendis')
         self.user2 = self.env['res.users'].create({
             'name': 'Test User 2',
@@ -43,8 +43,19 @@ class TestZimmet(TransactionCase):
             'user_id': self.user2.id,
         })
 
+        # Kod "bugün"ü kullanıcının saat dilimine göre alır; date.today() sunucu saatine
+        # göredir ve gece yarısına yakın bir gün farklı çıkabilir.
+        self.bugun = fields.Date.context_today(self.cihaz.with_user(self.user_yetkili))
+
+    def _talep(self, user, baslangic, bitis):
+        """Kullanıcı adına taslak talep oluşturur; baslangic ve bitis bugünden gün farkıdır."""
+        return self.env['ekipman.zimmet'].with_user(user).create({
+            'cihaz_id': self.cihaz.id,
+            'planlanan_baslangic': self.bugun + timedelta(days=baslangic),
+            'planlanan_bitis': self.bugun + timedelta(days=bitis),
+        })
+
     def test_01_tarih_cakismasi(self):
-        # Bir zimmet kaydını oluşturup onaylandi yap
         zimmet1 = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
@@ -55,7 +66,6 @@ class TestZimmet(TransactionCase):
         zimmet1.action_onayla()
         self.assertEqual(zimmet1.state, 'onaylandi')
 
-        # Aynı cihaz için tarihleri kesişen (çakışan) ikinci bir kayıt aç (user2 adına)
         zimmet2 = self.env['ekipman.zimmet'].with_user(self.user2).create({
             'cihaz_id': self.cihaz.id,
             'planlanan_baslangic': date.today() + timedelta(days=5),
@@ -63,12 +73,10 @@ class TestZimmet(TransactionCase):
         })
         zimmet2.action_gonder()
         
-        # Yetkili onaylamaya çalışır, ValidationError fırlatıldığını doğrula
         with self.assertRaises(ValidationError):
             zimmet2.with_user(self.user_yetkili).action_onayla()
 
     def test_02_red_gerekcesi(self):
-        # Durumu talep_edildi olan bir kayıt oluştur.
         zimmet = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
@@ -78,13 +86,11 @@ class TestZimmet(TransactionCase):
         zimmet.action_gonder()
         self.assertEqual(zimmet.state, 'talep_edildi')
 
-        # red_gerekcesi boşken action_reddet() metodunu çağır, UserError fırlatıldığını doğrula.
         zimmet.red_gerekcesi = False
         with self.assertRaises(UserError):
             zimmet.action_reddet()
 
     def test_03_unlink_kisiti(self):
-        # Durumu onaylandi olan bir kaydı oluştur
         zimmet = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
@@ -95,12 +101,10 @@ class TestZimmet(TransactionCase):
         zimmet.action_onayla()
         self.assertEqual(zimmet.state, 'onaylandi')
 
-        # unlink() metodu ile silmeye çalış, UserError fırlatıldığını doğrula.
         with self.assertRaises(UserError):
             zimmet.unlink()
 
     def test_04_muhendis_taslak_unlink(self):
-        # Mühendis kullanıcısı kendi taslak talebini oluşturur ve silebilir
         zimmet = self.env['ekipman.zimmet'].with_user(self.user2).create({
             'cihaz_id': self.cihaz.id,
             'planlanan_baslangic': date.today(),
@@ -108,13 +112,11 @@ class TestZimmet(TransactionCase):
         })
         self.assertEqual(zimmet.state, 'taslak')
         self.assertEqual(zimmet.calisan_id, self.employee2)
-        # Kendi taslak kaydını başarıyla silebilir
         zimmet_id = zimmet.id
         zimmet.unlink()
         self.assertFalse(self.env['ekipman.zimmet'].browse(zimmet_id).exists())
 
     def test_05_dolu_tarihler_related(self):
-        # Cihazın onaylanmış veya teslim edilmiş zimmeti varsa dolu_tarihler zimmet modelinde de görünür
         zimmet = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
@@ -128,7 +130,6 @@ class TestZimmet(TransactionCase):
         self.assertEqual(zimmet.dolu_tarihler, self.cihaz.dolu_tarihler)
 
     def test_06_baskasi_adina_talep_acma_engeli(self):
-        # Mühendis kullanıcısı başkası adına talep açamaz
         with self.assertRaises(UserError):
             self.env['ekipman.zimmet'].with_user(self.user2).create({
                 'cihaz_id': self.cihaz.id,
@@ -138,7 +139,6 @@ class TestZimmet(TransactionCase):
             })
 
     def test_07_calisan_profili_olmayan_kullanici(self):
-        # Çalışan profili olmayan kullanıcı talep açamaz
         user_no_emp = self.env['res.users'].create({
             'name': 'No Employee User',
             'login': 'no_emp_user',
@@ -152,7 +152,6 @@ class TestZimmet(TransactionCase):
             })
 
     def test_08_calisan_id_degistirilemez(self):
-        # calisan_id alanı write ile değiştirilemez
         zimmet = self.env['ekipman.zimmet'].with_user(self.user2).create({
             'cihaz_id': self.cihaz.id,
             'planlanan_baslangic': date.today(),
@@ -162,23 +161,20 @@ class TestZimmet(TransactionCase):
             zimmet.write({'calisan_id': self.employee1.id})
 
     def test_09_red_gerekcesi_yetki_kontrolu(self):
-        # Mühendis red gerekçesi yazamaz
         zimmet = self.env['ekipman.zimmet'].with_user(self.user2).create({
             'cihaz_id': self.cihaz.id,
             'planlanan_baslangic': date.today(),
             'planlanan_bitis': date.today() + timedelta(days=5),
         })
-        zimmet.action_gonder()  # red gerekçesi bekleyen talepte anlamlıdır (F2)
+        zimmet.action_gonder()  # red gerekçesi yalnızca bekleyen talepte anlamlıdır (F2)
         with self.assertRaises(UserError):
             zimmet.with_user(self.user2).write({'red_gerekcesi': 'Yetkisiz red'})
 
-        # Yetkili kullanıcı red gerekçesi yazabilir
         zimmet.with_user(self.user_yetkili).write({'red_gerekcesi': 'Yetkili red gerekçesi'})
         self.assertEqual(zimmet.red_gerekcesi, 'Yetkili red gerekçesi')
 
     def test_10_gecmis_zimmet_ve_dolu_tarihler_overdue(self):
         today = date.today()
-        # Taslak ve talep_edildi gecmis_zimmet_ids'de görünmemeli
         zimmet = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
             'calisan_id': self.employee1.id,
@@ -187,15 +183,12 @@ class TestZimmet(TransactionCase):
         })
         self.assertNotIn(zimmet, self.cihaz.gecmis_zimmet_ids)
 
-        # teslim_edildi durumuna geçtiğinde gecmis_zimmet_ids'de görünmeli
         zimmet.sudo().write({'state': 'teslim_edildi'})
         self.assertIn(zimmet, self.cihaz.gecmis_zimmet_ids)
 
-        # Süresi geçmiş teslim_edildi için dolu_tarihler "Şu an elde, iade bekleniyor" içermeli
         self.cihaz._compute_dolu_tarihler()
         self.assertIn("Şu an elde, iade bekleniyor", self.cihaz.dolu_tarihler)
 
-        # Süresi geçmiş onaylandi kaydı dolu_tarihler'de görünmemeli
         zimmet.sudo().write({'state': 'iade_edildi'})
         zimmet_onay = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
             'cihaz_id': self.cihaz.id,
@@ -206,4 +199,60 @@ class TestZimmet(TransactionCase):
         zimmet_onay.sudo().write({'state': 'onaylandi'})
         self.cihaz._compute_dolu_tarihler()
         self.assertFalse(self.cihaz.dolu_tarihler)
+
+    def test_11_sinir_gunu(self):
+        a = self._talep(self.user_yetkili, 0, 10)
+        a.action_gonder()
+        a.action_onayla()
+
+        # Tarihler kapalı aralıktır: a'nın bitiş günü b'nin başlangıç günüyle çakışır
+        b = self._talep(self.user2, 10, 15)
+        b.action_gonder()
+        with self.assertRaises(ValidationError):
+            b.with_user(self.user_yetkili).action_onayla()
+
+    def test_12_erken_iade(self):
+        a = self._talep(self.user_yetkili, 0, 10)
+        a.action_gonder()
+        a.action_onayla()
+        a.action_teslim_et()
+        a.action_iade_al()
+        self.assertEqual(a.state, 'iade_edildi')
+        self.assertEqual(a.fiili_bitis, self.bugun)
+
+        b = self._talep(self.user2, 3, 8)
+        b.action_gonder()
+        b.with_user(self.user_yetkili).action_onayla()
+        self.assertEqual(b.state, 'onaylandi')
+
+    def test_13_gecikmis_cihaz_teslim(self):
+        # Geçen hafta teslim edilmiş, dün iade edilmesi gereken kayıt. Teslim yalnızca
+        # planlanan aralıkta yapılabildiği için bu durum butonlarla kurulamaz.
+        a = self._talep(self.user2, -7, -1)
+        a.sudo().write({'state': 'teslim_edildi', 'fiili_baslangic': self.bugun - timedelta(days=7)})
+
+        b = self._talep(self.user_yetkili, 0, 3)
+        b.action_gonder()
+        b.action_onayla()
+        self.assertEqual(b.state, 'onaylandi')
+
+        with self.assertRaises(ValidationError):
+            b.action_teslim_et()
+
+    def test_14_state_dogrudan_yazilamaz(self):
+        zimmet = self._talep(self.user2, 0, 5)
+        with self.assertRaises(UserError):
+            zimmet.write({'state': 'onaylandi'})
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).write({'state': 'onaylandi'})
+        self.assertEqual(zimmet.state, 'taslak')
+
+    def test_15_geri_cekme_yetkisi(self):
+        zimmet = self._talep(self.user2, 0, 5)
+        zimmet.action_gonder()
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).action_geri_cek()
+
+        zimmet.action_geri_cek()
+        self.assertEqual(zimmet.state, 'taslak')
 
