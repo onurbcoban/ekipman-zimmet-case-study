@@ -301,3 +301,18 @@ class TestZimmet(TransactionCase):
         self.assertTrue(zimmet.talep_sahibi_mi)
         self.assertFalse(zimmet.with_user(self.user_yetkili).talep_sahibi_mi)
 
+    def test_20_chatter_onaylayani_gosterir(self):
+        zimmet = self._talep(self.user2, 0, 3)
+        zimmet.action_gonder()
+        # Durum izleme mesajları işlem kaydedilmeden önce (precommit) oluşturulur.
+        self.env.cr.precommit.run()
+        zimmet.with_user(self.user_yetkili).action_onayla()
+        self.env.cr.precommit.run()
+
+        onay_mesaji = zimmet.sudo().message_ids.filtered(
+            lambda m: m.tracking_value_ids.filtered(lambda t: t.field_id.name == 'state'
+                                                    and t.new_value_char == 'Onaylandı')
+        )
+        self.assertEqual(len(onay_mesaji), 1)
+        self.assertEqual(onay_mesaji.author_id, self.user_yetkili.partner_id)
+
