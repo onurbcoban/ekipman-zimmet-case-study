@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class EkipmanZimmet(models.Model):
@@ -79,6 +79,34 @@ class EkipmanZimmet(models.Model):
         employee = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1)
         return employee.id if employee else False
 
+    @api.constrains('cihaz_id', 'planlanan_baslangic', 'planlanan_bitis', 'state')
+    def _check_tarih_cakismasi(self):
+        for rec in self:
+            if rec.state in ['onaylandi', 'teslim_edildi'] and rec.cihaz_id and rec.planlanan_baslangic and rec.planlanan_bitis:
+                domain = [
+                    ('cihaz_id', '=', rec.cihaz_id.id),
+                    ('state', 'in', ['onaylandi', 'teslim_edildi']),
+                    ('id', '!=', rec.id),
+                    ('planlanan_baslangic', '<=', rec.planlanan_bitis),
+                    ('planlanan_bitis', '>=', rec.planlanan_baslangic),
+                ]
+                cakisan_kayitlar = self.search(domain)
+                if cakisan_kayitlar:
+                    raise ValidationError("Seçilen tarihlerde bu cihaz için onaylanmış başka bir zimmet bulunmaktadır.")
+
+    @api.constrains('cihaz_id', 'state')
+    def _check_fiziksel_teslim(self):
+        for rec in self:
+            if rec.state == 'teslim_edildi' and rec.cihaz_id:
+                domain = [
+                    ('cihaz_id', '=', rec.cihaz_id.id),
+                    ('state', '=', 'teslim_edildi'),
+                    ('id', '!=', rec.id),
+                ]
+                teslim_edilenler = self.search(domain)
+                if teslim_edilenler:
+                    raise ValidationError("Bu cihaz şu anda başka bir çalışana teslim edilmiş durumdadır. Önce iade alınması gerekir.")
+
     def action_talep_et(self):
         for rec in self:
             if rec.state != 'taslak':
@@ -109,8 +137,13 @@ class EkipmanZimmet(models.Model):
         for rec in self:
             if rec.state != 'onaylandi':
                 raise UserError('Yalnızca onaylanmış kayıtlar teslim edilebilir.')
+            
+            bugun = fields.Date.context_today(self)
+            if not (rec.planlanan_baslangic <= bugun <= rec.planlanan_bitis):
+                raise UserError('Teslimat yalnızca planlanan tarih aralığında yapılabilir. Erken veya süresi geçmiş teslimat yapılamaz.')
+                
             rec.state = 'teslim_edildi'
-            rec.fiili_baslangic = fields.Date.context_today(self)
+            rec.fiili_baslangic = bugun
 
     def action_iade_al(self):
         for rec in self:
