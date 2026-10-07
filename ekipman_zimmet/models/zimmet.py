@@ -81,10 +81,18 @@ class EkipmanZimmet(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            if vals.get('name', 'Yeni') == 'Yeni':
+                vals['name'] = self.env['ir.sequence'].next_by_code('ekipman.zimmet') or 'Yeni'
             if not self.env.user.has_group('ekipman_zimmet.group_yetkili'):
                 vals['calisan_id'] = self.env.user.employee_id.id
             vals['state'] = 'taslak'
         return super().create(vals_list)
+
+    @api.constrains('planlanan_baslangic', 'planlanan_bitis')
+    def _check_tarihler(self):
+        for rec in self:
+            if rec.planlanan_baslangic and rec.planlanan_bitis and rec.planlanan_bitis < rec.planlanan_baslangic:
+                raise ValidationError("Bitiş tarihi, başlangıç tarihinden önce olamaz.")
 
     @api.constrains('cihaz_id', 'planlanan_baslangic', 'planlanan_bitis', 'state')
     def _check_tarih_cakismasi(self):
@@ -97,9 +105,12 @@ class EkipmanZimmet(models.Model):
                     ('planlanan_baslangic', '<=', rec.planlanan_bitis),
                     ('planlanan_bitis', '>=', rec.planlanan_baslangic),
                 ]
-                cakisan_kayitlar = self.search(domain)
+                cakisan_kayitlar = self.sudo().search(domain)
                 if cakisan_kayitlar:
-                    raise ValidationError("Seçilen tarihlerde bu cihaz için onaylanmış başka bir zimmet bulunmaktadır.")
+                    if self.env.user.has_group('ekipman_zimmet.group_yetkili'):
+                        raise ValidationError(f"{cakisan_kayitlar[0].name} referanslı onaylanmış veya teslim edilmiş bir kayıtla çakışıyor.")
+                    else:
+                        raise ValidationError("Seçilen tarihlerde bu cihaz doludur.")
 
     @api.constrains('cihaz_id', 'state')
     def _check_fiziksel_teslim(self):
