@@ -1,4 +1,5 @@
 from odoo import fields
+from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 from odoo.exceptions import ValidationError, UserError
 from datetime import date, timedelta
@@ -265,4 +266,26 @@ class TestZimmet(TransactionCase):
         bugun_baslayan = self._talep(self.user2, 0, 3)
         bugun_baslayan.action_gonder()
         self.assertEqual(bugun_baslayan.state, 'talep_edildi')
+
+    def test_17_create_korumalari(self):
+        Zimmet = self.env['ekipman.zimmet'].with_user(self.user2)
+        vals = {
+            'cihaz_id': self.cihaz.id,
+            'planlanan_baslangic': self.bugun,
+            'planlanan_bitis': self.bugun + timedelta(days=3),
+        }
+        with self.assertRaises(UserError):
+            Zimmet.create(dict(vals, state='onaylandi'))
+        with self.assertRaises(UserError):
+            Zimmet.create(dict(vals, fiili_baslangic=self.bugun))
+
+        # Web istemcisi yeni kayıtta durum çubuğundaki state='taslak' değerini de gönderir;
+        # koruma bu normal yolu engellememeli.
+        with Form(Zimmet) as form:
+            form.cihaz_id = self.cihaz
+            form.planlanan_baslangic = self.bugun
+            form.planlanan_bitis = self.bugun + timedelta(days=3)
+        zimmet = form.record
+        self.assertEqual(zimmet.state, 'taslak')
+        self.assertEqual(zimmet.calisan_id, self.employee2)
 
