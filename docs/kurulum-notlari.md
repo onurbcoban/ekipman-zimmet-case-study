@@ -39,7 +39,7 @@
 ## Doğrulama
 - [x] Odoo `18.0` sürümü log'da görünüyor
 - [x] `base`, `hr`, `mail` hatasız kuruldu
-- [ ] Web arayüzüne giriş yapıldı
-- [ ] VS Code'dan debugger ile başlatıldı, breakpoint'te duruldu
+- [x] Web arayüzüne giriş yapıldı
+- [x] VS Code'dan debugger ile başlatıldı, breakpoint'te duruldu
 - [x] Kendi modülümüz demo verisiyle sıfırdan kuruldu; art arda iki güncellemede (`-u`) hata ve uyarı yok
 - [x] Otomatik testler geçti (`--test-enable --test-tags /ekipman_zimmet`)
