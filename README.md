@@ -44,6 +44,7 @@ cp ekipman-zimmet-case-study/odoo.conf.example odoo.conf   # addons_path ve db_*
 
 ```mermaid
 erDiagram
+    direction LR
     ekipman_kategori ||--o{ ekipman_cihaz : "kategori_id"
     ekipman_cihaz ||--o{ ekipman_zimmet : "cihaz_id"
     hr_employee ||--o{ ekipman_zimmet : "calisan_id"
@@ -63,6 +64,7 @@ Talep ve zimmet aynı kayıttır; kayıt durum değiştirerek talepten iadeye il
 
 ```mermaid
 stateDiagram-v2
+    direction LR
     [*] --> taslak
     taslak --> talep_edildi: Talep Et (sahip)
     talep_edildi --> taslak: Geri Çek (sahip)
