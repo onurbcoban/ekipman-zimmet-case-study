@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Kullanıcılar -->
+        <record id="user_nehir_sezgin" model="res.users">
+            <field name="name">Nehir Sezgin</field>
+            <field name="login">nehirsezgin</field>
+            <field name="password">nehirsezgin</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('ekipman_zimmet.group_yetkili')])]"/>
+        </record>
+        <record id="user_kaan_bayrak" model="res.users">
+            <field name="name">Kaan Bayrak</field>
+            <field name="login">kaanbayrak</field>
+            <field name="password">kaanbayrak</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('ekipman_zimmet.group_yetkili')])]"/>
+        </record>
+        <record id="user_defne_karadut" model="res.users">
+            <field name="name">Defne Karadut</field>
+            <field name="login">defnekaradut</field>
+            <field name="password">defnekaradut</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('ekipman_zimmet.group_muhendis')])]"/>
+        </record>
+        <record id="user_tuna_akgun" model="res.users">
+            <field name="name">Tuna Akgün</field>
+            <field name="login">tunaakgun</field>
+            <field name="password">tunaakgun</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('ekipman_zimmet.group_muhendis')])]"/>
+        </record>
+        <record id="user_isil_tezcan" model="res.users">
+            <field name="name">Işıl Tezcan</field>
+            <field name="login">isiltezcan</field>
+            <field name="password">isiltezcan</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('ekipman_zimmet.group_muhendis')])]"/>
+        </record>
+
+        <!-- Çalışanlar -->
+        <record id="employee_nehir_sezgin" model="hr.employee">
+            <field name="name">Nehir Sezgin</field>
+            <field name="user_id" ref="user_nehir_sezgin"/>
+        </record>
+        <record id="employee_kaan_bayrak" model="hr.employee">
+            <field name="name">Kaan Bayrak</field>
+            <field name="user_id" ref="user_kaan_bayrak"/>
+        </record>
+        <record id="employee_defne_karadut" model="hr.employee">
+            <field name="name">Defne Karadut</field>
+            <field name="user_id" ref="user_defne_karadut"/>
+        </record>
+        <record id="employee_tuna_akgun" model="hr.employee">
+            <field name="name">Tuna Akgün</field>
+            <field name="user_id" ref="user_tuna_akgun"/>
+        </record>
+        <record id="employee_isil_tezcan" model="hr.employee">
+            <field name="name">Işıl Tezcan</field>
+            <field name="user_id" ref="user_isil_tezcan"/>
+        </record>
+    </data>
+</odoo>

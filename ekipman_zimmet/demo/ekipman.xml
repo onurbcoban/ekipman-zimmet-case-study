@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Kategoriler -->
+        <record id="kategori_osiloskop" model="ekipman.kategori">
+            <field name="name">Osiloskop</field>
+        </record>
+        <record id="kategori_dizustu" model="ekipman.kategori">
+            <field name="name">Dizüstü bilgisayar</field>
+        </record>
+        <record id="kategori_olcum" model="ekipman.kategori">
+            <field name="name">Ölçüm cihazı</field>
+        </record>
+
+        <!-- Cihazlar -->
+        <record id="cihaz_osc_001" model="ekipman.cihaz">
+            <field name="name">OSC-001</field>
+            <field name="etiket_no">OSC-001</field>
+            <field name="kategori_id" ref="kategori_osiloskop"/>
+        </record>
+        <record id="cihaz_osc_002" model="ekipman.cihaz">
+            <field name="name">OSC-002</field>
+            <field name="etiket_no">OSC-002</field>
+            <field name="kategori_id" ref="kategori_osiloskop"/>
+        </record>
+        <record id="cihaz_ltp_001" model="ekipman.cihaz">
+            <field name="name">LTP-001</field>
+            <field name="etiket_no">LTP-001</field>
+            <field name="kategori_id" ref="kategori_dizustu"/>
+        </record>
+        <record id="cihaz_ltp_002" model="ekipman.cihaz">
+            <field name="name">LTP-002</field>
+            <field name="etiket_no">LTP-002</field>
+            <field name="kategori_id" ref="kategori_dizustu"/>
+        </record>
+        <record id="cihaz_mlt_001" model="ekipman.cihaz">
+            <field name="name">MLT-001</field>
+            <field name="etiket_no">MLT-001</field>
+            <field name="kategori_id" ref="kategori_olcum"/>
+        </record>
+        <record id="cihaz_spk_001" model="ekipman.cihaz">
+            <field name="name">SPK-001</field>
+            <field name="etiket_no">SPK-001</field>
+            <field name="kategori_id" ref="kategori_olcum"/>
+        </record>
+    </data>
+</odoo>

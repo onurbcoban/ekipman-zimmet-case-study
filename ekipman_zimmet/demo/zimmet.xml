@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- 1 -->
+        <record id="zimmet_demo_1" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_osc_001"/>
+            <field name="calisan_id" ref="employee_defne_karadut"/>
+            <field name="state">teslim_edildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-10)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=-3)).strftime('%Y-%m-%d')"/>
+            <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-10)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 2 -->
+        <record id="zimmet_demo_2" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_osc_001"/>
+            <field name="calisan_id" ref="employee_tuna_akgun"/>
+            <field name="state">onaylandi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=6)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 3 -->
+        <record id="zimmet_demo_3" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_ltp_001"/>
+            <field name="calisan_id" ref="employee_tuna_akgun"/>
+            <field name="state">talep_edildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 4 -->
+        <record id="zimmet_demo_4" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_ltp_001"/>
+            <field name="calisan_id" ref="employee_isil_tezcan"/>
+            <field name="state">talep_edildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=5)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=9)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 5 -->
+        <record id="zimmet_demo_5" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_spk_001"/>
+            <field name="calisan_id" ref="employee_defne_karadut"/>
+            <field name="state">iade_edildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-25)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=-20)).strftime('%Y-%m-%d')"/>
+            <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-25)).strftime('%Y-%m-%d')"/>
+            <field name="fiili_bitis" eval="(datetime.now() + timedelta(days=-21)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 6 -->
+        <record id="zimmet_demo_6" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_spk_001"/>
+            <field name="calisan_id" ref="employee_isil_tezcan"/>
+            <field name="state">iade_edildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-12)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=-8)).strftime('%Y-%m-%d')"/>
+            <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-12)).strftime('%Y-%m-%d')"/>
+            <field name="fiili_bitis" eval="(datetime.now() + timedelta(days=-9)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 7 -->
+        <record id="zimmet_demo_7" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_spk_001"/>
+            <field name="calisan_id" ref="employee_tuna_akgun"/>
+            <field name="state">teslim_edildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-2)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+            <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-2)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 8 -->
+        <record id="zimmet_demo_8" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_osc_002"/>
+            <field name="calisan_id" ref="employee_isil_tezcan"/>
+            <field name="state">onaylandi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 9 -->
+        <record id="zimmet_demo_9" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_osc_002"/>
+            <field name="calisan_id" ref="employee_tuna_akgun"/>
+            <field name="state">reddedildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=4)).strftime('%Y-%m-%d')"/>
+            <field name="red_gerekcesi">Aynı tarihlerde başka bir talep onaylandı; lütfen farklı tarihlerle yeniden talep açın.</field>
+        </record>
+        <!-- 10 -->
+        <record id="zimmet_demo_10" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_ltp_002"/>
+            <field name="calisan_id" ref="employee_isil_tezcan"/>
+            <field name="state">onaylandi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-10)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=-6)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 11 -->
+        <record id="zimmet_demo_11" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_ltp_002"/>
+            <field name="calisan_id" ref="employee_defne_karadut"/>
+            <field name="state">iptal</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=10)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=12)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 12 -->
+        <record id="zimmet_demo_12" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_mlt_001"/>
+            <field name="calisan_id" ref="employee_tuna_akgun"/>
+            <field name="state">taslak</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=0)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
+        </record>
+    </data>
+</odoo>

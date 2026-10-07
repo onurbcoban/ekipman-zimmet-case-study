@@ -17,6 +17,11 @@
         'views/zimmet_views.xml',
         'views/menu_views.xml',
     ],
+    'demo': [
+        'demo/kullanicilar.xml',
+        'demo/ekipman.xml',
+        'demo/zimmet.xml',
+    ],
     'installable': True,
     'application': True,
 }
