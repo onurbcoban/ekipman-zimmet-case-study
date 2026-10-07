@@ -289,3 +289,10 @@ class TestZimmet(TransactionCase):
         self.assertEqual(zimmet.state, 'taslak')
         self.assertEqual(zimmet.calisan_id, self.employee2)
 
+    def test_18_red_gerekcesi_yalnizca_bekleyen_talepte(self):
+        zimmet = self._talep(self.user2, 0, 3)
+        zimmet.action_gonder()
+        zimmet.with_user(self.user_yetkili).action_onayla()
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).write({'red_gerekcesi': 'Sonradan eklenen gerekçe'})
+

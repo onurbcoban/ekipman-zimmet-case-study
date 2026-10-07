@@ -216,8 +216,11 @@ class EkipmanZimmet(models.Model):
             restricted_for_all = {'state', 'fiili_baslangic', 'fiili_bitis', 'calisan_id'}
             if restricted_for_all.intersection(vals.keys()):
                 raise UserError('Durum, çalışan ve fiili tarihler doğrudan güncellenemez.')
-            if 'red_gerekcesi' in vals and not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
-                raise UserError('Red gerekçesini yalnızca yetkililer düzenleyebilir.')
+            if 'red_gerekcesi' in vals:
+                if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
+                    raise UserError('Red gerekçesini yalnızca yetkililer düzenleyebilir.')
+                if any(rec.state != 'talep_edildi' for rec in self):
+                    raise UserError('Red gerekçesi yalnızca onay bekleyen taleplerde düzenlenebilir.')
 
         restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis'}
         if restricted_fields.intersection(vals.keys()):
