@@ -20,7 +20,7 @@
 9. **Geri çekme:** Mühendis bekleyen talebi geri çeker, düzenler ve tekrar gönderir (B5).
 10. **Onaylı talebi geri çekme:** `onaylandi` durumundaki kayıt geri çekilemez, hata verir (B5).
 11. **Başkasının talebini geri çekme:** Talebin sahibi olmayan kullanıcı (yetkili dahil) `action_geri_cek` çağırırsa hata alır (B2).
-12. **Taslak silme:** Taslak kayıt silinebilir; gönderilmiş kayıt silinemez (mühendis ve yetkili için) (B3).
+12. **Taslak silme:** Talep sahibi taslağını formdaki "Taslağı Sil" ile siler; onay sorulur, silindikten sonra talep listesine dönülür. Yetkili başkasının taslağını silemez. Gönderilmiş kayıt silinemez (mühendis ve yetkili için). Taslak iptal edilemez (B3).
 13. **Durumun doğrudan yazılması:** Mühendis RPC ile `state: 'onaylandi'` yazmaya çalışırsa hata alır (B8).
 14. **Onaylı kayıt oluşturma:** Mühendis RPC ile `state: 'onaylandi'` içeren kayıt oluşturmaya çalışırsa hata alır (B8).
 15. **Onaylı kaydı değiştirme:** Onaylı kaydın cihazı veya tarihi RPC ile değiştirilmeye çalışılırsa hata verir (B5).
@@ -55,9 +55,9 @@
 6. **Gecikmiş cihaz:** Gecikmiş cihaz dolu tarihlerde "şu an elde, iade bekleniyor" olarak görünür (E4).
 7. **Form görünürlüğü:** Dolu tarihler alanı talep formunda yalnızca taslak durumunda görünür (E4).
 ## F Bölümü - Ekranlar ve Menüler
-1. **Menü görünürlüğü:** Yetkili hesabında Zimmet Talepleri, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Ekipmanlar ve Kategoriler görünür. Mühendis hesabında yalnızca Zimmet Talepleri ve Ekipmanlar görünür (F1).
+1. **Menü görünürlüğü:** Zimmet Talepleri "Açık Talepler" filtresiyle açılır; iade edilen, reddedilen ve iptal edilen talepler filtre kaldırılınca görünür. Yetkili hesabında Zimmet Talepleri, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Ekipmanlar ve Kategoriler görünür. Mühendis hesabında yalnızca Zimmet Talepleri ve Ekipmanlar görünür (F1).
 2. **Kuyruk içerikleri:** Onay Bekleyenler yalnızca `talep_edildi`, Teslim Bekleyenler yalnızca `onaylandi` kayıtları listeler. Kuyruk menüsü ilgili filtreyi arama çubuğunda etiket olarak açar; filtre kaldırılınca tüm kayıtlar görünür (F1).
-3. **Buton görünürlüğü:** Taslakta sahibinde Talep Et ve İptal Et; bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte yetkilide Teslim Et; teslim edilmişte yetkilide İade Al; kapalı durumlarda (iade, red, iptal) hiçbir buton görünmez. Yetkili başkasının taslağını açtığında Talep Et, bekleyen talebinde Geri Çek görünmez (F2).
+3. **Buton görünürlüğü:** Taslakta sahibinde Talep Et ve Taslağı Sil (İptal Et görünmez); bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte yetkilide Teslim Et; teslim edilmişte yetkilide İade Al; kapalı durumlarda (iade, red, iptal) hiçbir buton görünmez. Yetkili başkasının taslağını açtığında Talep Et ve Taslağı Sil, bekleyen talebinde Geri Çek görünmez (F2).
 4. **Statusbar:** Statusbar'a tıklanarak durum değiştirilemez (F2, B8).
 5. **Çalışan alanı:** Talep formunda çalışan kullanıcının kendi adıyla dolu ve düzenlenemezdir (F2, A4).
 6. **Fiili tarihler:** Fiili tarih alanları taslakta ve onaylı durumda gizlidir, teslimden sonra salt okunur görünür (F2).
@@ -100,7 +100,7 @@ Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerl
 | B/2 | `test_01_tarih_cakismasi` (yetkili kendi talebini onaylar) |
 | B/3 | `test_02_red_gerekcesi` |
 | B/11 | `test_15_geri_cekme_yetkisi` |
-| B/12 | `test_03_unlink_kisiti`, `test_04_muhendis_taslak_unlink` |
+| B/12 | `test_03_unlink_kisiti`, `test_04_muhendis_taslak_unlink`, `test_21_taslak_iptal_edilemez`, `test_22_taslagi_yalnizca_sahibi_siler` |
 | B/13 | `test_14_state_dogrudan_yazilamaz` |
 | B/14 | `test_17_create_korumalari` |
 | B/16 | `test_20_chatter_onaylayani_gosterir` |

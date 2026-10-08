@@ -56,7 +56,7 @@ Karar:
 | 1 | taslak → talep_edildi | Talep sahibi | Cihaz ve tarihler dolu; başlangıç bugünden önce değil | — |
 | 2 | talep_edildi → onaylandi | Yetkili | C2 çakışma kuralı geçer | Chatter'a işlenir |
 | 3 | talep_edildi → reddedildi | Yetkili | Red gerekçesi dolu | — |
-| 4 | taslak / talep_edildi / onaylandi → iptal | Talep sahibi veya yetkili | — | — |
+| 4 | talep_edildi / onaylandi → iptal | Talep sahibi veya yetkili | — | — |
 | 5 | onaylandi → teslim_edildi | Yetkili | Bugün planlanan aralıkta (B4); C4 tek-zimmet kuralı | `fiili_baslangic` = bugün |
 | 6 | teslim_edildi → iade_edildi | Yetkili | — | `fiili_bitis` = bugün |
 | 7 | talep_edildi → taslak (geri çek) | Talep sahibi | — | — |
@@ -68,12 +68,12 @@ Etkisi: Her geçiş bir `action_*` metodudur. Bu tablo README'deki süreç akı�
 README özeti: Tablo olduğu gibi README'ye girer.
 
 ## B3 — Red ve iptal
-Karar: Red gerekçesi zorunludur. Onaylanmış bir talebi talep sahibi de iptal edebilir. `teslim_edildi` durumundaki kayıt iptal edilemez, yalnızca iade alınır. Zimmet kaydı yalnızca `taslak` durumundayken silinebilir; gönderilmiş kayıtlar iptal edilir ve geçmişte kalır.
+Karar: Red gerekçesi zorunludur. Onaylanmış bir talebi talep sahibi de iptal edebilir. `teslim_edildi` durumundaki kayıt iptal edilemez, yalnızca iade alınır. Taslak iptal edilmez; talep sahibi formdaki "Taslağı Sil" ile (onay sorularak) siler. Zimmet kaydı yalnızca `taslak` durumundayken ve yalnızca sahibi tarafından silinebilir; gönderilmiş kayıtlar iptal edilir ve geçmişte kalır. "Zimmet Talepleri" listesi varsayılan olarak yalnızca açık talepleri (iade, red ve iptal dışındakileri) gösterir; kapanmış kayıtlar filtre kaldırılınca görünür.
 Alternatifler: Red için wizard (açılır pencere); gerekçesiz red; kayıtların her durumda silinebilmesi.
-Gerekçe: Gerekçesiz red kullanıcıyı belirsizlikte bırakır. Wizard ek model demek, basit bir alan yeterli. Onaylı talebi sahibinin iptal edebilmesi, takvimi serbest bırakmanın en ucuz yoludur. Hiç gönderilmemiş taslağın denetim değeri yoktur, gönderilmiş kayıtlar ise izlenebilirlik için (A5) silinemez.
+Gerekçe: Gerekçesiz red kullanıcıyı belirsizlikte bırakır. Wizard ek model demek, basit bir alan yeterli. Onaylı talebi sahibinin iptal edebilmesi, takvimi serbest bırakmanın en ucuz yoludur. Hiç gönderilmemiş taslağın denetim değeri yoktur; iptal edilmiş bir taslak listede değersiz bir kayıt olarak kalırdı, bu yüzden taslak iptal edilmez, silinir. Taslak kişiseldir ve henüz kimseye gönderilmemiştir; başkasının taslağını silmenin meşru bir nedeni olmadığı için yalnızca sahibi siler. Gönderilmiş kayıtlar ise izlenebilirlik için (A5) silinemez; özellikle onaylanıp iptal edilen kayıt, takvimi kimin tutup bıraktığının tek izidir. Listenin kapanmış kayıtlarla kalabalıklaşması silmeyle değil, varsayılan filtreyle çözülür.
 Etkisi: İptal edilen onaylı talep takvimi bloklamaz (C1). Silme kontrolü `unlink()` içindedir (B8). `red_gerekcesi` alanına `write()` içinde yalnızca Yetkili grubu ve yalnızca `talep_edildi` durumunda yazabilir; karar verildikten sonra gerekçe değiştirilemez. Alan `sudo`'ya kısıtlanmaz, çünkü yetkili formdan normal yolla yazar.
 Zayıf nokta: Gerekçe, Reddet'e basmadan önce formda yazılmalıdır. Form butonları çalışmadan önce kaydı kaydettiği için bu aynı ekranda yapılır, ayrı pencere gerekmez; ancak alanın boş olduğu butona basınca fark edilir.
-README özeti: Reddedilen taleplerde gerekçe zorunludur; onaylı talep iptal edilirse takvim hemen serbest kalır; yalnızca taslak kayıtlar silinebilir.
+README özeti: Reddedilen taleplerde gerekçe zorunludur; onaylı talep iptal edilirse takvim hemen serbest kalır; taslak iptal edilmez, yalnızca sahibi tarafından silinir; gönderilmiş kayıtlar silinmez, liste varsayılan olarak açık talepleri gösterir.
 
 ## B4 — Teslim ve iade zamanlaması
 Karar: Teslim yalnızca bugün planlanan aralığın içindeyken yapılır (`başlangıç <= bugün <= bitiş`). Erken teslim ve aralığı geçmiş onayın teslimi desteklenmez; aralığı geçmiş onayı yetkili iptal eder. İade her zaman alınabilir.
@@ -234,14 +234,14 @@ Etkisi: Yalnızca bloklayan durumlar gösterildiği için bekleyen talepler gör
 README özeti: Cihazın onaylı ve teslim edilmiş tarih aralıkları isimsiz olarak gösterilir; bekleyen talepler görünmez.
 
 ## F1 — Menü yapısı
-Karar: "Ekipman Zimmet" uygulaması altında: Zimmet Talepleri (herkes; mühendis kayıt kuralı gereği yalnızca kendi kayıtlarını görür); yalnızca yetkiye açık kuyruk menüleri: Onay Bekleyenler (`talep_edildi`), Teslim Bekleyenler (`onaylandi`), Gecikenler, Süresi Geçmiş Onaylar; Ekipmanlar (herkes okur); Kategoriler (yalnızca yetkili). Kuyruk menüleri sabit `domain` yerine arama görünümündeki ilgili filtreyi varsayılan olarak açar (`search_default_*`).
+Karar: "Ekipman Zimmet" uygulaması altında: Zimmet Talepleri (herkes; mühendis kayıt kuralı gereği yalnızca kendi kayıtlarını görür; varsayılan "Açık Talepler" filtresiyle açılır, B3); yalnızca yetkiye açık kuyruk menüleri: Onay Bekleyenler (`talep_edildi`), Teslim Bekleyenler (`onaylandi`), Gecikenler, Süresi Geçmiş Onaylar; Ekipmanlar (herkes okur); Kategoriler (yalnızca yetkili). Kuyruk menüleri sabit `domain` yerine arama görünümündeki ilgili filtreyi varsayılan olarak açar (`search_default_*`).
 Alternatifler: Tek menü ve yalnızca filtreler; her durum için ayrı menü.
 Gerekçe: Kuyruk menüleri B2'deki geçiş tablosunu ekrana taşır ve yetkilinin günlük işini tek tıkla gösterir. Koşullar yalnızca arama filtrelerinde tanımlı olduğu için tek bir yerde tutulur (B6, E3); menü ve filtre birbirinden ayrışamaz. Filtre arama çubuğunda görünür, kullanıcı listenin neden süzüldüğünü görür.
 Etkisi: Birkaç `ir.actions.act_window` ve menü satırı; menü erişimi gruplara bağlanır (D1).
 README özeti: Yetkili için süreç adımlarına göre kuyruk menüleri, mühendis için tek bir kendi talepleri listesi vardır.
 
 ## F2 — Zimmet formu
-Karar: Üstte tıklanamayan statusbar (B8) ve durumlara göre görünen butonlar: Talep Et ve Geri Çek (yalnızca talep sahibi); Onayla, Reddet, Teslim Et, İade Al (yalnızca yetkili, `groups`); İptal Et (B2'ye göre). Gövdede: cihaz, çalışan (salt okunur), planlanan tarihler (yalnızca taslakta düzenlenebilir, B5), fiili tarihler (salt okunur, teslimden sonra görünür), red gerekçesi (bekleyen talepte yetkili tarafından düzenlenebilir, reddedilen talepte salt okunur görünür), dolu tarihler (yalnızca taslakta, E4). Altta chatter (G6). Buton görünürlüğü `invisible` ve `groups` ile sağlanır; asıl yetki kontrolü metottadır (B8). Talep sahipliği, ekrana bakan kullanıcıya göre değiştiği için saklanmayan hesaplanan bir alanla (`talep_sahibi_mi`, `depends_context('uid')`) belirlenir.
+Karar: Üstte tıklanamayan statusbar (B8) ve durumlara göre görünen butonlar: Talep Et ve Geri Çek (yalnızca talep sahibi); Onayla, Reddet, Teslim Et, İade Al (yalnızca yetkili, `groups`); İptal Et (yalnızca onay bekleyen ve onaylanmış talepte, B2); Taslağı Sil (yalnızca taslakta ve talep sahibine, onay sorar, B3). Gövdede: cihaz, çalışan (salt okunur), planlanan tarihler (yalnızca taslakta düzenlenebilir, B5), fiili tarihler (salt okunur, teslimden sonra görünür), red gerekçesi (bekleyen talepte yetkili tarafından düzenlenebilir, reddedilen talepte salt okunur görünür), dolu tarihler (yalnızca taslakta, E4). Altta chatter (G6). Buton görünürlüğü `invisible` ve `groups` ile sağlanır; asıl yetki kontrolü metottadır (B8). Talep sahipliği, ekrana bakan kullanıcıya göre değiştiği için saklanmayan hesaplanan bir alanla (`talep_sahibi_mi`, `depends_context('uid')`) belirlenir.
 Alternatifler: Red için wizard (B3); tek bir "durumu değiştir" menüsü.
 Gerekçe: Her buton B2'deki bir geçişe karşılık gelir; formun yapısı tabloyu birebir yansıtır.
 Etkisi: Reddet butonu boş red gerekçesinde `UserError` verir (B3).
@@ -269,7 +269,7 @@ Etkisi: Gerekirse tarih alanlarıyla bir takvim görünümü eklenir ve yetkiye 
 README özeti: Takvim, pivot ve kanban görünümleri kapsam dışıdır.
 
 ## F6 — Arama, filtre ve gruplama
-Karar: Arama alanları referans, cihaz, çalışan. Filtreler: durumlar, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar (E3, F1). Gruplama: cihaz, çalışan, durum.
+Karar: Arama alanları referans, cihaz, çalışan. Filtreler: Açık Talepler (B3), durumlar, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar (E3, F1). Gruplama: cihaz, çalışan, durum.
 Alternatifler: Kategoriye göre gruplama (ek saklanan alan gerektirir).
 Gerekçe: Gereksinimleri karşılayan en küçük küme.
 Etkisi: Filtreler E3 ile aynı koşulları kullanır.
@@ -332,7 +332,7 @@ Etkisi: Aynı etiket no ikinci kez girilemez; hata mesajı anlaşılır yazılı
 README özeti: Her cihazın etiket numarası benzersizdir.
 
 ## G8 — Otomatik testler
-Karar: Mantık içeren çekirdek senaryolar Odoo test altyapısıyla otomatikleştirilir (tek dosya, `tests/test_zimmet.py`): çakışma ve sınır günü, erken iade, gecikmiş teslim, `state`'in doğrudan yazılması, `create`'te durum ve fiili tarih verilmesi, geri çekme yetkisi, geçmiş tarihli talebin gönderilmesi, taslak silme, `create` ve `write`'ta çalışan kontrolü, red gerekçesinin yetki ve durum kontrolü, talep sahipliği alanı, dolu tarihler ve geçmiş listesi. Testler `self.env` (süper kullanıcı, korumaları atlar) yerine `with_user` ile gerçek mühendis ve yetkili kullanıcılarla çalışır. Arayüz senaryoları elle denenir.
+Karar: Mantık içeren çekirdek senaryolar Odoo test altyapısıyla otomatikleştirilir (tek dosya, `tests/test_zimmet.py`): çakışma ve sınır günü, erken iade, gecikmiş teslim, `state`'in doğrudan yazılması, `create`'te durum ve fiili tarih verilmesi, geri çekme yetkisi, geçmiş tarihli talebin gönderilmesi, taslak silme ve taslağın iptal edilememesi, `create` ve `write`'ta çalışan kontrolü, red gerekçesinin yetki ve durum kontrolü, talep sahipliği alanı, dolu tarihler ve geçmiş listesi. Testler `self.env` (süper kullanıcı, korumaları atlar) yerine `with_user` ile gerçek mühendis ve yetkili kullanıcılarla çalışır. Arayüz senaryoları elle denenir.
 Alternatifler: Yalnızca elle test.
 Gerekçe: Bu testler aynı zamanda `env.su`, chatter kullanıcısı ve kayıt kuralı birleşimi gibi varsayımların doğrulamasıdır.
 Etkisi: Zaman daralırsa ilk elenecek kalemdir.

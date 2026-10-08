@@ -57,12 +57,12 @@ Birden fazla cihaza ihtiyacınız varsa her cihaz için ayrı talep açın.
 
 - **Gönderdiğiniz talepte hata varsa:** Talep henüz onaylanmadıysa **Geri Çek**'e basın. Talep tekrar **Taslak** olur; düzeltip yeniden **Talep Et**'e basın.
 - **Onaylanmış talep düzenlenemez.** Tarih değişikliği gerekiyorsa talebi iptal edip yenisini açın.
-- **İptal Et:** Taslak, onay bekleyen veya onaylanmış (henüz teslim edilmemiş) talebinizi iptal edebilirsiniz. Onaylı bir talebi iptal etmek, o tarihleri başkalarının kullanımına açar; ihtiyacınız kalmadıysa iptal etmeniz rica edilir.
-- **Silme:** Yalnızca hiç gönderilmemiş taslaklar silinebilir. Gönderilmiş talepler geçmiş kaydı olarak kalır; iptal edilir ama silinmez.
+- **İptal Et:** Onay bekleyen veya onaylanmış (henüz teslim edilmemiş) talebinizi iptal edebilirsiniz. Onaylı bir talebi iptal etmek, o tarihleri başkalarının kullanımına açar; ihtiyacınız kalmadıysa iptal etmeniz rica edilir.
+- **Taslağı Sil:** Hiç gönderilmemiş bir taslaktan vazgeçtiyseniz formdaki **Taslağı Sil**'e basın; onayınız sorulur ve taslak kalıcı olarak silinir. Taslaklar iptal edilmez, silinir. Gönderilmiş talepler geçmiş kaydı olarak kalır; iptal edilir ama silinmez.
 
 ### Talebinizi takip etme
 
-**Zimmet Talepleri** listesinde yalnızca kendi talepleriniz görünür. Satır renkleri: mavi = onay bekliyor, sarı = onaylanmış ama tarihi geçmiş (teslim edilmemiş), kırmızı = iadesi gecikmiş, soluk = tamamlanmış (iade, red, iptal).
+**Zimmet Talepleri** listesinde yalnızca kendi talepleriniz görünür. Liste varsayılan olarak **Açık Talepler** filtresiyle açılır; iade edilen, reddedilen ve iptal edilen talepleri görmek için arama çubuğundaki filtreyi kaldırın. Satır renkleri: mavi = onay bekliyor, sarı = onaylanmış ama tarihi geçmiş (teslim edilmemiş), kırmızı = iadesi gecikmiş, soluk = tamamlanmış (iade, red, iptal).
 
 > **[Ekran görüntüsü 2 — `img/egitim/02-muhendis-liste.png`]** Mühendisin kendi talepleri listesi; farklı aşamalardaki talepler ve renkler.
 
@@ -140,6 +140,7 @@ Onaylanmış ama tarihi geçtiği halde hiç teslim edilmemiş talepler artık t
 | Bu cihaz şu anda başka bir çalışana teslim edilmiş durumdadır. Önce iade alınması gerekir. | Önceki kullanıcı cihazı henüz iade etmedi. | **Gecikenler**'den önceki kaydın iadesini alın, sonra teslimi işleyin. |
 | Yalnızca … durumundaki kayıtlar onaylanabilir / teslim edilebilir / … | Kayıt, siz ekranı açtıktan sonra başka biri tarafından değiştirilmiş. | Sayfayı yenileyip talebin güncel aşamasına bakın. |
 | Yalnızca taslak durumundaki kayıtlar silinebilir. | Gönderilmiş talepler silinemez. | Gerekirse **İptal Et** kullanın. |
+| Yalnızca kendi taslaklarınızı silebilirsiniz. | Başka birinin taslağını silmeye çalıştınız. | Taslak, sahibi tarafından silinir; gönderildiğinde yetkili onaylayabilir veya reddedebilir. |
 | Bu etiket numarasına sahip bir cihaz zaten mevcut! | Aynı etiket numarası başka bir cihazda var. | Farklı bir etiket numarası girin. |
 | Geçmiş zimmet kaydı olan cihaz silinemez, arşivleyiniz. | Cihazın geçmişi korunmalı. | Cihazı arşivleyin. |
 | Aktif zimmeti olan cihaz arşivlenemez. | Cihazın onaylı veya teslim edilmiş talebi var. | Önce talepleri tamamlayın veya iptal edin. |
