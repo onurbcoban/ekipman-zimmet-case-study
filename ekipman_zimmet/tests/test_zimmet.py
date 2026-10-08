@@ -359,3 +359,17 @@ class TestZimmet(TransactionCase):
         self.assertNotEqual(kopya.name, kayit.name)
         self.assertFalse(kopya.fiili_baslangic)
 
+    def test_25_cakisma_mesaji(self):
+        a = self._talep(self.user_yetkili, 1, 5)
+        a.action_gonder()
+        a.action_onayla()
+
+        b = self._talep(self.user2, 3, 8)
+        b.action_gonder()
+        with self.assertRaises(ValidationError) as hata:
+            b.with_user(self.user_yetkili).action_onayla()
+        mesaj = str(hata.exception)
+        self.assertIn(a.name, mesaj)
+        self.assertIn(a.planlanan_baslangic.strftime('%d.%m.%Y'), mesaj)
+        self.assertIn(a.planlanan_bitis.strftime('%d.%m.%Y'), mesaj)
+

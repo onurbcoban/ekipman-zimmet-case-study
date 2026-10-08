@@ -129,10 +129,11 @@ class EkipmanZimmet(models.Model):
                 ]
                 cakisan_kayitlar = self.sudo().search(domain)
                 if cakisan_kayitlar:
-                    if self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
-                        raise ValidationError(f"{cakisan_kayitlar[0].name} referanslı kayıtla {cakisan_kayitlar[0].planlanan_baslangic} / {cakisan_kayitlar[0].planlanan_bitis} tarihleri arasında çakışıyor.")
-                    else:
-                        raise ValidationError(f"Seçilen tarihlerde ({rec.planlanan_baslangic} / {rec.planlanan_bitis}) bu cihaz doludur.")
+                    cakisan = cakisan_kayitlar[0]
+                    raise ValidationError(
+                        f"{cakisan.name} referanslı kayıtla {cakisan.planlanan_baslangic.strftime('%d.%m.%Y')} - "
+                        f"{cakisan.planlanan_bitis.strftime('%d.%m.%Y')} tarihleri arasında çakışıyor."
+                    )
 
     @api.constrains('cihaz_id', 'state')
     def _check_fiziksel_teslim(self):
