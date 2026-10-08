@@ -2,7 +2,7 @@ from odoo import fields
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 from odoo.tools import format_date, mute_logger
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import AccessError, ValidationError, UserError
 from datetime import date, timedelta
 
 from dateutil.relativedelta import relativedelta
@@ -536,3 +536,43 @@ class TestZimmet(TransactionCase):
                 'planlanan_bitis': self.bugun,
                 'istenen_bitis': self.bugun + timedelta(days=3),
             })
+
+    def _onayli_talep(self, user, baslangic, bitis):
+        zimmet = self._talep(user, baslangic, bitis)
+        zimmet.action_gonder()
+        zimmet.with_user(self.user_yetkili).action_onayla()
+        return zimmet
+
+    def test_35_uzatma_onay_ve_red(self):
+        zimmet = self._onayli_talep(self.user2, 0, 3)
+        zimmet.write({'istenen_bitis': self.bugun + timedelta(days=5)})
+        with self.assertRaises(AccessError):
+            zimmet.action_uzatmayi_onayla()
+        zimmet.with_user(self.user_yetkili).action_uzatmayi_onayla()
+        self.assertEqual(zimmet.planlanan_bitis, self.bugun + timedelta(days=5))
+        self.assertFalse(zimmet.istenen_bitis)
+
+        self._onayli_talep(self.user_yetkili, 8, 12)
+        zimmet.write({'istenen_bitis': self.bugun + timedelta(days=9)})
+        with self.assertRaises(ValidationError):
+            zimmet.with_user(self.user_yetkili).action_uzatmayi_onayla()
+        self.assertEqual(zimmet.planlanan_bitis, self.bugun + timedelta(days=5))
+
+        zimmet.with_user(self.user_yetkili).action_uzatmayi_reddet()
+        self.assertFalse(zimmet.istenen_bitis)
+        self.assertEqual(zimmet.planlanan_bitis, self.bugun + timedelta(days=5))
+
+    def test_36_gecikmis_kayit_uzatilinca_gecikenlerden_cikar(self):
+        # Gecikmiş kayıt zamanla oluşur; testte sudo ile kurulur.
+        gecikmis = self._talep(self.user2, -7, -2)
+        gecikmis.sudo().write({'state': 'teslim_edildi', 'fiili_baslangic': self.bugun - timedelta(days=7)})
+        gecikenler = self._arama_filtresi('gecikenler') + [('id', '=', gecikmis.id)]
+        self.assertTrue(self.env['ekipman.zimmet'].search(gecikenler))
+
+        gecikmis.write({'istenen_bitis': self.bugun + timedelta(days=3)})
+        gecikmis.with_user(self.user_yetkili).action_uzatmayi_onayla()
+        self.assertFalse(self.env['ekipman.zimmet'].search(gecikenler))
+
+        gecikmis.write({'istenen_bitis': self.bugun + timedelta(days=6)})
+        gecikmis.with_user(self.user_yetkili).action_iade_al()
+        self.assertFalse(gecikmis.istenen_bitis)

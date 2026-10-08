@@ -265,6 +265,7 @@ class EkipmanZimmet(models.Model):
                 'state': 'iade_edildi',
                 'fiili_bitis': bugun,
                 'kapanis_tarihi': bugun,
+                'istenen_bitis': False,
             })
 
     def action_iptal(self):
@@ -277,7 +278,30 @@ class EkipmanZimmet(models.Model):
                 raise UserError('Başkasının talebini iptal edemezsiniz.')
             if not rec.iptal_nedeni:
                 raise UserError('İptal etmek için iptal nedeni doldurulmalıdır.')
-            rec.sudo().write({'state': 'iptal', 'kapanis_tarihi': fields.Date.context_today(self)})
+            rec.sudo().write({
+                'state': 'iptal',
+                'kapanis_tarihi': fields.Date.context_today(self),
+                'istenen_bitis': False,
+            })
+
+    def action_uzatmayi_onayla(self):
+        if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
+            raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
+        for rec in self:
+            if not rec.istenen_bitis:
+                raise UserError('Bekleyen bir uzatma isteği yok.')
+            rec.sudo().write({'planlanan_bitis': rec.istenen_bitis, 'istenen_bitis': False})
+        self._kisitlari_simdi_denetle()
+
+    def action_uzatmayi_reddet(self):
+        if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
+            raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
+        for rec in self:
+            if not rec.istenen_bitis:
+                raise UserError('Bekleyen bir uzatma isteği yok.')
+            istenen = format_date(self.env, rec.istenen_bitis)
+            rec.sudo().write({'istenen_bitis': False})
+            rec._message_log(body=f"{istenen} tarihine uzatma isteği reddedildi.")
 
     def action_uzatmayi_geri_cek(self):
         for rec in self:
@@ -308,11 +332,11 @@ class EkipmanZimmet(models.Model):
                 if any(rec.state not in ('talep_edildi', 'onaylandi') for rec in self):
                     raise UserError('İptal nedeni yalnızca onay bekleyen veya onaylı taleplerde yazılabilir.')
 
-        restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis'}
-        if restricted_fields.intersection(vals.keys()):
-            for rec in self:
-                if rec.state != 'taslak':
-                    raise UserError('Taslak durumunda olmayan kayıtların cihaz ve planlanan tarih bilgileri değiştirilemez.')
+            restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis'}
+            if restricted_fields.intersection(vals.keys()):
+                for rec in self:
+                    if rec.state != 'taslak':
+                        raise UserError('Taslak durumunda olmayan kayıtların cihaz ve planlanan tarih bilgileri değiştirilemez.')
         return super().write(vals)
 
     def _uzatma_istegini_denetle(self, istenen):
