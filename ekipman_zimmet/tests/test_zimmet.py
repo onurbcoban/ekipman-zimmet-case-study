@@ -728,3 +728,39 @@ class TestZimmet(TransactionCase):
         kayit = [('id', '=', zimmet.id)]
         self.assertFalse(Zimmet.search(self._arama_filtresi('acik_talepler') + kayit))
         self.assertFalse(Zimmet.search(self._arama_filtresi('guncel_talepler') + kayit))
+
+    def test_46_hurdaya_ayir(self):
+        taslak = self._talep(self.user2, 0, 2)
+        bekleyen = self._talep(self.user2, 3, 5)
+        bekleyen.action_gonder()
+        onayli = self._onayli_talep(self.user2, 6, 8)
+        iade = self._onayli_talep(self.user_yetkili, 9, 10)
+        iade.sudo().write({'state': 'iade_edildi'})
+
+        with self.assertRaises(AccessError):
+            self.cihaz.with_user(self.user2).action_hurdaya_ayir()
+        self.cihaz.with_user(self.user_yetkili).action_hurdaya_ayir()
+
+        self.assertEqual((taslak.state, bekleyen.state, onayli.state, iade.state), ('iptal', 'iptal', 'iptal', 'iade_edildi'))
+        self.assertEqual(
+            taslak.iptal_nedeni,
+            'Gönderilmemiş taslağınızdaki cihaz (ETK-001 Test Cihaz) hurdaya ayrıldığı için taslak iptal edildi.',
+        )
+        self.assertIn('Onay bekleyen talebinizdeki cihaz (ETK-001 Test Cihaz)', bekleyen.iptal_nedeni)
+        self.assertIn('Onaylanmış talebinizdeki cihaz (ETK-001 Test Cihaz)', onayli.iptal_nedeni)
+        self.assertEqual(onayli.kapanis_tarihi, self.bugun)
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'hurda')
+        self.assertFalse(self.cihaz.active)
+        self.assertEqual(len(self.cihaz.zimmet_ids), 4)
+
+        guncel = self.env['ekipman.zimmet'].with_user(self.user2).search(self._arama_filtresi('guncel_talepler'))
+        self.assertIn(onayli, guncel)
+
+    def test_47_zimmetteki_cihaz_hurdaya_ayrilamaz(self):
+        zimmet = self._onayli_talep(self.user_yetkili, 0, 3)
+        sonraki = self._onayli_talep(self.user2, 5, 6)
+        zimmet.action_teslim_et()
+        with self.assertRaises(UserError):
+            self.cihaz.with_user(self.user_yetkili).action_hurdaya_ayir()
+        self.assertEqual(sonraki.state, 'onaylandi')
+        self.assertTrue(self.cihaz.active)

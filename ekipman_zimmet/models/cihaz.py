@@ -1,6 +1,14 @@
 from odoo import models, fields, api
 from odoo.exceptions import AccessError, UserError
 from odoo.tools import format_date
+
+HURDA_IPTAL_NEDENLERI = {
+    'taslak': 'Gönderilmemiş taslağınızdaki cihaz ({cihaz}) hurdaya ayrıldığı için taslak iptal edildi.',
+    'talep_edildi': 'Onay bekleyen talebinizdeki cihaz ({cihaz}) hurdaya ayrıldığı için talep iptal edildi.',
+    'onaylandi': 'Onaylanmış talebinizdeki cihaz ({cihaz}) hurdaya ayrıldığı için talep iptal edildi.',
+}
+
+
 class EkipmanCihaz(models.Model):
     _name = 'ekipman.cihaz'
     _description = 'Ekipman Cihazı'
@@ -170,6 +178,22 @@ class EkipmanCihaz(models.Model):
 
     def action_bulundu(self):
         self._kullanilabilirlik_degistir(('kayip',), 'kontrolde')
+
+    def action_hurdaya_ayir(self):
+        self._kullanilabilirlik_degistir(('kullanilabilir', 'kontrolde', 'bakimda', 'kayip'), 'hurda')
+        bugun = fields.Date.context_today(self)
+        for rec in self:
+            cihaz = f"{rec.etiket_no} {rec.name}"
+            # Kullanıcı taslağı iptal edemez (B3); bu iptal sistemin geçişidir (B2, 12).
+            for zimmet in rec.sudo().zimmet_ids.filtered(lambda z: z.state in HURDA_IPTAL_NEDENLERI):
+                zimmet.write({
+                    'iptal_nedeni': HURDA_IPTAL_NEDENLERI[zimmet.state].format(cihaz=cihaz),
+                    'state': 'iptal',
+                    'kapanis_tarihi': bugun,
+                    'istenen_bitis': False,
+                })
+            # Açık kayıtlar iptal edildikten sonra arşivleme kuralı (A5) geçer.
+            rec.sudo().write({'active': False})
 
     def write(self, vals):
         if 'kullanilabilirlik' in vals and not self.env.su:
