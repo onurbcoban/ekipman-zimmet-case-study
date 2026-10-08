@@ -142,9 +142,11 @@ class EkipmanZimmet(models.Model):
                     if calisan_val_id != user_emp_id:
                         raise UserError('Sadece kendi adınıza talep açabilirsiniz.')
                 vals['calisan_id'] = user_emp_id
-                # Web istemcisi yeni kayıtta varsayılan state='taslak' değerini de gönderir.
-                if vals.get('state', 'taslak') != 'taslak' or {'fiili_baslangic', 'fiili_bitis', 'kapanis_tarihi', 'istenen_bitis'} & vals.keys():
-                    raise UserError('Kayıt yalnızca taslak olarak ve fiili tarihler olmadan oluşturulabilir.')
+                # Web istemcisi yeni kayıtta formdaki varsayılanları da gönderir (state='taslak',
+                # boş tarihler); yalnızca dolu değerler engellenir.
+                surec_alanlari = ('fiili_baslangic', 'fiili_bitis', 'kapanis_tarihi', 'istenen_bitis')
+                if vals.get('state', 'taslak') != 'taslak' or any(vals.get(alan) for alan in surec_alanlari):
+                    raise UserError('Kayıt yalnızca taslak olarak ve süreç tarihleri olmadan oluşturulabilir.')
         return super().create(vals_list)
 
     @api.constrains('planlanan_baslangic', 'planlanan_bitis')
