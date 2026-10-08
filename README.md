@@ -96,7 +96,7 @@ stateDiagram-v2
 | Cihaz işlemleri | Yetkili | Kontrol Tamamlandı, Bakıma Al, Kullanılabilir Yap, Kayıp Olarak İşaretle, Bulundu; cihaz zimmette değil |
 | Hurdaya Ayır | Yetkili | Cihaz zimmette değil; açık talepler aşamaya göre nedenle iptal edilir, cihaz arşivlenir |
 
-Mühendis yalnızca kendi kayıtlarını görür; yetkili hepsini görür ve işleri kuyruk menülerinden yürütür. "Gecikmiş" bir durum değil, planlanan bitişi geçmiş teslim edilmiş kayıttır ("Gecikenler" menüsü).
+Mühendis yalnızca kendi kayıtlarını görür; yetkili hepsini görür ve işleri "Bekleyen İşler" menüsünden yürütür. "Gecikmiş" bir durum değil, planlanan bitişi geçmiş teslim edilmiş kayıttır ("Gecikenler" menüsü).
 
 ## 4. Tasarım kararları
 

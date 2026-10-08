@@ -46,7 +46,7 @@ Bu doküman, Ekipman Zimmet uygulamasını günlük işinde kullanacak mühendis
 
 ### Talep oluşturma
 
-1. **Ekipman Zimmet → Zimmet Talepleri** menüsünü açın ve **Yeni**'ye basın.
+1. **Talepler → Zimmet Talepleri** menüsünü açın ve **Yeni**'ye basın.
 2. **Cihaz** alanından istediğiniz cihazı seçin. Listede yalnızca kullanılabilir cihazlar çıkar. Cihazlar etiket numarası ve adıyla listelenir (ör. "[LTP-001] MacBook Pro 14 M1 Pro"); seçtiğiniz cihazın açıklaması (ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile") hemen altında görünür. Altında ayrıca **Dolu Tarihler** görünür; seçeceğiniz tarihlerin bu aralıklarla çakışmamasına dikkat edin.
 3. **Planlanan Başlangıç** ve **Planlanan Bitiş** tarihlerini girin. **Çalışan** alanı sizin adınızla otomatik dolar, değiştirilemez.
 4. Kaydedin. Talep **Taslak** olarak saklanır; bu aşamada istediğiniz kadar düzenleyebilirsiniz.
@@ -56,7 +56,7 @@ Bu doküman, Ekipman Zimmet uygulamasını günlük işinde kullanacak mühendis
 
 ### Birden çok cihazı birlikte isteme (Toplu Talep)
 
-Aynı tarihler için birden fazla cihaza ihtiyacınız varsa (ör. bir osiloskop ve bir dizüstü bilgisayar) **Ekipman Zimmet → Toplu Talep**'i açın. Planlanan tarihleri girin, **Satır ekle** ile cihazları seçin (listede yalnızca kullanılabilir cihazlar, dolu tarihleriyle görünür) ve **Talep Et**'e basın. Her cihaz için ayrı bir talep açılır ve doğrudan yetkiliye gönderilir; talepler aynı **Toplu Talep** numarasını (ör. `TPL/0002`) taşır. Cihazlardan biri için talep açılamıyorsa (ör. başlangıç tarihi geçmişse) hiçbiri açılmaz; mesajı okuyup düzeltin.
+Aynı tarihler için birden fazla cihaza ihtiyacınız varsa (ör. bir osiloskop ve bir dizüstü bilgisayar) **Talepler → Toplu Talep**'i açın. Planlanan tarihleri girin, **Satır ekle** ile cihazları seçin (listede yalnızca kullanılabilir cihazlar, dolu tarihleriyle görünür) ve **Talep Et**'e basın. Her cihaz için ayrı bir talep açılır ve doğrudan yetkiliye gönderilir; talepler aynı **Toplu Talep** numarasını (ör. `TPL/0002`) taşır. Cihazlardan biri için talep açılamıyorsa (ör. başlangıç tarihi geçmişse) hiçbiri açılmaz; mesajı okuyup düzeltin.
 
 Talepler açıldıktan sonra birbirinden bağımsızdır: biri onaylanırken diğeri reddedilebilir; birini geri çekip düzeltebilir veya iptal edebilirsiniz.
 
@@ -101,19 +101,19 @@ Cihaza planladığınızdan daha uzun süre ihtiyacınız varsa, talebiniz onayl
 
 ### Ekipmanlara göz atma
 
-**Ekipmanlar** menüsünde cihazları görebilirsiniz; liste varsayılan olarak **Kullanımdaki Cihazlar** filtresiyle açılır (kayıp ve hurda cihazlar gizlidir). **Kullanılabilirlik** sütunu cihazın verilebilir olup olmadığını, **Verilebilir** filtresi şu an kullanılabilir ve kimsede olmayan cihazları gösterir. **Fiziksel Durum** sütunu cihazın şu an birinde olup olmadığını ("Zimmette" / "Zimmette değil") gösterir. Cihazı açıp **Müsaitlik Bilgisi** sekmesinden dolu tarihlerine bakabilirsiniz. Cihazın kimde olduğu ve geçmiş kullanıcıları yalnızca yetkililere görünür.
+**Ekipman → Ekipmanlar** menüsünde cihazları görebilirsiniz; liste varsayılan olarak **Kullanımdaki Cihazlar** filtresiyle açılır (kayıp ve hurda cihazlar gizlidir). **Kullanılabilirlik** sütunu cihazın verilebilir olup olmadığını, **Verilebilir** filtresi şu an kullanılabilir ve kimsede olmayan cihazları gösterir. **Fiziksel Durum** sütunu cihazın şu an birinde olup olmadığını ("Zimmette" / "Zimmette değil") gösterir. Cihazı açıp **Müsaitlik Bilgisi** sekmesinden dolu tarihlerine bakabilirsiniz. Cihazın kimde olduğu ve geçmiş kullanıcıları yalnızca yetkililere görünür.
 
 ## 4. Yetkili için
 
-Yetkili menüsünde, günlük işinizi aşama aşama gösteren kuyruklar vardır. Her kuyruk ilgili filtreyle açılır; filtre arama çubuğunda görünür ve kaldırılırsa tüm kayıtlar listelenir.
+Yalnızca yetkililere görünen **Bekleyen İşler** menüsünde, günlük işinizi iş akışı sırasıyla gösteren listeler vardır. Her liste ilgili filtreyle açılır; filtre arama çubuğunda görünür ve kaldırılırsa tüm kayıtlar listelenir.
 
 | Menü | İçindekiler | Yapılacak iş |
 |---|---|---|
 | **Onay Bekleyenler** | Gönderilmiş talepler | Onaylamak veya reddetmek |
+| **Uzatma Bekleyenler** | Süre uzatma isteği olan talepler | Uzatmayı onaylamak veya reddetmek |
 | **Teslim Bekleyenler** | Onaylanmış, cihazı henüz verilmemiş talepler | Cihazı verirken teslimi işlemek |
 | **Gecikenler** | İade tarihi geçmiş zimmetler | Kişiyle iletişime geçmek, cihaz gelince iadeyi işlemek |
 | **Süresi Geçmiş Onaylar** | Bitiş tarihi geçmiş ama hiç teslim edilmemiş onaylar | İptal etmek |
-| **Uzatma Bekleyenler** | Süre uzatma isteği olan talepler | Uzatmayı onaylamak veya reddetmek |
 | **Kullanılamayan Cihaz Onayları** | Onaylanmış ama cihazı şu an kontrolde, bakımda veya kayıp olan talepler | Cihazı hazırlamak ya da talep sahibiyle konuşup iptal etmek |
 | **Kontrol Bekleyen Cihazlar** | İade edilmiş, kontrol bekleyen cihazlar | Cihazı kontrol edip Kontrol Tamamlandı veya Bakıma Al demek |
 
@@ -168,8 +168,8 @@ Kontrol, bakım ve kayıp cihazın mevcut taleplerini iptal etmez; talepler ciha
 
 ### Ekipman ve kategori tanımlama
 
-- **Ekipmanlar → Yeni:** **Cihaz Adı** (herkesin tanıyacağı ad, ör. "MacBook Pro 14 M1 Pro"), **Etiket No** (cihazın üzerindeki demirbaş etiketi, ör. "LTP-001"), **Açıklama** (cihazı benzerlerinden ayıran ayrıntılar, ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile"), **Seri No** (isteğe bağlı) ve **Kategori** girilir. Etiket numarası her cihaz için farklı olmalıdır.
-- **Kategoriler** menüsünden yeni kategori eklenebilir (örneğin "Osiloskop", "Dizüstü bilgisayar").
+- **Ekipman → Ekipmanlar → Yeni:** **Cihaz Adı** (herkesin tanıyacağı ad, ör. "MacBook Pro 14 M1 Pro"), **Etiket No** (cihazın üzerindeki demirbaş etiketi, ör. "LTP-001"), **Açıklama** (cihazı benzerlerinden ayıran ayrıntılar, ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile"), **Seri No** (isteğe bağlı) ve **Kategori** girilir. Etiket numarası her cihaz için farklı olmalıdır.
+- **Ekipman → Kategoriler** menüsünden yeni kategori eklenebilir (örneğin "Osiloskop", "Dizüstü bilgisayar").
 - **Kullanımdan kaldırma:** Cihazı silmek yerine arşivleyin (form üzerindeki işlem menüsünden **Arşivle**). Geçmiş zimmet kaydı olan cihaz silinemez. Onaylı veya teslim edilmiş talebi olan cihaz arşivlenemez; önce o talepleri tamamlayın veya iptal edin. Arşivlenen cihazlar ekipman listesinde **Arşivlenenler** filtresiyle görülür. Cihaz bozulduğu veya ömrünü doldurduğu için kaldırılıyorsa arşivlemek yerine **Hurdaya Ayır**'ı kullanın; açık talepleri de nedeniyle kapatır.
 
 ### Cihaz şu an kimde, daha önce kimdeydi?

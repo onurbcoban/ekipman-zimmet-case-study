@@ -37,7 +37,7 @@
 
     <menuitem id="menu_ekipman_zimmet_toplu"
               name="Toplu Talep"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_talepler"
               action="action_ekipman_zimmet_toplu"
-              sequence="11"/>
+              sequence="20"/>
 </odoo>

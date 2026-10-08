@@ -5,10 +5,26 @@
               name="Ekipman Zimmet"
               sequence="10"/>
 
-    <!-- Alt Menüler -->
+    <!-- Üst menüde üç açılır menü; yetkili yedi listeyi tek yerde bulur. -->
+    <menuitem id="menu_ekipman_zimmet_talepler"
+              name="Talepler"
+              parent="menu_ekipman_zimmet_root"
+              sequence="10"/>
+
+    <menuitem id="menu_ekipman_zimmet_bekleyen_isler"
+              name="Bekleyen İşler"
+              parent="menu_ekipman_zimmet_root"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
+              sequence="20"/>
+
+    <menuitem id="menu_ekipman_ekipman"
+              name="Ekipman"
+              parent="menu_ekipman_zimmet_root"
+              sequence="30"/>
+
     <menuitem id="menu_ekipman_zimmet_talep"
               name="Zimmet Talepleri"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_talepler"
               action="action_ekipman_zimmet"
               sequence="10"/>
 
@@ -99,66 +115,66 @@
         </field>
     </record>
 
-    <!-- Kuyruk Menüleri -->
+    <!-- Bekleyen İşler: iş akışı sırasıyla -->
     <menuitem id="menu_ekipman_zimmet_onay_bekleyenler"
               name="Onay Bekleyenler"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_bekleyen_isler"
               action="action_ekipman_zimmet_onay_bekleyenler"
               groups="ekipman_zimmet.group_zimmet_yetkili"
-              sequence="12"/>
+              sequence="10"/>
 
     <menuitem id="menu_ekipman_zimmet_teslim_bekleyenler"
               name="Teslim Bekleyenler"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_bekleyen_isler"
               action="action_ekipman_zimmet_teslim_bekleyenler"
               groups="ekipman_zimmet.group_zimmet_yetkili"
-              sequence="14"/>
+              sequence="30"/>
 
     <menuitem id="menu_ekipman_zimmet_gecikenler"
               name="Gecikenler"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_bekleyen_isler"
               action="action_ekipman_zimmet_gecikenler"
               groups="ekipman_zimmet.group_zimmet_yetkili"
-              sequence="16"/>
+              sequence="40"/>
 
     <menuitem id="menu_ekipman_zimmet_suresi_gecmis_onaylar"
               name="Süresi Geçmiş Onaylar"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_bekleyen_isler"
               action="action_ekipman_zimmet_suresi_gecmis_onaylar"
               groups="ekipman_zimmet.group_zimmet_yetkili"
-              sequence="18"/>
+              sequence="50"/>
 
     <menuitem id="menu_ekipman_zimmet_uzatma_bekleyenler"
               name="Uzatma Bekleyenler"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_bekleyen_isler"
               action="action_ekipman_zimmet_uzatma_bekleyenler"
               groups="ekipman_zimmet.group_zimmet_yetkili"
-              sequence="19"/>
+              sequence="20"/>
 
     <menuitem id="menu_ekipman_zimmet_kullanilamayan_cihaz_onaylari"
               name="Kullanılamayan Cihaz Onayları"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_bekleyen_isler"
               action="action_ekipman_zimmet_kullanilamayan_cihaz_onaylari"
               groups="ekipman_zimmet.group_zimmet_yetkili"
-              sequence="19"/>
+              sequence="60"/>
 
     <menuitem id="menu_ekipman_cihaz_kontrol_bekleyenler"
               name="Kontrol Bekleyen Cihazlar"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_zimmet_bekleyen_isler"
               action="action_ekipman_cihaz_kontrol_bekleyenler"
               groups="ekipman_zimmet.group_zimmet_yetkili"
-              sequence="19"/>
+              sequence="70"/>
 
     <menuitem id="menu_ekipman_cihaz"
               name="Ekipmanlar"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_ekipman"
               action="action_ekipman_cihaz"
-              sequence="20"/>
+              sequence="10"/>
 
     <menuitem id="menu_ekipman_kategori"
               name="Kategoriler"
-              parent="menu_ekipman_zimmet_root"
+              parent="menu_ekipman_ekipman"
               action="action_ekipman_kategori"
               groups="ekipman_zimmet.group_zimmet_yetkili"
-              sequence="30"/>
+              sequence="20"/>
 </odoo>

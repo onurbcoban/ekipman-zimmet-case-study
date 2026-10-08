@@ -889,3 +889,20 @@ class TestZimmet(TransactionCase):
         self.assertTrue(liste.xpath("//header/button[@name='action_onayla']"))
         arama = self.env.ref('ekipman_zimmet.view_ekipman_zimmet_search').arch
         self.assertIn("'group_by': 'toplu_ref'", arama)
+
+    def test_56_menu_gruplari(self):
+        def ust(xml_id):
+            return self.env.ref(f'ekipman_zimmet.{xml_id}').parent_id
+        talepler = self.env.ref('ekipman_zimmet.menu_ekipman_zimmet_talepler')
+        bekleyen = self.env.ref('ekipman_zimmet.menu_ekipman_zimmet_bekleyen_isler')
+        ekipman = self.env.ref('ekipman_zimmet.menu_ekipman_ekipman')
+        kok = self.env.ref('ekipman_zimmet.menu_ekipman_zimmet_root')
+        self.assertEqual((talepler | bekleyen | ekipman).parent_id, kok)
+        self.assertEqual(ust('menu_ekipman_zimmet_talep') | ust('menu_ekipman_zimmet_toplu'), talepler)
+        self.assertEqual(ust('menu_ekipman_cihaz') | ust('menu_ekipman_kategori'), ekipman)
+        kuyruklar = ['onay_bekleyenler', 'uzatma_bekleyenler', 'teslim_bekleyenler', 'gecikenler',
+                     'suresi_gecmis_onaylar', 'kullanilamayan_cihaz_onaylari']
+        for ad in kuyruklar:
+            self.assertEqual(ust(f'menu_ekipman_zimmet_{ad}'), bekleyen)
+        self.assertEqual(ust('menu_ekipman_cihaz_kontrol_bekleyenler'), bekleyen)
+        self.assertEqual(bekleyen.groups_id, self.group_yetkili)

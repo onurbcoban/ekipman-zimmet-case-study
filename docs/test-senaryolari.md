@@ -107,7 +107,7 @@
 8. **Kullanılamayan cihaz:** Kontroldeki veya bakımdaki cihazın dolu tarihler alanının başında yalnızca durumu yazılır ("Cihaz kontrolde", "Cihaz bakımda"); süre tahmini yoktur (E4, A7).
 
 ## F Bölümü - Ekranlar ve Menüler
-1. **Menü görünürlüğü:** Zimmet Talepleri "Güncel Talepler" filtresiyle açılır (F/15). Yetkili hesabında Zimmet Talepleri, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Uzatma Bekleyenler, Kullanılamayan Cihaz Onayları, Kontrol Bekleyen Cihazlar, Ekipmanlar ve Kategoriler görünür. Mühendis hesabında yalnızca Zimmet Talepleri ve Ekipmanlar görünür (F1).
+1. **Menü görünürlüğü:** Zimmet Talepleri "Güncel Talepler" filtresiyle açılır (F/15). Yetkili üst menüde üç açılır menü görür: Talepler (Zimmet Talepleri, Toplu Talep), Bekleyen İşler (Onay Bekleyenler, Uzatma Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Kullanılamayan Cihaz Onayları, Kontrol Bekleyen Cihazlar) ve Ekipman (Ekipmanlar, Kategoriler). Mühendis yalnızca Talepler (Zimmet Talepleri, Toplu Talep) ve Ekipman (Ekipmanlar) menülerini görür (F1).
 2. **Kuyruk içerikleri:** Onay Bekleyenler yalnızca `talep_edildi`, Teslim Bekleyenler yalnızca `onaylandi`, Uzatma Bekleyenler yalnızca `istenen_bitis` dolu, Kullanılamayan Cihaz Onayları yalnızca cihazı kullanılabilir olmayan `onaylandi` kayıtları, Kontrol Bekleyen Cihazlar yalnızca kontroldeki cihazları listeler. Kuyruk menüsü ilgili filtreyi arama çubuğunda etiket olarak açar; filtre kaldırılınca tüm kayıtlar görünür (F1).
 3. **Buton görünürlüğü:** Taslakta sahibinde Talep Et ve Taslağı Sil (İptal Et görünmez); bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte yetkilide Teslim Et, sahibinde düzenlenebilir "İstenen Bitiş" alanı; teslim edilmişte yetkilide İade Al ve Kayıp Olarak İşaretle, sahibinde düzenlenebilir "İstenen Bitiş" alanı; bekleyen uzatmada sahibinde Uzatmayı Geri Çek, yetkilide Uzatmayı Onayla ve Uzatmayı Reddet; kapalı durumlarda (iade, kayıp, red, iptal) hiçbir buton görünmez. Yetkili başkasının taslağını açtığında Talep Et ve Taslağı Sil, bekleyen talebinde Geri Çek görünmez (F2).
 4. **Statusbar:** Statusbar'a tıklanarak durum değiştirilemez (F2, B8).
@@ -185,6 +185,7 @@ Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerl
 | E/5 | `test_05_dolu_tarihler_related` (kısmen: onaylı aralığın görünmesi) |
 | F/3 | `test_19_talep_sahibi_mi` (sahiplik alanı; butonların görünürlüğü elle denenir) |
 | F/5 | `test_17_create_korumalari` (form üzerinden oluşturmada çalışan alanı) |
+| F/1 (menü yapısı) | `test_56_menu_gruplari` |
 | F/15 | `test_33_guncel_ve_acik_talepler`, `test_45_kayip_kapanmis_sayilir` |
 | A/7, A/10, D/7 | `test_50_toplu_talep_olusturma` |
 | A/8 | `test_51_toplu_talep_tek_islem` |
