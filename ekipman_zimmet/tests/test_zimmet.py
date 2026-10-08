@@ -1,9 +1,11 @@
 from odoo import fields
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
-from odoo.tools import format_date
+from odoo.tools import format_date, mute_logger
 from odoo.exceptions import ValidationError, UserError
 from datetime import date, timedelta
+
+from psycopg2 import errors
 
 class TestZimmet(TransactionCase):
 
@@ -391,3 +393,37 @@ class TestZimmet(TransactionCase):
         dolu = self.cihaz.with_user(self.user2).dolu_tarihler
         self.assertIn(format_date(self.user2.env, zimmet.planlanan_baslangic), dolu)
         self.assertIn(format_date(self.user2.env, zimmet.planlanan_bitis), dolu)
+
+    def _sql_ile_durum(self, kayit, durum):
+        self.env.cr.execute("UPDATE ekipman_zimmet SET state = %s WHERE id = %s", (durum, kayit.id))
+
+    def test_28_veritabani_cakisma_kisiti(self):
+        # Eşzamanlı onay yarışının sonucu: iki Python kontrolü de geçmiş, iki yazma veritabanına ulaşmış.
+        a = self._talep(self.user2, 0, 5)
+        b = self._talep(self.user_yetkili, 3, 8)
+        self.env.flush_all()
+        self._sql_ile_durum(a, 'onaylandi')
+        self._sql_ile_durum(b, 'onaylandi')
+        with self.assertRaises(errors.ExclusionViolation), mute_logger('odoo.sql_db'), self.env.cr.savepoint():
+            b._kisitlari_simdi_denetle()
+
+    def test_29_veritabani_tek_teslim_kisiti(self):
+        # Tarihleri çakışmayan iki kayıt: tarih kısıtı geçer, aynı cihazın iki kez teslimini tek-teslim kısıtı durdurur.
+        a = self._talep(self.user2, 0, 3)
+        b = self._talep(self.user_yetkili, 10, 13)
+        self.env.flush_all()
+        self._sql_ile_durum(a, 'teslim_edildi')
+        self._sql_ile_durum(b, 'teslim_edildi')
+        with self.assertRaises(errors.ExclusionViolation), mute_logger('odoo.sql_db'), self.env.cr.savepoint():
+            b._kisitlari_simdi_denetle()
+
+    def test_30_kisitlar_eklentisiz_kurulu(self):
+        self.env.cr.execute("SELECT 1 FROM pg_extension WHERE extname = 'btree_gist'")
+        self.assertFalse(self.env.cr.fetchall())
+        self.env.cr.execute(
+            "SELECT conname FROM pg_constraint WHERE conrelid = 'ekipman_zimmet'::regclass AND contype = 'x'"
+        )
+        self.assertEqual(
+            {satir[0] for satir in self.env.cr.fetchall()},
+            {'ekipman_zimmet_cakisma_engeli', 'ekipman_zimmet_tek_teslim'},
+        )

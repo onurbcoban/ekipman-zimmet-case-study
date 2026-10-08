@@ -9,6 +9,21 @@ class EkipmanZimmet(models.Model):
     _inherit = ['mail.thread']
     _order = 'planlanan_baslangic desc, id desc'
 
+    # Python kontrolleri (C2, C4) eşzamanlı işlemleri göremez; bu kısıtlar yarışta son savunmadır (C5).
+    # Cihaz kimliği tek elemanlı aralık (int4range) olarak yazıldığı için btree_gist eklentisi gerekmez.
+    # Ertelenmiştir: işlem içindeki ara durumlar (önce iade, sonra yeni teslim) sorun çıkarmaz ve
+    # Python kontrollerinin search() ile yaptığı flush kısıta takılmaz; denetim geçiş sonunda yapılır.
+    _sql_constraints = [
+        ('cakisma_engeli',
+         "EXCLUDE USING gist (int4range(cihaz_id, cihaz_id, '[]') WITH &&, "
+         "daterange(planlanan_baslangic, planlanan_bitis, '[]') WITH &&) "
+         "WHERE (state IN ('onaylandi', 'teslim_edildi')) DEFERRABLE INITIALLY DEFERRED",
+         'Bu cihaz seçilen tarihlerde başka bir onaylı veya teslim edilmiş talebe ayrılmış.'),
+        ('tek_teslim',
+         "EXCLUDE (cihaz_id WITH =) WHERE (state = 'teslim_edildi') DEFERRABLE INITIALLY DEFERRED",
+         'Bu cihaz şu anda başka bir çalışana teslim edilmiş durumda; önce iade alınması gerekir.'),
+    ]
+
     name = fields.Char(
         string='Referans',
         required=True,
@@ -153,6 +168,17 @@ class EkipmanZimmet(models.Model):
                 if teslim_edilenler:
                     raise ValidationError("Bu cihaz şu anda başka bir çalışana teslim edilmiş durumdadır. Önce iade alınması gerekir.")
 
+    def _kisitlari_simdi_denetle(self):
+        # Ertelenmiş kısıtlar normalde commit'te denetlenir; commit Odoo'nun istek döngüsünün dışında
+        # olduğu için oradaki ihlal kullanıcıya teknik bir hata olarak döner. Geçiş sonunda hemen
+        # denetlenince eşzamanlı işlemden doğan ihlal yakalanır ve kısıtın mesajıyla gösterilir.
+        # IMMEDIATE bekleyen denetimleri yapar ama modu işlemin sonuna kadar değiştirir; sonraki
+        # geçişlerin ara durumları için kısıtlar yeniden ertelenir.
+        kisitlar = "ekipman_zimmet_cakisma_engeli, ekipman_zimmet_tek_teslim"
+        self.env.flush_all()
+        self.env.cr.execute(f"SET CONSTRAINTS {kisitlar} IMMEDIATE")
+        self.env.cr.execute(f"SET CONSTRAINTS {kisitlar} DEFERRED")
+
     def action_gonder(self):
         bugun = fields.Date.context_today(self)
         for rec in self:
@@ -182,6 +208,7 @@ class EkipmanZimmet(models.Model):
             if rec.planlanan_bitis < bugun:
                 raise UserError('Bitiş tarihi geçmiş bir talep onaylanamaz; teslim edilemeyeceği için reddedilmelidir.')
             rec.sudo().write({'state': 'onaylandi'})
+        self._kisitlari_simdi_denetle()
 
     def action_reddet(self):
         if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
@@ -208,6 +235,7 @@ class EkipmanZimmet(models.Model):
                 'state': 'teslim_edildi',
                 'fiili_baslangic': bugun
             })
+        self._kisitlari_simdi_denetle()
 
     def action_iade_al(self):
         if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
