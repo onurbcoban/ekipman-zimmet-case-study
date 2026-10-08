@@ -227,6 +227,8 @@ class TestZimmet(TransactionCase):
         a.action_iade_al()
         self.assertEqual(a.state, 'iade_edildi')
         self.assertEqual(a.fiili_bitis, self.bugun)
+        # İade edilen cihaz kontrole girer; kalan günlere yeni onay kontrol tamamlanınca verilebilir (C1, A7).
+        self.cihaz.with_user(self.user_yetkili).action_kontrol_tamamlandi()
 
         b = self._talep(self.user2, 3, 8)
         b.action_gonder()
@@ -463,6 +465,7 @@ class TestZimmet(TransactionCase):
         self.assertFalse(iade_edilen.kapanis_tarihi)
         iade_edilen.action_iade_al()
         self.assertEqual(iade_edilen.kapanis_tarihi, self.bugun)
+        self.cihaz.with_user(self.user_yetkili).action_kontrol_tamamlandi()
 
         iptal_edilen = self._talep(self.user2, 5, 8)
         iptal_edilen.action_gonder()
@@ -579,7 +582,7 @@ class TestZimmet(TransactionCase):
 
     def test_37_kullanilabilirlik_alani(self):
         self.assertEqual(self.cihaz.kullanilabilirlik, 'kullanilabilir')
-        with self.assertRaises(AccessError):
+        with self.assertRaises(UserError):
             self.cihaz.with_user(self.user2).write({'kullanilabilirlik': 'bakimda'})
 
     def _cihaz_durumu(self, durum):
@@ -616,3 +619,25 @@ class TestZimmet(TransactionCase):
         with self.assertRaises(UserError):
             onayli.with_user(self.user_yetkili).action_teslim_et()
         self.assertEqual(onayli.state, 'onaylandi')
+
+    def test_40_iade_kontrol_ve_bakim(self):
+        zimmet = self._onayli_talep(self.user_yetkili, 0, 3)
+        zimmet.action_teslim_et()
+        cihaz = self.cihaz.with_user(self.user_yetkili)
+        with self.assertRaises(UserError):
+            cihaz.action_bakima_al()
+
+        zimmet.action_iade_al()
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'kontrolde')
+        with self.assertRaises(AccessError):
+            self.cihaz.with_user(self.user2).action_kontrol_tamamlandi()
+        cihaz.action_kontrol_tamamlandi()
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'kullanilabilir')
+
+        cihaz.action_bakima_al()
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'bakimda')
+        cihaz.action_kullanilabilir_yap()
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'kullanilabilir')
+
+        with self.assertRaises(UserError):
+            cihaz.write({'kullanilabilirlik': 'bakimda'})

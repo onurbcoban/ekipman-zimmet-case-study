@@ -22,6 +22,11 @@
         <field name="model">ekipman.cihaz</field>
         <field name="arch" type="xml">
             <form string="Ekipman">
+                <header groups="ekipman_zimmet.group_zimmet_yetkili">
+                    <button name="action_kontrol_tamamlandi" string="Kontrol Tamamlandı" type="object" class="oe_highlight" invisible="kullanilabilirlik != 'kontrolde'"/>
+                    <button name="action_bakima_al" string="Bakıma Al" type="object" invisible="kullanilabilirlik not in ('kullanilabilir', 'kontrolde') or fiziksel_durum == 'zimmette'"/>
+                    <button name="action_kullanilabilir_yap" string="Kullanılabilir Yap" type="object" class="oe_highlight" invisible="kullanilabilirlik != 'bakimda'"/>
+                </header>
                 <sheet>
                     <widget name="web_ribbon" title="Arşivlendi" bg_color="text-bg-danger" invisible="active"/>
                     <div class="oe_title">

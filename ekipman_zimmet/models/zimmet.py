@@ -280,6 +280,7 @@ class EkipmanZimmet(models.Model):
                 'kapanis_tarihi': bugun,
                 'istenen_bitis': False,
             })
+            rec.cihaz_id.sudo().write({'kullanilabilirlik': 'kontrolde'})
 
     def action_iptal(self):
         for rec in self:

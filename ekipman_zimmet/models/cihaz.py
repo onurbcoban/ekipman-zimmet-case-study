@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tools import format_date
 class EkipmanCihaz(models.Model):
     _name = 'ekipman.cihaz'
@@ -115,7 +115,32 @@ class EkipmanCihaz(models.Model):
                 raise UserError("Geçmiş zimmet kaydı olan cihaz silinemez, arşivleyiniz.")
         return super().unlink()
 
+    def _yetkili_olmali(self):
+        if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
+            raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
+
+    def _kullanilabilirlik_degistir(self, beklenen, yeni):
+        self._yetkili_olmali()
+        etiketler = dict(self._fields['kullanilabilirlik'].selection)
+        for rec in self:
+            if rec.kullanilabilirlik not in beklenen:
+                raise UserError(f"Cihaz şu an {etiketler[rec.kullanilabilirlik].lower()}; bu işlem yapılamaz.")
+            if rec.fiziksel_durum == 'zimmette':
+                raise UserError('Zimmetteki cihazın durumu değiştirilemez; önce iade alınmalıdır.')
+            rec.sudo().write({'kullanilabilirlik': yeni})
+
+    def action_kontrol_tamamlandi(self):
+        self._kullanilabilirlik_degistir(('kontrolde',), 'kullanilabilir')
+
+    def action_bakima_al(self):
+        self._kullanilabilirlik_degistir(('kullanilabilir', 'kontrolde'), 'bakimda')
+
+    def action_kullanilabilir_yap(self):
+        self._kullanilabilirlik_degistir(('bakimda',), 'kullanilabilir')
+
     def write(self, vals):
+        if 'kullanilabilirlik' in vals and not self.env.su:
+            raise UserError('Kullanılabilirlik yalnızca cihaz formundaki işlemlerle değiştirilebilir.')
         if vals.get('active') is False:
             for rec in self:
                 aktif_zimmet = rec.zimmet_ids.filtered(lambda z: z.state in ('onaylandi', 'teslim_edildi'))
