@@ -9,13 +9,14 @@ Bu doküman, Ekipman Zimmet uygulamasını günlük işinde kullanacak mühendis
 - Bir cihazın şu an kimde olduğu her zaman bilinir.
 - Aynı cihaz aynı tarihler için iki kişiye verilemez.
 - İade tarihi geçmiş cihazlar listede hemen görünür.
+- Kontrolde, bakımda veya kayıp olan cihaz istenemez; durumu herkese görünür.
 
 İki rol vardır:
 
 | Rol | Ne yapar |
 |---|---|
 | **Mühendis** | Kendi adına cihaz talep eder, talebini takip eder. |
-| **Yetkili** | Talepleri onaylar veya reddeder, cihazı teslim eder ve iade alır, ekipmanları tanımlar. Yetkili, mühendisin yapabildiği her şeyi de yapabilir. |
+| **Yetkili** | Talepleri onaylar veya reddeder, cihazı teslim eder ve iade alır, ekipmanları tanımlar, iade edilen cihazları kontrol eder. Yetkili, mühendisin yapabildiği her şeyi de yapabilir. |
 
 ## 2. Temel kavramlar
 

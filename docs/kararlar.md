@@ -315,14 +315,14 @@ Etkisi: Reddet butonu boş red gerekçesinde, İptal Et boş iptal nedeninde, Ka
 README özeti: Form, geçiş tablosundaki her adımı bir buton olarak sunar; yetki kontrolü arayüzde değil sunucuda yapılır.
 
 ## F3 — Zimmet listesi
-Karar: Kolonlar: referans, cihaz, çalışan, planlanan başlangıç, planlanan bitiş, durum; fiili tarihler isteğe bağlı (varsayılan gizli). Geciken satırlar kırmızı, süresi geçmiş onaylar sarı, bekleyen talepler mavi, kapalı durumlar (iade, kayıp, red, iptal) soluk. Sıralama planlanan başlangıca göre azalan. İsteğe bağlı "Cihaz Durumu" sütunu (A7). Onay Bekleyenler listesinde cihazın kullanılabilirliği görünür; yetkili hangi talebin şu an onaylanabilir olduğunu listede görür.
+Karar: Kolonlar: referans, cihaz, çalışan, planlanan başlangıç, planlanan bitiş, durum; fiili tarihler isteğe bağlı (varsayılan gizli). Geciken satırlar kırmızı, süresi geçmiş onaylar sarı, bekleyen talepler mavi, kapalı durumlar (iade, kayıp, red, iptal) soluk. Sıralama planlanan başlangıca göre azalan. İsteğe bağlı "Cihaz Durumu" ve "Toplu Talep" sütunları (A7, A6). Onay Bekleyenler ve Kullanılamayan Cihaz Onayları listelerinde cihazın kullanılabilirliği varsayılan olarak görünür; yetkili hangi talebin şu an onaylanabilir olduğunu listede görür. Listede seçili kayıtlar için yalnızca yetkiliye görünen bir "Onayla" butonu vardır (toplu onay, A6).
 Alternatifler: Vurgusuz sade liste.
 Gerekçe: Vurgu E3'teki türetilmiş koşulları kullanır; yetkili gecikmeyi ayrı menüye girmeden görür.
 Etkisi: Liste satırı vurgu ifadeleri filtre koşullarıyla tutarlı olmalıdır.
 README özeti: Listede geciken ve süresi geçmiş kayıtlar renkle işaretlenir.
 
 ## F4 — Ekipman ekranları
-Karar: Liste: etiket no, ad, açıklama, kategori, fiziksel durum, kullanılabilirlik (A7), şu an kimde (yalnızca yetkili); varsayılan "Kullanımdaki Cihazlar" filtresi (kayıp ve hurda hariç). "Verilebilir" filtresi: kullanılabilir ve zimmette değil. Form: temel bilgiler, kullanılabilirlik (A7) ve yetkili butonları (Kontrol Tamamlandı, Bakıma Al, Kullanılabilir Yap, Kayıp Olarak İşaretle, Bulundu, Hurdaya Ayır), kontroldeyken son iadenin bilgileri ve notları, dolu tarihler (E4), yetkiye özel "Geçmiş" sekmesi (E2), altta chatter (G6). Kanban yok.
+Karar: Liste: etiket no, ad, açıklama, kategori, fiziksel durum, kullanılabilirlik (A7), şu an kimde (yalnızca yetkili); varsayılan "Kullanımdaki Cihazlar" filtresi (kayıp ve hurda hariç). "Verilebilir" filtresi: kullanılabilir ve zimmette değil; "Kontrol Bekleyenler" filtresi ve kullanılabilirliğe göre gruplama. Form: temel bilgiler, kullanılabilirlik (A7) ve yetkili butonları (Kontrol Tamamlandı, Bakıma Al, Kullanılabilir Yap, Kayıp Olarak İşaretle, Bulundu, Hurdaya Ayır), kontroldeyken son iadenin bilgileri ve notları, dolu tarihler (E4), yetkiye özel "Geçmiş" sekmesi (E2), altta chatter (G6). Kanban yok.
 Alternatifler: Kanban kart görünümü.
 Gerekçe: Ana ihtiyaç "kimde" ve "dolu tarihler" bilgisidir; kanban ek bir değer katmaz.
 Etkisi: Görünürlük D6 ve D5'e göre `groups` ile sağlanır.
@@ -336,7 +336,7 @@ Etkisi: Gerekirse tarih alanlarıyla bir takvim görünümü eklenir ve yetkiye 
 README özeti: Takvim, pivot ve kanban görünümleri kapsam dışıdır.
 
 ## F6 — Arama, filtre ve gruplama
-Karar: Arama alanları referans, cihaz, çalışan. Filtreler: Güncel Talepler ve Açık Talepler (aynı grupta, B3), durumlar, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar (E3, F1), Uzatma Bekleyenler (B9), Kullanılamayan Cihaz Onayları (A7). Gruplama: cihaz, çalışan, durum, toplu talep (A6).
+Karar: Arama alanları referans, cihaz, çalışan, toplu talep referansı. Filtreler: Güncel Talepler ve Açık Talepler (aynı grupta, B3), durumlar, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar (E3, F1), Uzatma Bekleyenler (B9), Kullanılamayan Cihaz Onayları (A7). Gruplama: cihaz, çalışan, durum, toplu talep (A6).
 Alternatifler: Kategoriye göre gruplama (ek saklanan alan gerektirir).
 Gerekçe: Gereksinimleri karşılayan en küçük küme.
 Etkisi: Filtreler E3 ile aynı koşulları kullanır.
@@ -371,7 +371,7 @@ Etkisi: Grup kimlikleri `group_zimmet_muhendis` ve `group_zimmet_yetkili`. Zimme
 README özeti: Odoo'nun kendi adları İngilizce, bizim eklediklerimiz Türkçe ASCII yazılmıştır.
 
 ## G4 — Dosya yapısı ve yükleme sırası
-Karar: `models/` (model başına bir dosya), `views/` (model başına bir dosya ve `menu_views.xml`), `security/` (`security.xml`, `ir.model.access.csv`, `ir_rule.xml`), `wizard/` (toplu talep sihirbazı ve görünümü), `data/` (`sequence.xml`), `demo/`, `tests/`. Manifest'te `data` sırası: gruplar, erişim dosyası, kayıt kuralları, sıra numarası verisi, görünümler, sihirbaz görünümü, menüler.
+Karar: `models/` (model başına bir dosya), `views/` (model başına bir dosya ve `menu_views.xml`), `security/` (`security.xml`, `ir.model.access.csv`, `ir_rule.xml`), `wizard/` (toplu talep sihirbazı ve görünümü), `data/` (`sequence.xml`), `demo/`, `tests/`. Manifest'te `data` sırası: gruplar, erişim dosyası, kayıt kuralları, sıra numarası verisi, görünümler, menüler, sihirbaz görünümü (sihirbazın menüsü "Talepler" üst menüsüne bağlandığı için menülerden sonra yüklenir).
 Alternatifler: Tek dosyada toplamak.
 Gerekçe: Erişim dosyası ve kurallar gruplara, menüler görünümlerdeki action'lara başvurduğu için bu sıra zorunludur.
 Etkisi: Yanlış sırada yükleme "kayıt bulunamadı" hatası verir; kurulum notlarına yazılır.
@@ -385,7 +385,7 @@ Etkisi: `create()` override'ı (B8) sıra atamasını da yapar.
 README özeti: Her zimmet kaydına ardışık bir referans numarası verilir.
 
 ## G6 — Chatter ve izleme
-Karar: Zimmet ve cihaz modelleri `mail.thread` kullanır. Zimmette durum ile birlikte cihaz, çalışan, planlanan ve fiili tarihler ve red gerekçesi izlenir (`tracking=True`); `planlanan_bitis` değişiklikleri uzatma geçmişini verir (B9). Cihazda `kullanilabilirlik` izlenir (A7). Aktivite mixin'i kullanılmaz.
+Karar: Zimmet ve cihaz modelleri `mail.thread` kullanır. Zimmette durum ile birlikte cihaz, çalışan, planlanan ve fiili tarihler, red gerekçesi, iptal nedeni, istenen bitiş, kullanıcı geri bildirimi ve iade / kayıp notu izlenir (`tracking=True`); `planlanan_bitis` değişiklikleri uzatma geçmişini verir (B9). Cihazda `kullanilabilirlik` izlenir (A7). Aktivite mixin'i kullanılmaz.
 Alternatifler: Aktivite ve bildirimler.
 Gerekçe: Bildirimler kapsam dışı (E3); izleme denetim ihtiyacını karşılıyor (B7).
 Etkisi: Geçişlerin ve kullanılabilirlik değişikliklerinin kim tarafından yapıldığı chatter'dan okunur. Cihaz chatter'ı mühendise de görünür; yalnızca kullanılabilirlik izlendiği için kişi bilgisi açılmaz (D6).
