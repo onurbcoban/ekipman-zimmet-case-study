@@ -55,7 +55,7 @@ erDiagram
 | Model | Ana alanlar |
 |---|---|
 | `ekipman.kategori` | `name`, `description` |
-| `ekipman.cihaz` | `name`, `etiket_no` (benzersiz), `seri_no`, `kategori_id`, `active`; hesaplanan: `fiziksel_durum` ve `su_an_kimde_id` (saklanan), `dolu_tarihler` |
+| `ekipman.cihaz` | `name`, `etiket_no` (benzersiz), `aciklama`, `seri_no`, `kategori_id`, `active`; hesaplanan: `fiziksel_durum` ve `su_an_kimde_id` (saklanan), `dolu_tarihler` |
 | `ekipman.zimmet` | `name` (`ZMT/0001`), `state`, `cihaz_id`, `calisan_id`, `planlanan_baslangic/bitis`, `fiili_baslangic/bitis`, `red_gerekcesi`; chatter (`mail.thread`) |
 
 Talep ve zimmet aynı kayıttır; kayıt durum değiştirerek talepten iadeye ilerler. Cihazın "kimde" bilgisi elle tutulmaz, zimmet kayıtlarından hesaplanır.

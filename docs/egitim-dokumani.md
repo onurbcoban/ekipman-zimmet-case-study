@@ -44,7 +44,7 @@ Bu doküman, Ekipman Zimmet uygulamasını günlük işinde kullanacak mühendis
 ### Talep oluşturma
 
 1. **Ekipman Zimmet → Zimmet Talepleri** menüsünü açın ve **Yeni**'ye basın.
-2. **Cihaz** alanından istediğiniz cihazı seçin. Altında **Dolu Tarihler** görünür; seçeceğiniz tarihlerin bu aralıklarla çakışmamasına dikkat edin.
+2. **Cihaz** alanından istediğiniz cihazı seçin. Cihazlar etiket numarası ve adıyla listelenir (ör. "[LTP-001] MacBook Pro 14 M1 Pro"); seçtiğiniz cihazın açıklaması (ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile") hemen altında görünür. Altında ayrıca **Dolu Tarihler** görünür; seçeceğiniz tarihlerin bu aralıklarla çakışmamasına dikkat edin.
 3. **Planlanan Başlangıç** ve **Planlanan Bitiş** tarihlerini girin. **Çalışan** alanı sizin adınızla otomatik dolar, değiştirilemez.
 4. Kaydedin. Talep **Taslak** olarak saklanır; bu aşamada istediğiniz kadar düzenleyebilirsiniz.
 5. Hazır olduğunuzda **Talep Et**'e basın. Talep **Talep Edildi** aşamasına geçer ve yetkiliye ulaşır.
@@ -116,7 +116,7 @@ Onaylanmış ama tarihi geçtiği halde hiç teslim edilmemiş talepler artık t
 
 ### Ekipman ve kategori tanımlama
 
-- **Ekipmanlar → Yeni:** **Cihaz Adı**, **Etiket No**, **Seri No** (isteğe bağlı) ve **Kategori** girilir. Etiket numarası her cihaz için farklı olmalıdır.
+- **Ekipmanlar → Yeni:** **Cihaz Adı** (herkesin tanıyacağı ad, ör. "MacBook Pro 14 M1 Pro"), **Etiket No** (cihazın üzerindeki demirbaş etiketi, ör. "LTP-001"), **Açıklama** (cihazı benzerlerinden ayıran ayrıntılar, ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile"), **Seri No** (isteğe bağlı) ve **Kategori** girilir. Etiket numarası her cihaz için farklı olmalıdır.
 - **Kategoriler** menüsünden yeni kategori eklenebilir (örneğin "Osiloskop", "Dizüstü bilgisayar").
 - **Kullanımdan kaldırma:** Cihazı silmek yerine arşivleyin (form üzerindeki işlem menüsünden **Arşivle**). Geçmiş zimmet kaydı olan cihaz silinemez. Onaylı veya teslim edilmiş talebi olan cihaz arşivlenemez; önce o talepleri tamamlayın veya iptal edin. Arşivlenen cihazlar ekipman listesinde **Arşivlenenler** filtresiyle görülür.
 

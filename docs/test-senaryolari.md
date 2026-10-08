@@ -112,6 +112,7 @@
 11. **Arama ve gruplama:** Referans, cihaz ve çalışana göre arama çalışır; Açık Talepler, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Uzatma Bekleyenler ve Kullanılamayan Cihaz Onayları filtreleri doğru kayıtları getirir; cihaz, çalışan, durum ve toplu talebe göre gruplama çalışır (F6).
 12. **Arayüz dili:** Menüler, alan etiketleri, butonlar ve hata mesajları Türkçedir (F7).
 13. **Uzatma ve kapanış alanları:** İstenen bitiş alanı yalnızca `onaylandi`/`teslim_edildi` durumunda görünür. Kapanış notu teslim edilmiş kayıtta yetkiye düzenlenebilir, kapanmış kayıtta salt okunur görünür. Toplu talep referansı yalnızca doluysa görünür (F2).
+14. **Cihaz açıklaması:** Talep formunda cihaz seçilince cihazın açıklaması salt okunur görünür; açıklaması olmayan cihazda alan gizlidir. Ekipman listesinde açıklama sütunu varsayılan olarak görünür (A3).
 
 ## G Bölümü - Mimari ve Kurulum
 1. **Temiz kurulum:** Boş bir veritabanında modül kurulur; log'da `ERROR` veya modülümüze ait uyarı çıkmaz. Bağımlılık olarak yalnızca `mail` ve `hr` istenir (G2, G4, G9).
@@ -126,7 +127,7 @@
 
 ## H Bölümü - Demo Verisi
 1. **Demo kullanıcılar:** Beş demo kullanıcı kendi parolasıyla giriş yapar; her birinin bağlı bir çalışan kaydı ve doğru grubu vardır; yönetici kullanıcı Yetkili grubundadır (H1, D1).
-2. **Ekipman:** Üç kategori ve sekiz cihaz yüklenmiştir; OSC-003 bakımda, LTP-003 kayıp, diğerleri kullanılabilirdir (H2).
+2. **Ekipman:** Üç kategori ve sekiz cihaz yüklenmiştir; her cihazın etiketinden farklı bir adı ve açıklaması vardır (seçim kutusunda ör. "[LTP-001] MacBook Pro 14 M1 Pro"); OSC-003 bakımda, LTP-003 kayıp, diğerleri kullanılabilirdir (H2).
 3. **Kayıtlar:** On altı zimmet kaydı doğru durum ve tarihlerle yüklenmiştir; cihazların fiziksel durumu ve "şu an kimde" bilgisi doğru hesaplanmıştır (örneğin OSC-001 Zimmette ve kimde Defne; LTP-003 Zimmette değil ve kimde boş) (H3, E1).
 4. **Göreli tarihler:** Veritabanı farklı bir günde yeniden oluşturulunca gecikmiş ve süresi geçmiş kayıtlar yine gecikmiş görünür, bugünü kapsayan onaylar (2, 8, 15) yine bugünü kapsar (H4).
 5. **Demo kapalı veritabanı:** Demo kapalı oluşturulan veritabanında modül kurulur; gruplar ve yapı gelir, senaryo kayıtları gelmez (H5).
