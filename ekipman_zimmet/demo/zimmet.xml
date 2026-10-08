@@ -113,6 +113,28 @@
             <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=0)).strftime('%Y-%m-%d')"/>
             <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
         </record>
+        <!-- 13 -->
+        <record id="zimmet_demo_13" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_ltp_002"/>
+            <field name="calisan_id" ref="employee_defne_karadut"/>
+            <field name="state">talep_edildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=18)).strftime('%Y-%m-%d')"/>
+            <field name="toplu_ref">TPL/0001</field>
+        </record>
+        <!-- 14 -->
+        <record id="zimmet_demo_14" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_spk_001"/>
+            <field name="calisan_id" ref="employee_defne_karadut"/>
+            <field name="state">talep_edildi</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=18)).strftime('%Y-%m-%d')"/>
+            <field name="toplu_ref">TPL/0001</field>
+        </record>
+        <!-- Sihirbazla açılacak ilk toplu talep demodaki TPL/0001 ile karışmasın. -->
+        <record id="seq_ekipman_zimmet_toplu" model="ir.sequence">
+            <field name="number_next">2</field>
+        </record>
         <!-- 15 -->
         <record id="zimmet_demo_15" model="ekipman.zimmet">
             <field name="cihaz_id" ref="cihaz_osc_003"/>
