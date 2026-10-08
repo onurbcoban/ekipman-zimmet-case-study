@@ -334,3 +334,16 @@ class TestZimmet(TransactionCase):
         self.assertFalse(self.env['ekipman.zimmet'].browse(zimmet_id).exists())
         self.assertEqual(action['res_model'], 'ekipman.zimmet')
 
+    def test_23_bitisi_gecmis_talep_onaylanamaz(self):
+        # Onay beklerken tarihi geçmiş talepler; gönderme geçmiş başlangıcı reddettiği için
+        # bu durum zamanın geçmesiyle oluşur ve testte sudo ile kurulur.
+        bitisi_gecmis = self._talep(self.user2, -5, -1)
+        bitisi_gecmis.sudo().write({'state': 'talep_edildi'})
+        with self.assertRaises(UserError):
+            bitisi_gecmis.with_user(self.user_yetkili).action_onayla()
+
+        baslangici_gecmis = self._talep(self.user2, -2, 3)
+        baslangici_gecmis.sudo().write({'state': 'talep_edildi'})
+        baslangici_gecmis.with_user(self.user_yetkili).action_onayla()
+        self.assertEqual(baslangici_gecmis.state, 'onaylandi')
+
