@@ -34,7 +34,7 @@
 **Testler:** B/20, G/4, C/6, A/1.
 **Kabul:** Yukarıdaki genel kabul; demoda çakışma mesajı yetkiliye referans ve tarihleri gösterir.
 **Tuzaklar:** `bosta` dönüşümü saklanan bir seçim alanının anahtarını değiştirir; mevcut veritabanında eski değer kalır, doğrulama sıfırdan kurulumla yapılır. Çakışma mesajındaki tarihler okunur biçimde (`gg.aa.yyyy`) yazılmalı.
-**Faz notu:** —
+**Faz notu:** Dört değişiklik ayrı commit'lerde, her biri önce kırmızı yanan bir testle (`test_23`–`test_26`); 26 test yeşil. Onaydaki bitiş koşulu `@api.constrains` değil `action_onayla` içinde, çünkü kural kaydın her zaman sağlaması gereken bir şey değil, onay anının ön koşulu (onaylı kaydın bitişi zamanla geçebilir). Kopyalama testi, kopyalanan `calisan_id`'nin K2'deki `create` kuralına takıldığını gösterdi; `copy=False` ile kopya, kopyalayanın varsayılan çalışanını alıyor. C6'daki mühendis dalı tetiklenemediği (bloklayan geçişleri yalnızca yetkili yapar) için test edilemiyordu; kaldırıldı. Demo tarihlerinin UTC ile hesaplandığı Odoo kaynağında doğrulandı ve kurulum notlarına yazıldı.
 
 ## Faz C — Veritabanı kısıtları (C5)
 **Amaç:** Eşzamanlı onay ve teslime karşı kesin garanti.

@@ -31,6 +31,10 @@
 - **Sonuç:** `base`, `hr` ve `mail` modüllerinin kurulumu hatasız tamamlandı. Kurulan Odoo kaynağı 3.14'ü açıkça destekliyor: `odoo/__init__.py` içinde `MAX_PY_VERSION = (3, 14)`. Modül demo verisiyle sıfırdan kuruldu, art arda iki güncellemede (`-u`) uyarı vermedi ve otomatik testlerin tamamı geçti.
 - **Geri dönüş planı:** Sorun çıkarsa Python 3.12 ile yeni bir venv kurulacak (`python3.12 -m venv venv`).
 
+## Demo verisi ve sunum öncesi
+- **Sıfırdan kurulum:** Demo tarihleri kurulum anına göre hesaplanır ve sonra sabit kalır; gecikmiş, süresi geçmiş ve "bugün başlayan" senaryolar ancak taze kurulmuş bir veritabanında doğru görünür. Ayrıca saklanan hesaplanmış alanlar (ör. cihazın fiziksel durumu) modül güncellemesinde kendiliğinden yeniden hesaplanmaz. Sunumdan önce veritabanı demo verisiyle sıfırdan kurulmalıdır.
+- **Saat dilimi:** Odoo süreci UTC'de çalışır (`odoo/_monkeypatches/__init__.py`: `os.environ['TZ'] = 'UTC'`), demo tarihleri de UTC'ye göre hesaplanır. Türkiye UTC+3 olduğu için veritabanı 00:00–03:00 arasında kurulursa, saat dilimi Türkiye olan kullanıcı için demo senaryoları bir gün kayar. Kurulum bu saatlerin dışında yapılmalıdır.
+
 ## Zararsız log mesajları
 - **wkhtmltopdf uyarıları:** PDF rapor yazdırmak için gerekir; bu modül PDF raporu kullanmıyor.
 - **`phonenumbers` mesajı** (`sms` modülünden): Telefon doğrulaması devre dışı kalır; senaryoda kullanılmıyor.
