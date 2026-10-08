@@ -663,3 +663,68 @@ class TestZimmet(TransactionCase):
         self.assertEqual(cihaz.son_iade_id, zimmet)
         self.assertEqual(cihaz.son_iade_id.kullanici_geri_bildirimi, 'Kanal 3 zaman zaman sinyal kaçırıyor.')
         self.assertEqual(cihaz.son_iade_id.kapanis_notu, 'Kasada çizik var.')
+
+    def test_42_kayip_olarak_isaretleme(self):
+        zimmet = self._onayli_talep(self.user2, 0, 3)
+        yetkili_zimmet = zimmet.with_user(self.user_yetkili)
+        with self.assertRaises(UserError):
+            yetkili_zimmet.action_kayip()
+        yetkili_zimmet.action_teslim_et()
+        with self.assertRaises(AccessError):
+            zimmet.with_user(self.user2).action_kayip()
+        with self.assertRaises(UserError):
+            yetkili_zimmet.action_kayip()
+
+        yetkili_zimmet.write({'kapanis_notu': 'Saha ziyaretinde araçtan çalındı.'})
+        yetkili_zimmet.action_kayip()
+        self.assertEqual(zimmet.state, 'kayip')
+        self.assertEqual(zimmet.fiili_bitis, self.bugun)
+        self.assertEqual(zimmet.kapanis_tarihi, self.bugun)
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'kayip')
+        self.assertEqual(self.cihaz.fiziksel_durum, 'bosta')
+        self.assertFalse(self.cihaz.sudo().su_an_kimde_id)
+        self.assertIn(zimmet, self.cihaz.sudo().gecmis_zimmet_ids)
+        with self.assertRaises(UserError):
+            yetkili_zimmet.action_iade_al()
+
+    def test_43_kayip_onayli_talepleri_korur_ve_bloklamaz(self):
+        zimmet = self._onayli_talep(self.user_yetkili, 0, 5)
+        zimmet.action_teslim_et()
+        sonraki = self._onayli_talep(self.user2, 10, 12)
+        zimmet.write({'kapanis_notu': 'Kayboldu.'})
+        zimmet.action_kayip()
+        self.assertEqual(sonraki.state, 'onaylandi')
+
+        cihaz = self.cihaz.with_user(self.user_yetkili)
+        cihaz.action_bulundu()
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'kontrolde')
+        self.assertEqual(cihaz.son_iade_id, zimmet)
+        cihaz.action_kontrol_tamamlandi()
+        # Kayıp kaydın aralığı artık bloklamaz (C1).
+        ayni_aralik = self._onayli_talep(self.user2, 1, 4)
+        self.assertEqual(ayni_aralik.state, 'onaylandi')
+
+    def test_44_zimmette_olmayan_cihaz_kayip_yapilir(self):
+        onayli = self._onayli_talep(self.user2, 5, 8)
+        teslim = self._onayli_talep(self.user_yetkili, 0, 3)
+        cihaz = self.cihaz.with_user(self.user_yetkili)
+        with self.assertRaises(AccessError):
+            self.cihaz.with_user(self.user2).action_kayip_yap()
+        cihaz.action_kayip_yap()
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'kayip')
+        self.assertEqual(onayli.state, 'onaylandi')
+        with self.assertRaises(UserError):
+            self._talep(self.user2, 0, 3)
+
+        self.cihaz.sudo().write({'kullanilabilirlik': 'kullanilabilir'})
+        teslim.action_teslim_et()
+        with self.assertRaises(UserError):
+            cihaz.action_kayip_yap()
+
+    def test_45_kayip_kapanmis_sayilir(self):
+        zimmet = self._talep(self.user_yetkili, -10, 0)
+        zimmet.sudo().write({'state': 'kayip', 'kapanis_tarihi': self.bugun - timedelta(days=10)})
+        Zimmet = self.env['ekipman.zimmet']
+        kayit = [('id', '=', zimmet.id)]
+        self.assertFalse(Zimmet.search(self._arama_filtresi('acik_talepler') + kayit))
+        self.assertFalse(Zimmet.search(self._arama_filtresi('guncel_talepler') + kayit))

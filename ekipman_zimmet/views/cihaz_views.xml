@@ -26,6 +26,8 @@
                     <button name="action_kontrol_tamamlandi" string="Kontrol Tamamlandı" type="object" class="oe_highlight" invisible="kullanilabilirlik != 'kontrolde'"/>
                     <button name="action_bakima_al" string="Bakıma Al" type="object" invisible="kullanilabilirlik not in ('kullanilabilir', 'kontrolde') or fiziksel_durum == 'zimmette'"/>
                     <button name="action_kullanilabilir_yap" string="Kullanılabilir Yap" type="object" class="oe_highlight" invisible="kullanilabilirlik != 'bakimda'"/>
+                    <button name="action_bulundu" string="Bulundu" type="object" class="oe_highlight" invisible="kullanilabilirlik != 'kayip'"/>
+                    <button name="action_kayip_yap" string="Kayıp Olarak İşaretle" type="object" invisible="kullanilabilirlik in ('kayip', 'hurda') or fiziksel_durum == 'zimmette'" confirm="Cihaz kayıp olarak işaretlenecek. Emin misiniz?"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Arşivlendi" bg_color="text-bg-danger" invisible="active"/>

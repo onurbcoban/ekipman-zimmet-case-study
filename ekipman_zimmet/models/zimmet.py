@@ -38,6 +38,7 @@ class EkipmanZimmet(models.Model):
             ('onaylandi', 'Onaylandı'),
             ('teslim_edildi', 'Teslim Edildi'),
             ('iade_edildi', 'İade Edildi'),
+            ('kayip', 'Kayıp'),
             ('reddedildi', 'Reddedildi'),
             ('iptal', 'İptal'),
         ],
@@ -296,6 +297,23 @@ class EkipmanZimmet(models.Model):
                 'istenen_bitis': False,
             })
             rec.cihaz_id.sudo().write({'kullanilabilirlik': 'kontrolde'})
+
+    def action_kayip(self):
+        if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
+            raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
+        for rec in self:
+            if rec.state != 'teslim_edildi':
+                raise UserError('Yalnızca teslim edilmiş kayıtlar kayıp olarak işaretlenebilir.')
+            if not rec.kapanis_notu:
+                raise UserError('Kayıp olarak işaretlemek için İade / Kayıp Notu yazılmalıdır.')
+            bugun = fields.Date.context_today(self)
+            rec.sudo().write({
+                'state': 'kayip',
+                'fiili_bitis': bugun,
+                'kapanis_tarihi': bugun,
+                'istenen_bitis': False,
+            })
+            rec.cihaz_id.sudo().write({'kullanilabilirlik': 'kayip'})
 
     def action_iptal(self):
         for rec in self:

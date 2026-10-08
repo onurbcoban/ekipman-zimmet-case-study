@@ -42,7 +42,7 @@ class EkipmanCihaz(models.Model):
         'ekipman.zimmet',
         'cihaz_id',
         string='Geçmiş Zimmetler',
-        domain=[('state', 'in', ['teslim_edildi', 'iade_edildi'])],
+        domain=[('state', 'in', ['teslim_edildi', 'iade_edildi', 'kayip'])],
     )
 
     # A3 ve E1 Kararları
@@ -65,6 +65,7 @@ class EkipmanCihaz(models.Model):
     )
 
     # Kontrol eden yetkili, son iadenin notlarını cihaz formunda görür (A7, B10).
+    # Bulunan kayıp cihaz da kontrole girdiği için kayıp kaydı da son iade sayılır.
     son_iade_id = fields.Many2one(
         'ekipman.zimmet',
         string='Son İade',
@@ -120,7 +121,7 @@ class EkipmanCihaz(models.Model):
         for rec in self:
             son = Zimmet.search([
                 ('cihaz_id', '=', rec.id),
-                ('state', '=', 'iade_edildi'),
+                ('state', 'in', ('iade_edildi', 'kayip')),
             ], order='kapanis_tarihi desc, id desc', limit=1)
             rec.son_iade_id = son.id
             rec.son_iade_eden_id = son.calisan_id.id
@@ -163,6 +164,12 @@ class EkipmanCihaz(models.Model):
 
     def action_kullanilabilir_yap(self):
         self._kullanilabilirlik_degistir(('bakimda',), 'kullanilabilir')
+
+    def action_kayip_yap(self):
+        self._kullanilabilirlik_degistir(('kullanilabilir', 'kontrolde', 'bakimda'), 'kayip')
+
+    def action_bulundu(self):
+        self._kullanilabilirlik_degistir(('kayip',), 'kontrolde')
 
     def write(self, vals):
         if 'kullanilabilirlik' in vals and not self.env.su:

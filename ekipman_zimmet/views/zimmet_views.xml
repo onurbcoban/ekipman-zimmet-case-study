@@ -8,7 +8,7 @@
                   decoration-danger="state == 'teslim_edildi' and planlanan_bitis &lt; context_today().strftime('%Y-%m-%d')"
                   decoration-warning="state == 'onaylandi' and planlanan_bitis &lt; current_date"
                   decoration-info="state == 'talep_edildi'"
-                  decoration-muted="state in ('iade_edildi', 'reddedildi', 'iptal')">
+                  decoration-muted="state in ('iade_edildi', 'kayip', 'reddedildi', 'iptal')">
                 <field name="name"/>
                 <field name="cihaz_id"/>
                 <field name="calisan_id"/>
@@ -20,7 +20,7 @@
                        decoration-info="state in ('taslak', 'talep_edildi')"
                        decoration-warning="state == 'onaylandi'"
                        decoration-success="state == 'teslim_edildi'"
-                       decoration-muted="state in ('iade_edildi', 'reddedildi', 'iptal')"/>
+                       decoration-muted="state in ('iade_edildi', 'kayip', 'reddedildi', 'iptal')"/>
             </list>
         </field>
     </record>
@@ -38,6 +38,7 @@
                     <button name="action_reddet" string="Reddet" type="object" invisible="state != 'talep_edildi'" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                     <button name="action_teslim_et" string="Teslim Et" type="object" class="oe_highlight" invisible="state != 'onaylandi'" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                     <button name="action_iade_al" string="İade Al" type="object" class="oe_highlight" invisible="state != 'teslim_edildi'" groups="ekipman_zimmet.group_zimmet_yetkili"/>
+                    <button name="action_kayip" string="Kayıp Olarak İşaretle" type="object" invisible="state != 'teslim_edildi'" groups="ekipman_zimmet.group_zimmet_yetkili" confirm="Kayıt kayıp olarak kapatılacak ve cihaz kayıp durumuna geçecek. Emin misiniz?"/>
                     <button name="action_iptal" string="İptal Et" type="object" invisible="state not in ('talep_edildi', 'onaylandi')"/>
                     <button name="action_taslagi_sil" string="Taslağı Sil" type="object" invisible="state != 'taslak' or not talep_sahibi_mi" confirm="Bu taslak kalıcı olarak silinecek. Emin misiniz?"/>
                     <button name="action_uzatmayi_onayla" string="Uzatmayı Onayla" type="object" class="oe_highlight" invisible="not istenen_bitis" groups="ekipman_zimmet.group_zimmet_yetkili"/>
@@ -96,9 +97,9 @@
                 <field name="cihaz_id"/>
                 <field name="calisan_id"/>
                 <filter string="Güncel Talepler" name="guncel_talepler"
-                        domain="['|', ('state', 'not in', ('iade_edildi', 'reddedildi', 'iptal')),
+                        domain="['|', ('state', 'not in', ('iade_edildi', 'kayip', 'reddedildi', 'iptal')),
                                  ('kapanis_tarihi', '&gt;=', (context_today() - relativedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <filter string="Açık Talepler" name="acik_talepler" domain="[('state', 'not in', ('iade_edildi', 'reddedildi', 'iptal'))]"/>
+                <filter string="Açık Talepler" name="acik_talepler" domain="[('state', 'not in', ('iade_edildi', 'kayip', 'reddedildi', 'iptal'))]"/>
                 <separator/>
                 <filter string="Taslak" name="taslak" domain="[('state', '=', 'taslak')]"/>
                 <filter string="Talep Edildi" name="talep_edildi" domain="[('state', '=', 'talep_edildi')]"/>
@@ -107,6 +108,7 @@
                 <filter string="Teslim Bekleyenler" name="teslim_bekleyenler" domain="[('state', '=', 'onaylandi')]"/>
                 <filter string="Teslim Edildi" name="teslim_edildi" domain="[('state', '=', 'teslim_edildi')]"/>
                 <filter string="İade Edildi" name="iade_edildi" domain="[('state', '=', 'iade_edildi')]"/>
+                <filter string="Kayıp" name="kayip" domain="[('state', '=', 'kayip')]"/>
                 <separator/>
                 <filter string="Gecikenler" name="gecikenler" domain="[('state', '=', 'teslim_edildi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter string="Uzatma Bekleyenler" name="uzatma_bekleyenler" domain="[('istenen_bitis', '!=', False)]"/>
