@@ -30,12 +30,15 @@ Bu doküman, Ekipman Zimmet uygulamasını günlük işinde kullanacak mühendis
 | **Onaylandı** | Tarihler size ayrıldı, cihaz henüz verilmedi. | Planlanan tarihte yetkili cihazı teslim eder. |
 | **Teslim Edildi** | Cihaz sizde. | Bitiş tarihinde cihazı yetkiliye iade edersiniz. |
 | **İade Edildi** | Cihaz geri alındı; süreç tamamlandı. | — |
+| **Kayıp** | Cihaz sizdeyken kayboldu; yetkili kaydı kayıp olarak kapattı. | — |
 | **Reddedildi** | Yetkili talebi kabul etmedi; gerekçesi formda yazar. | Gerekirse yeni talep açılır. |
 | **İptal** | Talep iptal edildi; nedeni formda yazar. | — |
 
 **Planlanan ve fiili tarihler:** Planlanan tarihler talep ederken sizin seçtiğiniz tarihlerdir. Fiili tarihler, cihazın gerçekten verildiği ve geri alındığı günlerdir; yetkili "Teslim Et" ve "İade Al" butonlarına bastığında sistem tarafından otomatik yazılır.
 
 **Dolu tarihler:** Bir cihazın onaylanmış veya şu an birinde olan tarih aralıkları. Talep oluştururken cihazı seçtiğinizde formda görünür; böylece cihazın hangi günler boş olduğunu talep göndermeden önce görebilirsiniz. Kimin kullandığı gösterilmez.
+
+**Cihaz durumu (kullanılabilirlik):** Cihazın şu an verilebilir olup olmadığını gösterir: **Kullanılabilir**, **Kontrolde** (iade edildi, yetkili kontrol ediyor), **Bakımda**, **Kayıp** veya **Hurda**. Yalnızca kullanılabilir cihaz talep edilebilir. Her iade edilen cihaz önce kontrole girer.
 
 **Gecikmiş zimmet:** Teslim edilmiş ve planlanan bitiş tarihi geçmiş, ama henüz iade edilmemiş kayıt. Listelerde kırmızı görünür.
 
@@ -44,7 +47,7 @@ Bu doküman, Ekipman Zimmet uygulamasını günlük işinde kullanacak mühendis
 ### Talep oluşturma
 
 1. **Ekipman Zimmet → Zimmet Talepleri** menüsünü açın ve **Yeni**'ye basın.
-2. **Cihaz** alanından istediğiniz cihazı seçin. Cihazlar etiket numarası ve adıyla listelenir (ör. "[LTP-001] MacBook Pro 14 M1 Pro"); seçtiğiniz cihazın açıklaması (ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile") hemen altında görünür. Altında ayrıca **Dolu Tarihler** görünür; seçeceğiniz tarihlerin bu aralıklarla çakışmamasına dikkat edin.
+2. **Cihaz** alanından istediğiniz cihazı seçin. Listede yalnızca kullanılabilir cihazlar çıkar. Cihazlar etiket numarası ve adıyla listelenir (ör. "[LTP-001] MacBook Pro 14 M1 Pro"); seçtiğiniz cihazın açıklaması (ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile") hemen altında görünür. Altında ayrıca **Dolu Tarihler** görünür; seçeceğiniz tarihlerin bu aralıklarla çakışmamasına dikkat edin.
 3. **Planlanan Başlangıç** ve **Planlanan Bitiş** tarihlerini girin. **Çalışan** alanı sizin adınızla otomatik dolar, değiştirilemez.
 4. Kaydedin. Talep **Taslak** olarak saklanır; bu aşamada istediğiniz kadar düzenleyebilirsiniz.
 5. Hazır olduğunuzda **Talep Et**'e basın. Talep **Talep Edildi** aşamasına geçer ve yetkiliye ulaşır.
@@ -62,7 +65,7 @@ Birden fazla cihaza ihtiyacınız varsa her cihaz için ayrı talep açın.
 
 ### Talebinizi takip etme
 
-**Zimmet Talepleri** listesinde yalnızca kendi talepleriniz görünür. Liste varsayılan olarak **Güncel Talepler** filtresiyle açılır: açık talepleriniz ve son bir hafta içinde kapanmış (iade edilen, reddedilen, iptal edilen) talepleriniz görünür. Böylece reddedilen veya iptal edilen bir talebinizi fark eder, nedenini formda okursunuz. Yalnızca açık talepleri görmek için arama çubuğundan **Açık Talepler**'i seçin; daha eski kapanmış talepler için filtreyi kaldırın. Satır renkleri: mavi = onay bekliyor, sarı = onaylanmış ama tarihi geçmiş (teslim edilmemiş), kırmızı = iadesi gecikmiş, soluk = tamamlanmış (iade, red, iptal).
+**Zimmet Talepleri** listesinde yalnızca kendi talepleriniz görünür. Liste varsayılan olarak **Güncel Talepler** filtresiyle açılır: açık talepleriniz ve son bir hafta içinde kapanmış (iade edilen, kayıp olarak kapatılan, reddedilen, iptal edilen) talepleriniz görünür. Böylece reddedilen veya iptal edilen bir talebinizi fark eder, nedenini formda okursunuz. Yalnızca açık talepleri görmek için arama çubuğundan **Açık Talepler**'i seçin; daha eski kapanmış talepler için filtreyi kaldırın. Satır renkleri: mavi = onay bekliyor, sarı = onaylanmış ama tarihi geçmiş (teslim edilmemiş), kırmızı = iadesi gecikmiş, soluk = tamamlanmış (iade, kayıp, red, iptal). Sütun ayarlarından isteğe bağlı **Cihaz Durumu** sütununu açabilirsiniz.
 
 > **[Ekran görüntüsü 2 — `img/egitim/02-muhendis-liste.png`]** Mühendisin kendi talepleri listesi; farklı aşamalardaki talepler ve renkler.
 
@@ -70,6 +73,12 @@ Birden fazla cihaza ihtiyacınız varsa her cihaz için ayrı talep açın.
 - **Onaylandıysa:** Planlanan başlangıç tarihinde cihazı yetkiliden alın. Yetkili teslimi sisteme işlediğinde talebiniz **Teslim Edildi** olur.
 - **İade:** Planlanan bitiş tarihine kadar cihazı yetkiliye teslim edin. Yetkili iadeyi sisteme işler. Cihazı erken getirebilirsiniz; kalan günler başkalarının kullanımına açılır.
 - **Formun altındaki kayıt geçmişi**, talebin kim tarafından ve ne zaman onaylandığını, teslim edildiğini gösterir.
+- **Cihaz kontrole, bakıma veya kayba girdiyse:** Talebiniz iptal edilmez, olduğu yerde bekler; formun üstünde turuncu bir bant cihazın durumunu ve sıradaki adımı yazar (ör. "Cihaz şu an bakımda. Teslim edilebilmesi için kullanılabilir duruma dönmesi gerekir. İsterseniz talebinizi iptal edebilirsiniz."). Cihaz kullanılabilir olunca süreç kaldığı yerden sürer. Cihazın ne zaman döneceği bilinmez; acil ihtiyacınız varsa talebi iptal edip başka bir cihaz için talep açın.
+- **Cihaz hurdaya ayrıldıysa:** Açık talepleriniz sistem tarafından iptal edilir; iptal nedeni hangi cihaz yüzünden ve hangi aşamada iptal edildiğini yazar. Bu talepler bir hafta **Güncel Talepler**'de görünür.
+
+### Cihazla ilgili sorun bildirme
+
+Cihaz sizdeyken bir sorun fark ederseniz (ör. "Kanal 3 zaman zaman sinyal kaçırıyor.") talebinizi açıp **Notlar** bölümündeki **Kullanıcı Geri Bildirimi** alanına yazın ve kaydedin. İadeyi beklemenize gerek yok; not, cihaz iade edilip kontrole girdiğinde yetkiliye görünür.
 
 ### Süreyi uzatma
 
@@ -84,7 +93,7 @@ Cihaza planladığınızdan daha uzun süre ihtiyacınız varsa, talebiniz onayl
 
 ### Ekipmanlara göz atma
 
-**Ekipmanlar** menüsünde tüm cihazları görebilirsiniz. **Fiziksel Durum** sütunu cihazın şu an birinde olup olmadığını ("Zimmette" / "Zimmette değil") gösterir. Cihazı açıp **Müsaitlik Bilgisi** sekmesinden dolu tarihlerine bakabilirsiniz. Cihazın kimde olduğu ve geçmiş kullanıcıları yalnızca yetkililere görünür.
+**Ekipmanlar** menüsünde cihazları görebilirsiniz; liste varsayılan olarak **Kullanımdaki Cihazlar** filtresiyle açılır (kayıp ve hurda cihazlar gizlidir). **Kullanılabilirlik** sütunu cihazın verilebilir olup olmadığını, **Verilebilir** filtresi şu an kullanılabilir ve kimsede olmayan cihazları gösterir. **Fiziksel Durum** sütunu cihazın şu an birinde olup olmadığını ("Zimmette" / "Zimmette değil") gösterir. Cihazı açıp **Müsaitlik Bilgisi** sekmesinden dolu tarihlerine bakabilirsiniz. Cihazın kimde olduğu ve geçmiş kullanıcıları yalnızca yetkililere görünür.
 
 ## 4. Yetkili için
 
@@ -97,7 +106,10 @@ Yetkili menüsünde, günlük işinizi aşama aşama gösteren kuyruklar vardır
 | **Gecikenler** | İade tarihi geçmiş zimmetler | Kişiyle iletişime geçmek, cihaz gelince iadeyi işlemek |
 | **Süresi Geçmiş Onaylar** | Bitiş tarihi geçmiş ama hiç teslim edilmemiş onaylar | İptal etmek |
 | **Uzatma Bekleyenler** | Süre uzatma isteği olan talepler | Uzatmayı onaylamak veya reddetmek |
+| **Kullanılamayan Cihaz Onayları** | Onaylanmış ama cihazı şu an kontrolde, bakımda veya kayıp olan talepler | Cihazı hazırlamak ya da talep sahibiyle konuşup iptal etmek |
+| **Kontrol Bekleyen Cihazlar** | İade edilmiş, kontrol bekleyen cihazlar | Cihazı kontrol edip Kontrol Tamamlandı veya Bakıma Al demek |
 
+**Onay Bekleyenler** ve **Kullanılamayan Cihaz Onayları** listelerinde **Cihaz Durumu** sütunu görünür; hangi talebin şu an onaylanabilir olduğunu listeden anlarsınız.
 > **[Ekran görüntüsü 3 — `img/egitim/03-onay-bekleyenler.png`]** Yetkili hesabıyla "Onay Bekleyenler" listesi; arama çubuğundaki filtre etiketi.
 
 ### Onaylama ve reddetme
@@ -122,7 +134,8 @@ Kendi talebinizi de onaylayabilirsiniz; işlem formun altındaki kayıt geçmiş
 
 - **Teslim Et:** Cihazı fiziksel olarak verdiğiniz anda **Teslim Bekleyenler**'den talebi açıp **Teslim Et**'e basın. Fiili başlangıç tarihi bugün olarak yazılır. Teslim yalnızca planlanan tarih aralığı içinde yapılabilir; erken teslim yapılamaz.
 - **Cihaz hâlâ başkasındaysa** (önceki kullanıcı iade etmediyse) teslim yapılamaz. Önce önceki kullanıcının iadesini alın; ardından teslimi işleyin.
-- **İade Al:** Cihaz geri geldiği gün ilgili talebi (örneğin **Gecikenler**'den) açıp **İade Al**'a basın. Fiili bitiş tarihi bugün olarak yazılır. İadeyi cihazın geldiği gün işleyin; tarih sonradan geriye düzeltilemez.
+- **İade Al:** Cihaz geri geldiği gün ilgili talebi (örneğin **Gecikenler**'den) açıp **İade Al**'a basın. Fiili bitiş tarihi bugün olarak yazılır. İadeyi cihazın geldiği gün işleyin; tarih sonradan geriye düzeltilemez. İlk gözleminizi (ör. "Kasada çizik var.") iade öncesi **İade / Kayıp Notu** alanına yazabilirsiniz. İade edilen cihaz kendiliğinden **Kontrolde** olur ve kontrol bitene kadar yeniden verilemez.
+- **Kayıp Olarak İşaretle:** Cihaz kişideyken kaybolduysa önce **İade / Kayıp Notu**'na ne olduğunu yazın (zorunlu), sonra **Kayıp Olarak İşaretle**'ye basın. Kayıt **Kayıp** olarak kapanır, cihazın durumu **Kayıp** olur.
 
 > **[Ekran görüntüsü 6 — `img/egitim/06-gecikenler.png`]** "Gecikenler" listesi; kırmızı satırlar.
 
@@ -130,11 +143,22 @@ Kendi talebinizi de onaylayabilirsiniz; işlem formun altındaki kayıt geçmiş
 
 Onaylanmış ama tarihi geçtiği halde hiç teslim edilmemiş talepler artık teslim edilemez. Bunları **Süresi Geçmiş Onaylar**'dan açıp iptal nedenini (ör. "Süresi geçti, teslim edilmedi.") yazarak **İptal Et** ile kapatın; kişinin hâlâ ihtiyacı varsa yeni tarihlerle talep açması gerekir.
 
+### Kontrol, bakım, kayıp ve hurda
+
+Bu işlemler cihaz formunun üstündeki butonlarladır; cihazın durumu başka yoldan değiştirilemez ve her değişiklik formun altındaki kayıt geçmişinde adınızla görünür. Cihaz birindeyken (zimmetteyken) bu işlemler yapılamaz; önce iade alınır.
+
+- **Kontrol:** **Kontrol Bekleyen Cihazlar**'dan cihazı açın. **Son İade** bölümünde son iadenin talebi, iade eden, iade tarihi, kullanıcının geri bildirimi ve iade notu görünür. Cihaz sağlamsa **Kontrol Tamamlandı**'ya (cihaz kullanılabilir olur), sorun varsa **Bakıma Al**'a basın.
+- **Bakım:** Kullanılabilir veya kontroldeki cihaz **Bakıma Al** ile bakıma alınır; bakım bitince **Kullanılabilir Yap**'a basın.
+- **Kayıp:** Kimsede olmayan bir cihaz kaybolduysa cihaz formunda **Kayıp Olarak İşaretle**'ye basın. Kayıp cihaz bulunursa **Bulundu**'ya basın; cihaz kontrole girer ve **Son İade** bölümünde kayıp kaydı görünür.
+- **Hurdaya Ayır:** Cihaz kalıcı olarak kullanılamayacaksa **Hurdaya Ayır**'a basın (onay sorulur, geri alınamaz). Cihazın taslak, onay bekleyen ve onaylı bütün talepleri nedeni yazılarak iptal edilir; cihaz **Hurda** olur ve arşivlenir. Hiçbir kayıt silinmez.
+
+Kontrol, bakım ve kayıp cihazın mevcut taleplerini iptal etmez; talepler cihaz kullanılabilir olunca kaldığı yerden sürer ve bu sürede **Kullanılamayan Cihaz Onayları**'nda görünür.
+
 ### Ekipman ve kategori tanımlama
 
 - **Ekipmanlar → Yeni:** **Cihaz Adı** (herkesin tanıyacağı ad, ör. "MacBook Pro 14 M1 Pro"), **Etiket No** (cihazın üzerindeki demirbaş etiketi, ör. "LTP-001"), **Açıklama** (cihazı benzerlerinden ayıran ayrıntılar, ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile"), **Seri No** (isteğe bağlı) ve **Kategori** girilir. Etiket numarası her cihaz için farklı olmalıdır.
 - **Kategoriler** menüsünden yeni kategori eklenebilir (örneğin "Osiloskop", "Dizüstü bilgisayar").
-- **Kullanımdan kaldırma:** Cihazı silmek yerine arşivleyin (form üzerindeki işlem menüsünden **Arşivle**). Geçmiş zimmet kaydı olan cihaz silinemez. Onaylı veya teslim edilmiş talebi olan cihaz arşivlenemez; önce o talepleri tamamlayın veya iptal edin. Arşivlenen cihazlar ekipman listesinde **Arşivlenenler** filtresiyle görülür.
+- **Kullanımdan kaldırma:** Cihazı silmek yerine arşivleyin (form üzerindeki işlem menüsünden **Arşivle**). Geçmiş zimmet kaydı olan cihaz silinemez. Onaylı veya teslim edilmiş talebi olan cihaz arşivlenemez; önce o talepleri tamamlayın veya iptal edin. Arşivlenen cihazlar ekipman listesinde **Arşivlenenler** filtresiyle görülür. Cihaz bozulduğu veya ömrünü doldurduğu için kaldırılıyorsa arşivlemek yerine **Hurdaya Ayır**'ı kullanın; açık talepleri de nedeniyle kapatır.
 
 ### Cihaz şu an kimde, daha önce kimdeydi?
 
@@ -164,6 +188,10 @@ Onaylanmış ama tarihi geçtiği halde hiç teslim edilmemiş talepler artık t
 | İstenen bitiş, mevcut bitiş tarihinden sonra olmalıdır. | Uzatma için daha erken veya aynı tarih girildi. | Daha ileri bir tarih girin; erken bırakmak için cihazı iade edin. |
 | İstenen bitiş bugünden önce olamaz. | Uzatma için geçmiş bir tarih girildi. | Bugün veya sonrası bir tarih girin. |
 | Uzatma yalnızca onaylı veya teslim edilmiş talepte istenebilir. | Talep henüz onaylanmamış veya kapanmış. | Onay bekleyen talepte tarihi düzeltmek için talebi geri çekin. |
+| Cihaz şu an kontrolde / bakımda / kayıp; talep edilemez / gönderilemez / onaylanamaz / teslim edilemez. | Cihaz şu an verilebilir durumda değil. | Cihazın kullanılabilir olmasını bekleyin veya talebi iptal edip başka cihaz seçin. |
+| Kayıp olarak işaretlemek için İade / Kayıp Notu yazılmalıdır. | Not alanı boş. | Ne olduğunu nota yazıp kaydedin, sonra tekrar deneyin. |
+| Zimmetteki cihazın durumu değiştirilemez; önce iade alınmalıdır. | Cihaz şu an birinde. | Önce iadeyi alın; zimmetteyken kaybolduysa talep formundan **Kayıp Olarak İşaretle**'yi kullanın. |
+| Kullanılabilirlik yalnızca cihaz formundaki işlemlerle değiştirilebilir. | Durum alanına doğrudan yazılmaya çalışıldı. | Cihaz formunun üstündeki butonları kullanın. |
 
 ## 6. Akılda tutulacak kurallar
 
@@ -173,16 +201,19 @@ Onaylanmış ama tarihi geçtiği halde hiç teslim edilmemiş talepler artık t
 - Cihaz planlanan başlangıç tarihinden önce teslim edilemez; iade ise her zaman yapılabilir.
 - Onaylanmış talep düzenlenemez; değişiklik için iptal edip yeni talep açılır.
 - Teslim ve iade tarihleri sistem tarafından o günün tarihiyle yazılır ve sonradan değiştirilemez.
+- Yalnızca kullanılabilir cihaz talep edilir, onaylanır ve teslim edilir. İade edilen her cihaz kontrole girer.
+- Kontrol, bakım ve kayıp mevcut talepleri iptal etmez; hurda ise açık talepleri nedeniyle iptal eder.
 
 ## Ek: Demo verisiyle deneyin
 
 Demo verisiyle kurulmuş bir veritabanında aşağıdaki adımlarla uygulamayı uçtan uca deneyebilirsiniz. Kullanıcıların parolası kullanıcı adıyla aynıdır. Talep numaraları, veritabanı sıfırdan kurulduğunda geçerlidir.
 
 1. **Mühendis olarak talep:** `tunaakgun` ile girin. **Zimmet Talepleri**'nde **ZMT/0012** (multimetre, taslak) talebini açın ve **Talep Et**'e basın.
-2. **Yetkili olarak onay, teslim ve iade:** `nehirsezgin` ile girin. **Onay Bekleyenler**'den ZMT/0012'yi **Onayla**'yın; **Teslim Bekleyenler**'den **Teslim Et**'e, ardından **İade Al**'a basın. Formun altındaki kayıt geçmişinde her adımı kimin yaptığını görün.
+2. **Yetkili olarak onay, teslim ve iade:** `nehirsezgin` ile girin. **Onay Bekleyenler**'den ZMT/0012'yi **Onayla**'yın; **Teslim Bekleyenler**'den **Teslim Et**'e, ardından **İade Al**'a basın. Formun altındaki kayıt geçmişinde her adımı kimin yaptığını görün. İadeden sonra multimetre **Kontrol Bekleyen Cihazlar**'da görünür; açıp **Kontrol Tamamlandı**'ya basın.
 3. **Çakışma:** Aynı kullanıcıyla **Onay Bekleyenler**'de dizüstü bilgisayar için çakışan iki talep vardır (ZMT/0003 ve ZMT/0004). Birini onaylayın; diğerini onaylamaya çalıştığınızda çakışma uyarısı çıkar.
 4. **Uzatma:** **Uzatma Bekleyenler**'de iki istek vardır. ZMT/0007'nin (spektrum analizör) uzatmasını onaylayın: bitiş tarihi ilerler. ZMT/0001'in (osiloskop, gecikmiş) uzatmasını onaylamaya çalışın: aynı osiloskobun ZMT/0002 talebiyle çakıştığı için sistem izin vermez.
-5. **Gecikmiş cihaz:** **Gecikenler**'de ZMT/0001'i (osiloskop, Defne) görün. **Teslim Bekleyenler**'deki ZMT/0002 aynı osiloskobun bugün başlayan talebidir; **Teslim Et**'e bastığınızda "Önce iade alınması gerekir" uyarısı çıkar. ZMT/0001'in iadesini aldıktan sonra ZMT/0002 teslim edilebilir.
+5. **Gecikmiş cihaz:** **Gecikenler**'de ZMT/0001'i (osiloskop, Defne) görün. **Teslim Bekleyenler**'deki ZMT/0002 aynı osiloskobun bugün başlayan talebidir; **Teslim Et**'e bastığınızda "Önce iade alınması gerekir" uyarısı çıkar. ZMT/0001'in iadesini aldıktan sonra osiloskop kontrole girer; **Kontrol Bekleyen Cihazlar**'dan açıp **Kontrol Tamamlandı**'ya bastığınızda ZMT/0002 teslim edilebilir.
 6. **Süresi geçmiş onay ve red:** **Süresi Geçmiş Onaylar**'da ZMT/0010'u görün. Reddedilmiş ZMT/0009'u açıp red gerekçesini okuyun.
-7. **Ekipman geçmişi:** **Ekipmanlar**'dan spektrum analizörünü (SPK-001) açın; **Şu An Kimde** alanını ve **Zimmet Geçmişi** sekmesini inceleyin.
-8. **Mühendisin görünürlüğü:** `defnekaradut` ile girin. **Zimmet Talepleri**'nde yalnızca Defne'nin kendi talepleri görünür; ekipman listesinde **Şu An Kimde** sütunu yoktur.
+7. **Bakım ve kayıp:** **Kullanılamayan Cihaz Onayları**'nda bakımdaki osiloskobun (OSC-003) onaylı talebini açın: formun üstünde uyarı bandı vardır ve **Teslim Et** "Cihaz şu an bakımda; teslim edilemez." hatası verir. **Ekipmanlar**'da filtreyi kaldırıp kayıp dizüstü bilgisayarı (LTP-003) açın; **Zimmet Geçmişi**'nde kayıp kaydı görünür; kaydı açınca kayıp notunu okursunuz. **Bulundu**'ya basarsanız cihaz kontrole girer.
+8. **Ekipman geçmişi:** **Ekipmanlar**'dan spektrum analizörünü (SPK-001) açın; **Şu An Kimde** alanını ve **Zimmet Geçmişi** sekmesini inceleyin.
+9. **Mühendisin görünürlüğü:** `defnekaradut` ile girin. **Zimmet Talepleri**'nde yalnızca Defne'nin kendi talepleri görünür; ekipman listesinde **Şu An Kimde** sütunu yoktur.

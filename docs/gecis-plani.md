@@ -75,7 +75,7 @@
 - İadenin cihazı kontrole alması `test_12`'yi (erken iade sonrası yeni onay) değiştirir: araya "Kontrol Tamamlandı" adımı girer.
 - "Hurdaya Ayır" taslakları da iptal eder; bu, kullanıcının taslağı iptal edememesi kuralını (B3) delmemeli — sistem geçişi `sudo` ile yazılır, `action_iptal` taslağı reddetmeye devam eder. İptallerden sonra aktif zimmet kalmadığı için arşivleme (A5) mümkün olur; sıra önemli.
 - Cihaz alanının seçim süzgeci yalnızca arayüzü kapatır; sunucu kontrolü ayrıca gerekir (D5).
-**Faz notu:** —
+**Faz notu:** Faz, her biri kendi testleriyle yeşil kapanan sekiz adımda yapıldı (alan, kullanılabilir cihaz kuralı, iade→kontrol, notlar, kayıp, hurda, arayüz, demo ve belgeler). Zimmetteki cihazın engeli `write()` yerine cihaz formundaki işlemlerde: kullanılabilirliğe doğrudan yazma zaten yalnızca `sudo`'ya açık. Son iadenin bilgileri önce `related` alanlarla yazıldı; Odoo, aranamayan hesaplanan alana bağlı `related` alanlar için uyarı verdiği için hepsi tek bir hesaplama metodunda dolduruluyor. Kararlara iki küçük ek: cihaz formunda "Kayıp Olarak İşaretle" ve "Bulundu" butonları; bulunan kayıp cihazda "Son İade" kayıp kaydını gösterir. Demoda kontroldeki cihaz yok (H2 yalnızca bakım ve kayıp istiyor); kontrol, demo turunda bir iade ile canlı oluşur. Demo kayıtları 15–16, toplu talep kayıtları 13–14 (Faz F) eklenene kadar `ZMT/0013`–`ZMT/0014` numaralarını alır; eğitim dokümanı bu kayıtları numarayla değil cihazla anar. 49 test yeşil.
 
 ## Faz F — Toplu talep (A6)
 **Amaç:** Aynı tarihler için birden çok cihazın tek seferde istenmesi; yetkilinin toplu görmesi ve onaylaması.

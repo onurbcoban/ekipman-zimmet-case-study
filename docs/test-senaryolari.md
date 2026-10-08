@@ -149,7 +149,7 @@
 11. **Demo bakım ve kayıp:** 15 numaralı kayıt "Kullanılamayan Cihaz Onayları" kuyruğunda görünür ve aralık bugünü kapsadığı halde teslimi kullanılabilirlik (A7) hatası verir; LTP-003'ün geçmişinde 16 numaralı kayıp kaydı ve kapanış notu görünür (H3, A7, B10).
 
 ## Otomatik / elle ayrımı (G8)
-Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir. v2 senaryolarından henüz uygulanmamış olanların (A/7–A/24, B/29–B/35, C/12, D/6–D/7, E/8, F/13–F/14, F/16, H/9–H/11) testleri ilgili fazda eklenir ve bu tabloya işlenir. B/27 elle denenir.
+Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir. v2 senaryolarından henüz uygulanmamış olanların (A/7–A/12, D/7, F/13'ün toplu talep kısmı, H/10) testleri Faz F'de eklenir ve bu tabloya işlenir. B/27 elle denenir.
 
 | Senaryo | Test |
 |---|---|
@@ -185,4 +185,15 @@ Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerl
 | E/5 | `test_05_dolu_tarihler_related` (kısmen: onaylı aralığın görünmesi) |
 | F/3 | `test_19_talep_sahibi_mi` (sahiplik alanı; butonların görünürlüğü elle denenir) |
 | F/5 | `test_17_create_korumalari` (form üzerinden oluşturmada çalışan alanı) |
-| F/15 | `test_33_guncel_ve_acik_talepler` |
+| F/15 | `test_33_guncel_ve_acik_talepler`, `test_45_kayip_kapanmis_sayilir` |
+| A/13, A/14, A/15, B/29 | `test_38_yalnizca_kullanilabilir_cihaz` |
+| A/16 | `test_39_kullanilamayan_cihaz_teslim_edilemez`, `test_48_kullanilamayan_cihaz_uyarisi` |
+| A/17, A/18 | `test_40_iade_kontrol_ve_bakim`, `test_41_iade_notlari_ve_son_iade` |
+| A/19 | `test_40_iade_kontrol_ve_bakim`, `test_44_zimmette_olmayan_cihaz_kayip_yapilir`, `test_47_zimmetteki_cihaz_hurdaya_ayrilamaz` |
+| A/20, A/21 | `test_46_hurdaya_ayir` |
+| A/22, C/12 | `test_43_kayip_onayli_talepleri_korur_ve_bloklamaz` |
+| A/23 | `test_49_ekipman_filtreleri` |
+| B/30, B/31, B/32, E/2 (kayıp kayıt) | `test_42_kayip_olarak_isaretleme` |
+| B/34, B/35 | `test_41_iade_notlari_ve_son_iade` |
+| D/6 | `test_37_kullanilabilirlik_alani`, `test_40_iade_kontrol_ve_bakim` |
+| E/8, F/16 (uyarı metni ve kuyruk) | `test_48_kullanilamayan_cihaz_uyarisi` |

@@ -55,8 +55,8 @@ erDiagram
 | Model | Ana alanlar |
 |---|---|
 | `ekipman.kategori` | `name`, `description` |
-| `ekipman.cihaz` | `name`, `etiket_no` (benzersiz), `aciklama`, `seri_no`, `kategori_id`, `active`; hesaplanan: `fiziksel_durum` ve `su_an_kimde_id` (saklanan), `dolu_tarihler` |
-| `ekipman.zimmet` | `name` (`ZMT/0001`), `state`, `cihaz_id`, `calisan_id`, `planlanan_baslangic/bitis`, `fiili_baslangic/bitis`, `red_gerekcesi`; chatter (`mail.thread`) |
+| `ekipman.cihaz` | `name`, `etiket_no` (benzersiz), `aciklama`, `seri_no`, `kategori_id`, `active`, `kullanilabilirlik`; chatter; hesaplanan: `fiziksel_durum` ve `su_an_kimde_id` (saklanan), `dolu_tarihler` |
+| `ekipman.zimmet` | `name` (`ZMT/0001`), `state`, `cihaz_id`, `calisan_id`, `planlanan_baslangic/bitis`, `fiili_baslangic/bitis`, `red_gerekcesi`, `iptal_nedeni`, `istenen_bitis`, `kullanici_geri_bildirimi`, `kapanis_notu`, `kapanis_tarihi`; chatter (`mail.thread`) |
 
 Talep ve zimmet aynı kayıttır; kayıt durum değiştirerek talepten iadeye ilerler. Cihazın "kimde" bilgisi elle tutulmaz, zimmet kayıtlarından hesaplanır.
 
@@ -72,6 +72,7 @@ stateDiagram-v2
     talep_edildi --> reddedildi: Reddet (yetkili)
     onaylandi --> teslim_edildi: Teslim Et (yetkili)
     teslim_edildi --> iade_edildi: İade Al (yetkili)
+    teslim_edildi --> kayip: Kayıp Olarak İşaretle (yetkili)
     talep_edildi --> iptal: İptal Et
     onaylandi --> iptal: İptal Et
 ```
@@ -83,7 +84,8 @@ stateDiagram-v2
 | Onayla | Yetkili | Aynı cihazın onaylı veya teslim edilmiş bir kaydıyla tarih çakışması yok |
 | Reddet | Yetkili | Red gerekçesi dolu |
 | Teslim Et | Yetkili | Bugün planlanan aralıkta; cihaz başka birinde değil |
-| İade Al | Yetkili | — (fiili bitiş bugün yazılır) |
+| İade Al | Yetkili | — (fiili bitiş bugün yazılır; cihaz kontrole girer) |
+| Kayıp Olarak İşaretle | Yetkili | Teslim edilmiş; iade / kayıp notu dolu (cihaz kayıp olur) |
 | İptal Et | Talep sahibi veya yetkili | Onay bekliyor veya onaylanmış (teslim edilmemiş); iptal nedeni dolu |
 | Süre uzatma | Talep sahibi ister (İstenen Bitiş), yetkili onaylar veya reddeder | Onaylı veya teslim edilmiş; yeni bitiş ileri ve bugünden önce değil; çakışma yok |
 | Taslağı Sil | Talep sahibi | Taslak; taslaklar iptal edilmez, silinir |
@@ -102,6 +104,8 @@ Kodlar [`docs/kararlar.md`](docs/kararlar.md)'deki kararlara karşılık gelir; 
 - **B4 — Erken teslim yok.** Erken teslim, onaylı başka bir talebin hakkını bozabilir; teslim yalnızca planlanan aralıkta yapılır.
 - **B6 — Gecikme bir durum değil, türetilmiş koşuldur.** Bugünün tarihine bağlı bir durum zamanlanmış görev gerektirirdi; filtre her zaman günceldir.
 - **B9 — Süre uzatma ayrı bir durum değil.** Kayıttaki "İstenen Bitiş" alanının dolu olmasıdır; yetkili onaylarsa bitiş ilerler ve yeni aralık çakışma kuralından geçer. Gecikmiş kayıt da uzatılabilir.
+- **A7 — Kullanılabilirlik fiziksel durumdan ayrı bir alandır.** Cihaz kullanılabilir, kontrolde, bakımda, kayıp veya hurda olabilir; yalnızca kullanılabilir cihaz talep edilir, onaylanır ve teslim edilir. Her iade cihazı kontrole alır. Kontrol, bakım ve kayıp mevcut talepleri iptal etmez (talep uyarı bandıyla bekler); hurda kalıcı olduğu için açık talepleri nedeniyle iptal eder.
+- **B10 — Kayıp ayrı bir kapanış durumudur.** Kaybolan cihazı "iade" saymak geçmişi yanıltırdı; mühendisin geri bildirimi ve yetkilinin iade / kayıp notu kontrol sırasında görünür.
 - **B7 — Yetkili kendi talebini onaylayabilir.** Yasak, tek yetkilili şirkette süreci tıkardı; onaylayan chatter'da izlenir.
 - **B8, D5 — Yetki kontrolü sunucudadır.** Buton gizlemek yetki sağlamaz; durum ve fiili tarihler yalnızca geçiş metotlarıyla (`sudo`) yazılır, arayüz veya RPC ile doğrudan yazma hata verir.
 - **C5 — Eşzamanlı işlemlere karşı veritabanı kısıtları.** Python kontrolleri aynı anda yapılan iki onayı göremez; çakışma ve tek-teslim kuralları ertelenmiş `EXCLUDE` kısıtlarıyla veritabanında da garanti altındadır (ek eklenti gerekmez).
