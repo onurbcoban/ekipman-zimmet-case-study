@@ -52,7 +52,7 @@
 20. **Bitişi geçmiş talebin onayı:** Planlanan bitişi bugünden önce olan bekleyen talep onaylanamaz; başlangıcı geçmiş ama bitişi gelmemiş talep onaylanabilir (B2).
 
 ### Süre uzatma (B9)
-21. **Uzatma mutlu yolu:** Teslim edilmiş kayıtta mühendis istenen bitişi yazıp "Uzatma İste"ye basar; durum `teslim_edildi` kalır. Yetkili onaylar; `planlanan_bitis` yeni tarih olur, `istenen_bitis` temizlenir, eski bitiş chatter'da görünür (B9, G6).
+21. **Uzatma mutlu yolu:** Teslim edilmiş kayıtta mühendis "İstenen Bitiş"i yazıp kaydeder; formun üstünde "Uzatma isteği yetkili onayını bekliyor." bandı çıkar, durum `teslim_edildi` kalır. Yetkili onaylar; `planlanan_bitis` yeni tarih olur, `istenen_bitis` temizlenir, eski bitiş chatter'da görünür (B9, G6).
 22. **Onaylı kayıtta uzatma:** Henüz teslim edilmemiş onaylı kayıt için de uzatma istenip onaylanabilir (B9).
 23. **Geriye veya geçmişe uzatma:** İstenen bitiş mevcut planlanan bitişten önce veya ona eşitse, ya da bugünden önceyse hata verir (B9).
 24. **Çakışan uzatma:** Yeni aralık onaylı başka bir kayıtla çakışıyorsa uzatma onayı hata verir, mesaj çakışan kaydı gösterir ve kayıt değişmez (B9, C2, C6).
@@ -109,7 +109,7 @@
 ## F Bölümü - Ekranlar ve Menüler
 1. **Menü görünürlüğü:** Zimmet Talepleri "Güncel Talepler" filtresiyle açılır (F/15). Yetkili hesabında Zimmet Talepleri, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Uzatma Bekleyenler, Kullanılamayan Cihaz Onayları, Kontrol Bekleyen Cihazlar, Ekipmanlar ve Kategoriler görünür. Mühendis hesabında yalnızca Zimmet Talepleri ve Ekipmanlar görünür (F1).
 2. **Kuyruk içerikleri:** Onay Bekleyenler yalnızca `talep_edildi`, Teslim Bekleyenler yalnızca `onaylandi`, Uzatma Bekleyenler yalnızca `istenen_bitis` dolu, Kullanılamayan Cihaz Onayları yalnızca cihazı kullanılabilir olmayan `onaylandi` kayıtları, Kontrol Bekleyen Cihazlar yalnızca kontroldeki cihazları listeler. Kuyruk menüsü ilgili filtreyi arama çubuğunda etiket olarak açar; filtre kaldırılınca tüm kayıtlar görünür (F1).
-3. **Buton görünürlüğü:** Taslakta sahibinde Talep Et ve Taslağı Sil (İptal Et görünmez); bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte yetkilide Teslim Et, sahibinde Uzatma İste; teslim edilmişte yetkilide İade Al ve Kayıp Olarak İşaretle, sahibinde Uzatma İste; bekleyen uzatmada sahibinde Uzatmayı Geri Çek, yetkilide Uzatmayı Onayla ve Uzatmayı Reddet; kapalı durumlarda (iade, kayıp, red, iptal) hiçbir buton görünmez. Yetkili başkasının taslağını açtığında Talep Et ve Taslağı Sil, bekleyen talebinde Geri Çek görünmez (F2).
+3. **Buton görünürlüğü:** Taslakta sahibinde Talep Et ve Taslağı Sil (İptal Et görünmez); bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte yetkilide Teslim Et, sahibinde düzenlenebilir "İstenen Bitiş" alanı; teslim edilmişte yetkilide İade Al ve Kayıp Olarak İşaretle, sahibinde düzenlenebilir "İstenen Bitiş" alanı; bekleyen uzatmada sahibinde Uzatmayı Geri Çek, yetkilide Uzatmayı Onayla ve Uzatmayı Reddet; kapalı durumlarda (iade, kayıp, red, iptal) hiçbir buton görünmez. Yetkili başkasının taslağını açtığında Talep Et ve Taslağı Sil, bekleyen talebinde Geri Çek görünmez (F2).
 4. **Statusbar:** Statusbar'a tıklanarak durum değiştirilemez (F2, B8).
 5. **Çalışan alanı:** Talep formunda çalışan kullanıcının kendi adıyla dolu ve düzenlenemezdir (F2, A4).
 6. **Fiili tarihler:** Fiili tarih alanları taslakta ve onaylı durumda gizlidir, teslimden sonra salt okunur görünür (F2).
@@ -149,7 +149,7 @@
 11. **Demo bakım ve kayıp:** 15 numaralı kayıt "Kullanılamayan Cihaz Onayları" kuyruğunda görünür ve aralık bugünü kapsadığı halde teslimi kullanılabilirlik (A7) hatası verir; LTP-003'ün geçmişinde 16 numaralı kayıp kaydı ve kapanış notu görünür (H3, A7, B10).
 
 ## Otomatik / elle ayrımı (G8)
-Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir. v2 senaryolarının (A/7–A/24, B/21–B/36, C/12, D/6–D/7, E/8, F/13, H/9–H/11) testleri ilgili fazda eklenir ve bu tabloya işlenir.
+Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir. v2 senaryolarından henüz uygulanmamış olanların (A/7–A/24, B/29–B/35, C/12, D/6–D/7, E/8, F/13–F/14, F/16, H/9–H/11) testleri ilgili fazda eklenir ve bu tabloya işlenir. B/27 elle denenir.
 
 | Senaryo | Test |
 |---|---|
@@ -165,6 +165,10 @@ Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerl
 | B/16 | `test_20_chatter_onaylayani_gosterir` |
 | B/18 | `test_16_gecmis_tarihli_talep_gonderilemez` |
 | B/20 | `test_23_bitisi_gecmis_talep_onaylanamaz` |
+| B/21, B/24, B/26 | `test_35_uzatma_onay_ve_red` |
+| B/22, B/23, B/26 (geri çekme), B/28 | `test_34_uzatma_istegi` |
+| B/25 | `test_36_gecikmis_kayit_uzatilinca_gecikenlerden_cikar` |
+| B/36 | `test_31_iptal_nedeni_zorunlu`, `test_32_kapanis_tarihi` |
 | B/19 | `test_09_red_gerekcesi_yetki_kontrolu`, `test_18_red_gerekcesi_yalnizca_bekleyen_talepte` |
 | C/1 | `test_01_tarih_cakismasi` |
 | C/2 | `test_11_sinir_gunu` |
@@ -181,3 +185,4 @@ Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerl
 | E/5 | `test_05_dolu_tarihler_related` (kısmen: onaylı aralığın görünmesi) |
 | F/3 | `test_19_talep_sahibi_mi` (sahiplik alanı; butonların görünürlüğü elle denenir) |
 | F/5 | `test_17_create_korumalari` (form üzerinden oluşturmada çalışan alanı) |
+| F/15 | `test_33_guncel_ve_acik_talepler` |

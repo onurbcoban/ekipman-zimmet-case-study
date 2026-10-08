@@ -54,11 +54,10 @@
 
 ## Faz D — Süre uzatma (B9)
 **Amaç:** Onaylı veya teslim edilmiş kayıtta ileri tarihli uzatma isteği; yetkili onaylarsa bitiş güncellenir.
-**Değişecek yerler:** `zimmet.py` (`istenen_bitis`; `action_uzatma_iste/onayla/reddet/geri_cek`; `write()` kuralları), `zimmet_views.xml` (butonlar, alan, filtre), `menu_views.xml` (Uzatma Bekleyenler), demo kayıt 1 ve 7.
-**Testler:** B/21–B/28.
+**Değişenler:** `zimmet.py` (`istenen_bitis`; `_uzatma_istegini_denetle()` ile `write()` kuralları; `action_uzatmayi_onayla/reddet/geri_cek`; iade ve iptalde bekleyen isteğin temizlenmesi; tarih kilidinin yalnızca `sudo` dışına uygulanması; `create`'te yalnızca dolu süreç alanlarının reddi), `zimmet_views.xml` (butonlar, bilgi bandı, "İstenen Bitiş" alanı, Uzatma Bekleyenler filtresi), `menu_views.xml` (Uzatma Bekleyenler kuyruğu), demo kayıt 1 ve 7.
+**Testler:** B/21–B/26, B/28 (`test_34`–`test_36`); B/27 elle.
 **Kabul:** Demoda kayıt 7'nin uzatması onaylanır, kayıt 1'inki çakışma hatası verir.
-**Tuzaklar:** Bugünkü `write()` taslak dışında tarih değişikliğini `sudo`'da da engelliyor; uzatma onayı bu yüzden takılır, kontrol `sudo` dışına alınmalı. Uzatma onayı bloklayan bir değişiklik olduğu için sonunda `_kisitlari_simdi_denetle()` çağrılmalı (C5).
-**Faz notu:** —
+**Faz notu:** "Uzatma İste" butonu kaldırıldı: Odoo formu butondan önce kaydı kaydettiği için buton, kuralları denetlemeden isteği oluşturmuş olurdu; istek alanın kaydedilmesidir ve kurallar `write()`'ta uygulanır. Tarih kilidi (B5) yalnızca `sudo` dışına uygulanacak şekilde düzeltildi; uzatma onayı tek istisna. Uzatma beklerken kayıt kapanırsa istek kuyrukta asılı kalıyordu; iade ve iptal artık isteği temizliyor. Forma "İstenen Bitiş" eklenince `test_17`'nin form kısmı kırıldı: web istemcisi formdaki boş alanları da gönderdiği için `create` kontrolü mühendisin normal yoldan talep açmasını engelliyordu; kontrol yalnızca dolu değerlere bakacak şekilde düzeltildi (ayrı commit). Eğitim dokümanındaki demo turunda uzatma adımı, iadeden önceye alındı (iade bekleyen isteği temizlediği için). 36 test yeşil.
 
 ## Faz E — Kullanılabilirlik, kontrol, kayıp ve hurda (A7, B10)
 **Amaç:** Yalnızca kullanılabilir cihaz talep edilir; her iade cihazı kontrole alır; kullanılamaz duruma geçen cihazın mevcut talepleri korunur ve kullanıcıya gösterilir; hurda açık talepleri nedeniyle iptal eder; kayıp zimmet `kayip` durumuyla kapanır.

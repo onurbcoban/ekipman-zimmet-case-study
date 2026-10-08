@@ -71,6 +71,17 @@ Birden fazla cihaza ihtiyacınız varsa her cihaz için ayrı talep açın.
 - **İade:** Planlanan bitiş tarihine kadar cihazı yetkiliye teslim edin. Yetkili iadeyi sisteme işler. Cihazı erken getirebilirsiniz; kalan günler başkalarının kullanımına açılır.
 - **Formun altındaki kayıt geçmişi**, talebin kim tarafından ve ne zaman onaylandığını, teslim edildiğini gösterir.
 
+### Süreyi uzatma
+
+Cihaza planladığınızdan daha uzun süre ihtiyacınız varsa, talebiniz onaylandıktan sonra veya cihaz elinizdeyken uzatma isteyebilirsiniz:
+
+1. Talebinizi açın ve **İstenen Bitiş** alanına yeni bitiş tarihini yazıp kaydedin. Yeni tarih mevcut bitişten sonra olmalı ve bugünden önce olamaz.
+2. Formun üstünde "Uzatma isteği yetkili onayını bekliyor." bandı görünür. Ayrıca bir butona basmanız gerekmez.
+3. Yetkili onaylarsa **Planlanan Bitiş** yeni tarihe güncellenir. Reddederse istenen tarih temizlenir ve formun altındaki kayıt geçmişinde reddedildiği yazar.
+4. Vazgeçerseniz **Uzatmayı Geri Çek**'e basın.
+
+İade tarihini kaçırdıysanız (cihaz hâlâ sizdeyse) de uzatma isteyebilirsiniz; onaylanırsa kaydınız geciken listesinden çıkar. Uzatma, aynı tarihlere başka biri için verilmiş bir onayla çakışıyorsa onaylanamaz.
+
 ### Ekipmanlara göz atma
 
 **Ekipmanlar** menüsünde tüm cihazları görebilirsiniz. **Fiziksel Durum** sütunu cihazın şu an birinde olup olmadığını ("Zimmette" / "Zimmette değil") gösterir. Cihazı açıp **Müsaitlik Bilgisi** sekmesinden dolu tarihlerine bakabilirsiniz. Cihazın kimde olduğu ve geçmiş kullanıcıları yalnızca yetkililere görünür.
@@ -85,6 +96,7 @@ Yetkili menüsünde, günlük işinizi aşama aşama gösteren kuyruklar vardır
 | **Teslim Bekleyenler** | Onaylanmış, cihazı henüz verilmemiş talepler | Cihazı verirken teslimi işlemek |
 | **Gecikenler** | İade tarihi geçmiş zimmetler | Kişiyle iletişime geçmek, cihaz gelince iadeyi işlemek |
 | **Süresi Geçmiş Onaylar** | Bitiş tarihi geçmiş ama hiç teslim edilmemiş onaylar | İptal etmek |
+| **Uzatma Bekleyenler** | Süre uzatma isteği olan talepler | Uzatmayı onaylamak veya reddetmek |
 
 > **[Ekran görüntüsü 3 — `img/egitim/03-onay-bekleyenler.png`]** Yetkili hesabıyla "Onay Bekleyenler" listesi; arama çubuğundaki filtre etiketi.
 
@@ -101,6 +113,10 @@ Aynı cihaz için aynı tarihlere iki ayrı talep gelebilir. Birini onayladığ�
 > **[Ekran görüntüsü 5 — `img/egitim/05-cakisma-uyarisi.png`]** Çakışan ikinci talep onaylanmaya çalışıldığında çıkan uyarı.
 
 Kendi talebinizi de onaylayabilirsiniz; işlem formun altındaki kayıt geçmişinde adınızla görünür.
+
+### Uzatma isteklerini onaylama
+
+**Uzatma Bekleyenler**'den talebi açın; istenen yeni bitiş tarihi formda görünür. **Uzatmayı Onayla** planlanan bitişi yeni tarihe taşır; yeni tarihler aynı cihazın onaylı başka bir talebiyle çakışıyorsa sistem çakışan talebi göstererek onaya izin vermez. **Uzatmayı Reddet** isteği temizler ve kayıt geçmişine not düşer.
 
 ### Teslim etme ve iade alma
 
@@ -145,6 +161,9 @@ Onaylanmış ama tarihi geçtiği halde hiç teslim edilmemiş talepler artık t
 | Bu etiket numarasına sahip bir cihaz zaten mevcut! | Aynı etiket numarası başka bir cihazda var. | Farklı bir etiket numarası girin. |
 | Geçmiş zimmet kaydı olan cihaz silinemez, arşivleyiniz. | Cihazın geçmişi korunmalı. | Cihazı arşivleyin. |
 | Aktif zimmeti olan cihaz arşivlenemez. | Cihazın onaylı veya teslim edilmiş talebi var. | Önce talepleri tamamlayın veya iptal edin. |
+| İstenen bitiş, mevcut bitiş tarihinden sonra olmalıdır. | Uzatma için daha erken veya aynı tarih girildi. | Daha ileri bir tarih girin; erken bırakmak için cihazı iade edin. |
+| İstenen bitiş bugünden önce olamaz. | Uzatma için geçmiş bir tarih girildi. | Bugün veya sonrası bir tarih girin. |
+| Uzatma yalnızca onaylı veya teslim edilmiş talepte istenebilir. | Talep henüz onaylanmamış veya kapanmış. | Onay bekleyen talepte tarihi düzeltmek için talebi geri çekin. |
 
 ## 6. Akılda tutulacak kurallar
 
@@ -162,7 +181,8 @@ Demo verisiyle kurulmuş bir veritabanında aşağıdaki adımlarla uygulamayı 
 1. **Mühendis olarak talep:** `tunaakgun` ile girin. **Zimmet Talepleri**'nde **ZMT/0012** (multimetre, taslak) talebini açın ve **Talep Et**'e basın.
 2. **Yetkili olarak onay, teslim ve iade:** `nehirsezgin` ile girin. **Onay Bekleyenler**'den ZMT/0012'yi **Onayla**'yın; **Teslim Bekleyenler**'den **Teslim Et**'e, ardından **İade Al**'a basın. Formun altındaki kayıt geçmişinde her adımı kimin yaptığını görün.
 3. **Çakışma:** Aynı kullanıcıyla **Onay Bekleyenler**'de dizüstü bilgisayar için çakışan iki talep vardır (ZMT/0003 ve ZMT/0004). Birini onaylayın; diğerini onaylamaya çalıştığınızda çakışma uyarısı çıkar.
-4. **Gecikmiş cihaz:** **Gecikenler**'de ZMT/0001'i (osiloskop, Defne) görün. **Teslim Bekleyenler**'deki ZMT/0002 aynı osiloskobun bugün başlayan talebidir; **Teslim Et**'e bastığınızda "Önce iade alınması gerekir" uyarısı çıkar. ZMT/0001'in iadesini aldıktan sonra ZMT/0002 teslim edilebilir.
-5. **Süresi geçmiş onay ve red:** **Süresi Geçmiş Onaylar**'da ZMT/0010'u görün. Reddedilmiş ZMT/0009'u açıp red gerekçesini okuyun.
-6. **Ekipman geçmişi:** **Ekipmanlar**'dan spektrum analizörünü (SPK-001) açın; **Şu An Kimde** alanını ve **Zimmet Geçmişi** sekmesini inceleyin.
-7. **Mühendisin görünürlüğü:** `defnekaradut` ile girin. **Zimmet Talepleri**'nde yalnızca Defne'nin kendi talepleri görünür; ekipman listesinde **Şu An Kimde** sütunu yoktur.
+4. **Uzatma:** **Uzatma Bekleyenler**'de iki istek vardır. ZMT/0007'nin (spektrum analizör) uzatmasını onaylayın: bitiş tarihi ilerler. ZMT/0001'in (osiloskop, gecikmiş) uzatmasını onaylamaya çalışın: aynı osiloskobun ZMT/0002 talebiyle çakıştığı için sistem izin vermez.
+5. **Gecikmiş cihaz:** **Gecikenler**'de ZMT/0001'i (osiloskop, Defne) görün. **Teslim Bekleyenler**'deki ZMT/0002 aynı osiloskobun bugün başlayan talebidir; **Teslim Et**'e bastığınızda "Önce iade alınması gerekir" uyarısı çıkar. ZMT/0001'in iadesini aldıktan sonra ZMT/0002 teslim edilebilir.
+6. **Süresi geçmiş onay ve red:** **Süresi Geçmiş Onaylar**'da ZMT/0010'u görün. Reddedilmiş ZMT/0009'u açıp red gerekçesini okuyun.
+7. **Ekipman geçmişi:** **Ekipmanlar**'dan spektrum analizörünü (SPK-001) açın; **Şu An Kimde** alanını ve **Zimmet Geçmişi** sekmesini inceleyin.
+8. **Mühendisin görünürlüğü:** `defnekaradut` ile girin. **Zimmet Talepleri**'nde yalnızca Defne'nin kendi talepleri görünür; ekipman listesinde **Şu An Kimde** sütunu yoktur.

@@ -85,6 +85,7 @@ stateDiagram-v2
 | Teslim Et | Yetkili | Bugün planlanan aralıkta; cihaz başka birinde değil |
 | İade Al | Yetkili | — (fiili bitiş bugün yazılır) |
 | İptal Et | Talep sahibi veya yetkili | Onay bekliyor veya onaylanmış (teslim edilmemiş); iptal nedeni dolu |
+| Süre uzatma | Talep sahibi ister (İstenen Bitiş), yetkili onaylar veya reddeder | Onaylı veya teslim edilmiş; yeni bitiş ileri ve bugünden önce değil; çakışma yok |
 | Taslağı Sil | Talep sahibi | Taslak; taslaklar iptal edilmez, silinir |
 
 Mühendis yalnızca kendi kayıtlarını görür; yetkili tüm kayıtları görür, onay, teslim, iade ve ekipman yönetimini yapar. "Gecikmiş" ayrı bir durum değil, teslim edilmiş ve planlanan bitişi geçmiş kayıttır; yetkili bunları "Gecikenler" menüsünde görür.
@@ -100,6 +101,7 @@ Kodlar [`docs/kararlar.md`](docs/kararlar.md)'deki kararlara karşılık gelir; 
 - **C4 — Onay plana, teslim fiziksel duruma bakar.** Gecikmiş cihaz yeni onayı durdurmaz, ama iade alınmadan başkasına teslim edilemez.
 - **B4 — Erken teslim yok.** Erken teslim, onaylı başka bir talebin hakkını bozabilir; teslim yalnızca planlanan aralıkta yapılır.
 - **B6 — Gecikme bir durum değil, türetilmiş koşuldur.** Bugünün tarihine bağlı bir durum zamanlanmış görev gerektirirdi; filtre her zaman günceldir.
+- **B9 — Süre uzatma ayrı bir durum değil.** Kayıttaki "İstenen Bitiş" alanının dolu olmasıdır; yetkili onaylarsa bitiş ilerler ve yeni aralık çakışma kuralından geçer. Gecikmiş kayıt da uzatılabilir.
 - **B7 — Yetkili kendi talebini onaylayabilir.** Yasak, tek yetkilili şirkette süreci tıkardı; onaylayan chatter'da izlenir.
 - **B8, D5 — Yetki kontrolü sunucudadır.** Buton gizlemek yetki sağlamaz; durum ve fiili tarihler yalnızca geçiş metotlarıyla (`sudo`) yazılır, arayüz veya RPC ile doğrudan yazma hata verir.
 - **C5 — Eşzamanlı işlemlere karşı veritabanı kısıtları.** Python kontrolleri aynı anda yapılan iki onayı göremez; çakışma ve tek-teslim kuralları ertelenmiş `EXCLUDE` kısıtlarıyla veritabanında da garanti altındadır (ek eklenti gerekmez).
