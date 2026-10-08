@@ -862,3 +862,30 @@ class TestZimmet(TransactionCase):
         taslak = self._talep(self.user2, 0, 2)
         with self.assertRaises(UserError):
             taslak.write({'toplu_ref': 'TPL/9999'})
+
+    def test_54_toplu_onay(self):
+        cihaz2 = self._ikinci_cihaz()
+        kayitlar = self._toplu_talep(self.user2, self.cihaz | cihaz2, 3, 5)
+        birinci = kayitlar.filtered(lambda k: k.cihaz_id == self.cihaz)
+        ikinci = kayitlar - birinci
+        engel = self.env['ekipman.zimmet'].with_user(self.user_yetkili).create({
+            'cihaz_id': cihaz2.id,
+            'planlanan_baslangic': self.bugun + timedelta(days=4),
+            'planlanan_bitis': self.bugun + timedelta(days=6),
+        })
+        engel.action_gonder()
+        engel.action_onayla()
+
+        with self.assertRaises(ValidationError) as hata:
+            kayitlar.with_user(self.user_yetkili).action_onayla()
+        self.assertTrue(str(hata.exception).startswith(f"{ikinci.name}: {engel.name} referanslı kayıtla"))
+        self.assertEqual(set(kayitlar.mapped('state')), {'talep_edildi'})
+
+        birinci.with_user(self.user_yetkili).action_onayla()
+        self.assertEqual(birinci.state, 'onaylandi')
+
+    def test_55_toplu_onay_ve_gruplama_arayuzde(self):
+        liste = etree.fromstring(self.env.ref('ekipman_zimmet.view_ekipman_zimmet_list').arch)
+        self.assertTrue(liste.xpath("//header/button[@name='action_onayla']"))
+        arama = self.env.ref('ekipman_zimmet.view_ekipman_zimmet_search').arch
+        self.assertIn("'group_by': 'toplu_ref'", arama)

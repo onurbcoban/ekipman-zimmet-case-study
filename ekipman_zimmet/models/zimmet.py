@@ -274,13 +274,22 @@ class EkipmanZimmet(models.Model):
             raise AccessError('Bu işlemi sadece Yetkililer yapabilir.')
         bugun = fields.Date.context_today(self)
         for rec in self:
-            if rec.state != 'talep_edildi':
-                raise UserError('Yalnızca talep edildi durumundaki kayıtlar onaylanabilir.')
-            if rec.planlanan_bitis < bugun:
-                raise UserError('Bitiş tarihi geçmiş bir talep onaylanamaz; teslim edilemeyeceği için reddedilmelidir.')
-            rec._cihaz_kullanilabilir_olmali('onaylanamaz')
-            rec.sudo().write({'state': 'onaylandi'})
+            try:
+                rec._onayla(bugun)
+            except UserError as hata:
+                if len(self) == 1:
+                    raise
+                # Toplu onayda hangi seçili kaydın takıldığı da söylenmeli (A6, C6).
+                raise type(hata)(f"{rec.name}: {hata.args[0]}") from hata
         self._kisitlari_simdi_denetle()
+
+    def _onayla(self, bugun):
+        if self.state != 'talep_edildi':
+            raise UserError('Yalnızca talep edildi durumundaki kayıtlar onaylanabilir.')
+        if self.planlanan_bitis < bugun:
+            raise UserError('Bitiş tarihi geçmiş bir talep onaylanamaz; teslim edilemeyeceği için reddedilmelidir.')
+        self._cihaz_kullanilabilir_olmali('onaylanamaz')
+        self.sudo().write({'state': 'onaylandi'})
 
     def action_reddet(self):
         if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):

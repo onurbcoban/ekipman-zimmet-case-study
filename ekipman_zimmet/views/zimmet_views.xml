@@ -9,6 +9,9 @@
                   decoration-warning="state == 'onaylandi' and planlanan_bitis &lt; current_date"
                   decoration-info="state == 'talep_edildi'"
                   decoration-muted="state in ('iade_edildi', 'kayip', 'reddedildi', 'iptal')">
+                <header>
+                    <button name="action_onayla" string="Onayla" type="object" groups="ekipman_zimmet.group_zimmet_yetkili"/>
+                </header>
                 <field name="name"/>
                 <field name="cihaz_id"/>
                 <field name="calisan_id"/>
@@ -17,6 +20,7 @@
                 <field name="planlanan_bitis"/>
                 <field name="fiili_baslangic" optional="hide"/>
                 <field name="fiili_bitis" optional="hide"/>
+                <field name="toplu_ref" optional="hide"/>
                 <field name="state" widget="badge"
                        decoration-info="state in ('taslak', 'talep_edildi')"
                        decoration-warning="state == 'onaylandi'"
@@ -114,6 +118,7 @@
                 <field name="name"/>
                 <field name="cihaz_id"/>
                 <field name="calisan_id"/>
+                <field name="toplu_ref"/>
                 <filter string="Güncel Talepler" name="guncel_talepler"
                         domain="['|', ('state', 'not in', ('iade_edildi', 'kayip', 'reddedildi', 'iptal')),
                                  ('kapanis_tarihi', '&gt;=', (context_today() - relativedelta(days=7)).strftime('%Y-%m-%d'))]"/>
@@ -137,6 +142,7 @@
                     <filter string="Cihaz" name="group_cihaz" context="{'group_by': 'cihaz_id'}"/>
                     <filter string="Çalışan" name="group_calisan" context="{'group_by': 'calisan_id'}"/>
                     <filter string="Durum" name="group_durum" context="{'group_by': 'state'}"/>
+                    <filter string="Toplu Talep" name="group_toplu_ref" context="{'group_by': 'toplu_ref'}"/>
                 </group>
             </search>
         </field>
