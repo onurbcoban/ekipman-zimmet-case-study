@@ -83,7 +83,7 @@
 **Testler:** A/7–A/12.
 **Kabul:** Sihirbaz bir geçersiz cihazda hiçbir kayıt oluşturmaz; toplu onayda tek çakışma tüm seçimi geri alır.
 **Tuzaklar:** Sihirbazın cihaz seçimi yalnızca kullanılabilir cihazları dolu tarihleriyle göstermeli (A7). Sihirbaz kayıtları `sudo` ile oluşturur; `uid` değişmediği için çalışan varsayılanı korunur, bu bir testle doğrulanmalı. Toplu talepten geri çekilip taslağa dönen kayıt, sahibi tarafından "Taslağı Sil" ile silinebilir (ek kural gerekmez).
-**Faz notu:** —
+**Faz notu:** Sihirbaz kayıtları `sudo` ile değil, kullanıcının kendi yetkisiyle `create()` ve `action_gonder` üzerinden açıyor; tek tek talebin bütün kuralları kopyalanmadan uygulanıyor ve "çalışan varsayılanı korunur mu" tuzağı ortadan kalkıyor. Yalnızca `toplu_ref` `sudo` ile yazılıyor; kullanıcı RPC ile bu alanı oluşturmada da yazmada da veremiyor. Tek işlem ve "tek çakışma bütün seçimi geri alır" kuralları ek kod gerektirmedi: Odoo bir buton çağrısını tek veritabanı işleminde çalıştırıyor. Toplu onayda hata mesajı seçimde takılan kaydın referansıyla başlıyor (`_onayla` ayrı metoda alındı). Demo 13–14 doğrudan `TPL/0001` ile yükleniyor; sihirbazın ilk toplu talebi aynı referansı almasın diye sıra demoda 2'den başlatılıyor. Demo kayıt numaraları artık H3 tablosuyla aynı. 55 test yeşil.
 
 ## Faz G — Kapanış
 **Amaç:** Teslime hazır v2.

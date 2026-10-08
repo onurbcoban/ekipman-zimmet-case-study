@@ -54,7 +54,11 @@ Bu doküman, Ekipman Zimmet uygulamasını günlük işinde kullanacak mühendis
 
 > **[Ekran görüntüsü 1 — `img/egitim/01-talep-formu.png`]** Mühendis hesabıyla taslak bir talep formu: cihaz, dolu tarihler, planlanan tarihler ve "Talep Et" butonu.
 
-Birden fazla cihaza ihtiyacınız varsa her cihaz için ayrı talep açın.
+### Birden çok cihazı birlikte isteme (Toplu Talep)
+
+Aynı tarihler için birden fazla cihaza ihtiyacınız varsa (ör. bir osiloskop ve bir dizüstü bilgisayar) **Ekipman Zimmet → Toplu Talep**'i açın. Planlanan tarihleri girin, **Satır ekle** ile cihazları seçin (listede yalnızca kullanılabilir cihazlar, dolu tarihleriyle görünür) ve **Talep Et**'e basın. Her cihaz için ayrı bir talep açılır ve doğrudan yetkiliye gönderilir; talepler aynı **Toplu Talep** numarasını (ör. `TPL/0002`) taşır. Cihazlardan biri için talep açılamıyorsa (ör. başlangıç tarihi geçmişse) hiçbiri açılmaz; mesajı okuyup düzeltin.
+
+Talepler açıldıktan sonra birbirinden bağımsızdır: biri onaylanırken diğeri reddedilebilir; birini geri çekip düzeltebilir veya iptal edebilirsiniz.
 
 ### Talebi düzeltme, geri çekme ve iptal
 
@@ -126,6 +130,8 @@ Aynı cihaz için aynı tarihlere iki ayrı talep gelebilir. Birini onayladığ�
 
 Kendi talebinizi de onaylayabilirsiniz; işlem formun altındaki kayıt geçmişinde adınızla görünür.
 
+**Toplu onay:** Listede birden çok talebi soldaki kutularla seçip üstte çıkan **Onayla**'ya basabilirsiniz. Toplu talepleri birlikte görmek için arama çubuğunda **Grupla → Toplu Talep**'i seçin. Seçilen taleplerden biri onaylanamıyorsa (ör. çakışma) hiçbiri onaylanmaz; mesaj takılan talebin numarasıyla başlar (ör. "ZMT/…: ZMT/… referanslı kayıtla … çakışıyor."). O talebi seçimden çıkarıp tekrar deneyin. Toplu red yoktur; red gerekçesi her talebe ayrı yazılır.
+
 ### Uzatma isteklerini onaylama
 
 **Uzatma Bekleyenler**'den talebi açın; istenen yeni bitiş tarihi formda görünür. **Uzatmayı Onayla** planlanan bitişi yeni tarihe taşır; yeni tarihler aynı cihazın onaylı başka bir talebiyle çakışıyorsa sistem çakışan talebi göstererek onaya izin vermez. **Uzatmayı Reddet** isteği temizler ve kayıt geçmişine not düşer.
@@ -195,7 +201,7 @@ Kontrol, bakım ve kayıp cihazın mevcut taleplerini iptal etmez; talepler ciha
 
 ## 6. Akılda tutulacak kurallar
 
-- Her talep tek bir cihaz içerir.
+- Her talep tek bir cihaz içerir; aynı tarihler için birden çok cihaz **Toplu Talep** ile tek seferde istenir.
 - Onay bekleyen talepler tarihleri ayırmaz; tarihler ancak onaylandığında ayrılır. Aynı tarihlere birden fazla kişi talep açabilir, yalnızca biri onaylanır.
 - Aynı cihaz için iki talebin tarihleri aynı günü paylaşamaz: bir talep ayın 10'unda bitiyorsa sonraki talep en erken 11'inde başlayabilir.
 - Cihaz planlanan başlangıç tarihinden önce teslim edilemez; iade ise her zaman yapılabilir.
@@ -214,6 +220,7 @@ Demo verisiyle kurulmuş bir veritabanında aşağıdaki adımlarla uygulamayı 
 4. **Uzatma:** **Uzatma Bekleyenler**'de iki istek vardır. ZMT/0007'nin (spektrum analizör) uzatmasını onaylayın: bitiş tarihi ilerler. ZMT/0001'in (osiloskop, gecikmiş) uzatmasını onaylamaya çalışın: aynı osiloskobun ZMT/0002 talebiyle çakıştığı için sistem izin vermez.
 5. **Gecikmiş cihaz:** **Gecikenler**'de ZMT/0001'i (osiloskop, Defne) görün. **Teslim Bekleyenler**'deki ZMT/0002 aynı osiloskobun bugün başlayan talebidir; **Teslim Et**'e bastığınızda "Önce iade alınması gerekir" uyarısı çıkar. ZMT/0001'in iadesini aldıktan sonra osiloskop kontrole girer; **Kontrol Bekleyen Cihazlar**'dan açıp **Kontrol Tamamlandı**'ya bastığınızda ZMT/0002 teslim edilebilir.
 6. **Süresi geçmiş onay ve red:** **Süresi Geçmiş Onaylar**'da ZMT/0010'u görün. Reddedilmiş ZMT/0009'u açıp red gerekçesini okuyun.
-7. **Bakım ve kayıp:** **Kullanılamayan Cihaz Onayları**'nda bakımdaki osiloskobun (OSC-003) onaylı talebini açın: formun üstünde uyarı bandı vardır ve **Teslim Et** "Cihaz şu an bakımda; teslim edilemez." hatası verir. **Ekipmanlar**'da filtreyi kaldırıp kayıp dizüstü bilgisayarı (LTP-003) açın; **Zimmet Geçmişi**'nde kayıp kaydı görünür; kaydı açınca kayıp notunu okursunuz. **Bulundu**'ya basarsanız cihaz kontrole girer.
-8. **Ekipman geçmişi:** **Ekipmanlar**'dan spektrum analizörünü (SPK-001) açın; **Şu An Kimde** alanını ve **Zimmet Geçmişi** sekmesini inceleyin.
-9. **Mühendisin görünürlüğü:** `defnekaradut` ile girin. **Zimmet Talepleri**'nde yalnızca Defne'nin kendi talepleri görünür; ekipman listesinde **Şu An Kimde** sütunu yoktur.
+7. **Toplu talep:** **Onay Bekleyenler**'de **Grupla → Toplu Talep**'i seçin; Defne'nin `TPL/0001` toplu talebindeki iki kayıt (ZMT/0013 ve ZMT/0014) birlikte görünür. İkisini seçip **Onayla**'ya basın.
+8. **Bakım ve kayıp:** **Kullanılamayan Cihaz Onayları**'nda bakımdaki osiloskobun (OSC-003) onaylı talebini açın: formun üstünde uyarı bandı vardır ve **Teslim Et** "Cihaz şu an bakımda; teslim edilemez." hatası verir. **Ekipmanlar**'da filtreyi kaldırıp kayıp dizüstü bilgisayarı (LTP-003) açın; **Zimmet Geçmişi**'nde kayıp kaydı görünür; kaydı açınca kayıp notunu okursunuz. **Bulundu**'ya basarsanız cihaz kontrole girer.
+9. **Ekipman geçmişi:** **Ekipmanlar**'dan spektrum analizörünü (SPK-001) açın; **Şu An Kimde** alanını ve **Zimmet Geçmişi** sekmesini inceleyin.
+10. **Mühendisin görünürlüğü:** `defnekaradut` ile girin. **Zimmet Talepleri**'nde yalnızca Defne'nin kendi talepleri görünür; ekipman listesinde **Şu An Kimde** sütunu yoktur.

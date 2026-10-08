@@ -56,7 +56,8 @@ erDiagram
 |---|---|
 | `ekipman.kategori` | `name`, `description` |
 | `ekipman.cihaz` | `name`, `etiket_no` (benzersiz), `aciklama`, `seri_no`, `kategori_id`, `active`, `kullanilabilirlik`; chatter; hesaplanan: `fiziksel_durum` ve `su_an_kimde_id` (saklanan), `dolu_tarihler` |
-| `ekipman.zimmet` | `name` (`ZMT/0001`), `state`, `cihaz_id`, `calisan_id`, `planlanan_baslangic/bitis`, `fiili_baslangic/bitis`, `red_gerekcesi`, `iptal_nedeni`, `istenen_bitis`, `kullanici_geri_bildirimi`, `kapanis_notu`, `kapanis_tarihi`; chatter (`mail.thread`) |
+| `ekipman.zimmet` | `name` (`ZMT/0001`), `state`, `cihaz_id`, `calisan_id`, `planlanan_baslangic/bitis`, `fiili_baslangic/bitis`, `red_gerekcesi`, `iptal_nedeni`, `istenen_bitis`, `kullanici_geri_bildirimi`, `kapanis_notu`, `kapanis_tarihi`, `toplu_ref` (`TPL/0001`); chatter (`mail.thread`) |
+| `ekipman.zimmet.toplu` (geçici) | `cihaz_ids`, `planlanan_baslangic/bitis`: Toplu Talep sihirbazı |
 
 Talep ve zimmet aynı kayıttır; kayıt durum değiştirerek talepten iadeye ilerler. Cihazın "kimde" bilgisi elle tutulmaz, zimmet kayıtlarından hesaplanır.
 
@@ -89,6 +90,8 @@ stateDiagram-v2
 | İptal Et | Talep sahibi veya yetkili | Onay bekliyor veya onaylanmış (teslim edilmemiş); iptal nedeni dolu |
 | Süre uzatma | Talep sahibi ister (İstenen Bitiş), yetkili onaylar veya reddeder | Onaylı veya teslim edilmiş; yeni bitiş ileri ve bugünden önce değil; çakışma yok |
 | Taslağı Sil | Talep sahibi | Taslak; taslaklar iptal edilmez, silinir |
+| Toplu Talep (sihirbaz) | Mühendis veya yetkili | Seçilen her cihaz için ayrı talep açılıp gönderilir; biri geçersizse hiçbiri açılmaz |
+| Toplu onay | Yetkili | Listede seçili kayıtlar; biri onaylanamazsa hiçbiri onaylanmaz |
 
 Mühendis yalnızca kendi kayıtlarını görür; yetkili tüm kayıtları görür, onay, teslim, iade ve ekipman yönetimini yapar. "Gecikmiş" ayrı bir durum değil, teslim edilmiş ve planlanan bitişi geçmiş kayıttır; yetkili bunları "Gecikenler" menüsünde görür.
 
@@ -96,7 +99,7 @@ Mühendis yalnızca kendi kayıtlarını görür; yetkili tüm kayıtları gör�
 
 Kodlar [`docs/kararlar.md`](docs/kararlar.md)'deki kararlara karşılık gelir; alternatifler ve ayrıntılı gerekçeler oradadır.
 
-- **A0, A1 — Talep başına tek cihaz, tek model.** Talep ile zimmet aynı yaşam döngüsü olduğu için tek modelde durum geçişleriyle tutulur; çakışma kuralı sade kalır. Birden çok cihaz için ayrı talep açılır.
+- **A0, A1 — Talep başına tek cihaz, tek model.** Talep ile zimmet aynı yaşam döngüsü olduğu için tek modelde durum geçişleriyle tutulur; çakışma kuralı sade kalır.
 - **A4 — Zimmet çalışana bağlıdır.** `hr` zorunlu kurulum; kişi `hr.employee`'dir. Kullanıcı yalnızca kendi adına talep açar.
 - **C1 — Yalnızca onaylı ve teslim edilmiş kayıtlar takvimi bloklar.** Bekleyen talep kimseye hak vermez; aynı tarihe iki talep açılabilir, yalnızca biri onaylanır.
 - **C3 — Kapalı aralık, aynı gün devir yok.** `Date` tipiyle saat bilgisi yoktur; basit ve açıklanabilir kural için ardışık zimmetler arasında bir gün boşluk kabul edilmiştir.
@@ -104,6 +107,7 @@ Kodlar [`docs/kararlar.md`](docs/kararlar.md)'deki kararlara karşılık gelir; 
 - **B4 — Erken teslim yok.** Erken teslim, onaylı başka bir talebin hakkını bozabilir; teslim yalnızca planlanan aralıkta yapılır.
 - **B6 — Gecikme bir durum değil, türetilmiş koşuldur.** Bugünün tarihine bağlı bir durum zamanlanmış görev gerektirirdi; filtre her zaman günceldir.
 - **B9 — Süre uzatma ayrı bir durum değil.** Kayıttaki "İstenen Bitiş" alanının dolu olmasıdır; yetkili onaylarsa bitiş ilerler ve yeni aralık çakışma kuralından geçer. Gecikmiş kayıt da uzatılabilir.
+- **A6 — Toplu talep bir sihirbazdır, ayrı bir model değil.** Aynı tarihler için birden çok cihaz tek seferde istenir; her cihaz ayrı bir kayıt olarak, tek tek talebin bütün kurallarıyla işler. Kayıtları yalnızca bir toplu talep referansı bağlar; yetkili onları gruplu görür ve birlikte onaylayabilir.
 - **A7 — Kullanılabilirlik fiziksel durumdan ayrı bir alandır.** Cihaz kullanılabilir, kontrolde, bakımda, kayıp veya hurda olabilir; yalnızca kullanılabilir cihaz talep edilir, onaylanır ve teslim edilir. Her iade cihazı kontrole alır. Kontrol, bakım ve kayıp mevcut talepleri iptal etmez (talep uyarı bandıyla bekler); hurda kalıcı olduğu için açık talepleri nedeniyle iptal eder.
 - **B10 — Kayıp ayrı bir kapanış durumudur.** Kaybolan cihazı "iade" saymak geçmişi yanıltırdı; mühendisin geri bildirimi ve yetkilinin iade / kayıp notu kontrol sırasında görünür.
 - **B7 — Yetkili kendi talebini onaylayabilir.** Yasak, tek yetkilili şirkette süreci tıkardı; onaylayan chatter'da izlenir.
