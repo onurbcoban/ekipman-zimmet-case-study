@@ -1,12 +1,29 @@
 # Ekipman Zimmet Modülü Test Senaryoları
 
 ## A Bölümü - Veri Modeli
-1. **Fiziksel durum hesaplaması:** Cihaz teslim edilince durum "Zimmette", iade alınınca "Şu an müsait" olur. Yalnızca `onaylandi` durumundaki kayıt fiziksel durumu değiştirmez (A3).
+1. **Fiziksel durum hesaplaması:** Cihaz teslim edilince durum "Zimmette", iade alınınca veya kayıp olarak işaretlenince "Zimmette değil" olur. Yalnızca `onaylandi` durumundaki kayıt fiziksel durumu değiştirmez (A3, B10).
 2. **Çalışanı olmayan kullanıcı:** Bağlı çalışan kaydı olmayan kullanıcı talep açmaya çalışırsa `UserError` alır (A4).
 3. **Başkası adına talep:** Mühendis RPC ile başka bir çalışanı `calisan_id` olarak vererek talep oluşturmaya çalışırsa hata verir; kendi çalışanını açıkça vererek oluşturursa kayıt oluşur. Oluşmuş kaydın `calisan_id` alanı RPC ile değiştirilemez (A4, D3, B8).
 4. **Silme kısıtı:** Geçmiş zimmet kaydı olan cihaz veya çalışan silinemez (A5).
 5. **Cihaz arşivleme:** Aktif zimmeti (`onaylandi` veya `teslim_edildi`) olan cihaz arşivlenemez; aktif zimmeti olmayan cihaz arşivlenebilir (A5).
 6. **Çalışan arşivleme:** Teslim edilmiş zimmeti olan çalışan arşivlenebilir; zimmet kayıtları korunur ve geciken listesinde görünmeye devam eder (A5).
+### Toplu talep (A6)
+7. **Toplu talep oluşturma:** Mühendis sihirbazda iki cihaz ve bir tarih aralığı seçer. Her cihaz için ayrı bir kayıt oluşur; ikisi de `talep_edildi` durumundadır, çalışanı mühendisin kendisidir ve aynı `TPL/...` referansını taşır (A6).
+8. **Toplu talebin tek işlem olması:** Seçilen cihazlardan biri geçersizse (ör. RPC ile kayıp bir cihaz verilirse) hiçbir kayıt oluşmaz (A6, A7).
+9. **Sihirbazın cihaz listesi:** Sihirbazda kayıp ve hurda cihazlar seçilemez (A6, A7).
+10. **Kayıtların bağımsızlığı:** Toplu talepteki kayıtlardan biri geri çekilir veya reddedilir; diğeri bekler ve ayrıca onaylanabilir (A6).
+11. **Toplu onay:** Yetkili toplu talebin kayıtlarını listede seçip tek seferde onaylar. Kayıtlardan biri çakışıyorsa hiçbiri onaylanmaz ve hata mesajı çakışan kaydı gösterir; çakışan kayıt seçimden çıkarılınca diğeri onaylanır (A6, C6).
+12. **Toplu talep referansının korunması:** Mühendis RPC ile `toplu_ref` yazmaya çalışırsa hata alır; tek tek açılan kayıtlarda alan boştur (A6, B8).
+
+### Cihazın kullanılabilirliği (A7)
+13. **Bakımdaki cihaz:** Bakımdaki cihaz için talep açılır ve gönderilir, ancak onay hata verir (A7).
+14. **Bakımdaki cihazda onaylı kayıt:** Onaylı kaydın cihazı bakıma alınırsa, aralık bugünü kapsasa bile "Teslim Et" hata verir (A7).
+15. **Kayıp ve hurda cihaz:** Kayıp veya hurda cihaza talep açılamaz. Taslak kaydın cihazı sonradan kayıp yapılırsa "Talep Et" hata verir (A7).
+16. **Zimmetteki cihaz:** Zimmetteki cihaz bakıma veya hurdaya alınamaz; zimmette olmayan cihaz doğrudan kayıp yapılabilir (A7).
+17. **İleri onayların korunması:** İleri tarihli onaylı kaydı olan cihaz bakıma alınırken formda uyarı görünür; onaylı kayıt iptal edilmez ve "Kullanılamayan Cihaz Onayları" kuyruğunda listelenir (A7, F1).
+18. **Bulunan cihaz:** Kayıp cihaz yeniden "Kullanılabilir" yapılabilir; eski kayıp zimmet kaydı geçmişte kalır (A7, B10).
+19. **Hurda ve arşiv:** Hurda yapılan cihaz otomatik arşivlenmez; aktif zimmeti yoksa elle arşivlenebilir (A7, A5).
+20. **Kullanılabilirlik izi:** Kullanılabilirlik değişikliği cihazın chatter'ında değiştiren kullanıcıyla görünür (A7, G6).
 
 ## B Bölümü - Süreç Akışı ve Geçişler
 1. **Mutlu yol:** Mühendis taslak oluşturur, gönderir (talep_edildi), yetkili onaylar (onaylandi), aralığı gelince teslim eder (teslim_edildi), iade alır (iade_edildi). Fiili tarihler butonlarla yazılır.
@@ -14,9 +31,9 @@
 3. **Gerekçesiz red:** Yetkili `red_gerekcesi` alanını doldurmadan reddetmeye çalışırsa `UserError` verilir (B3). Gerekçeli red geçer ve mühendis sebebi kendi listesinde görür.
 4. **Erken teslim:** Başlangıç tarihi henüz gelmemiş onaylı talep için "Teslim Et" `UserError` verir (B4).
 5. **Aralığı geçmiş onaylı teslim:** Bitiş tarihi geçmiş onaylı kayıt teslim edilmeye çalışılırsa `UserError` verilir (B4).
-6. **Teslim edilmiş kaydı iptal:** `teslim_edildi` durumundaki kayıt iptal edilmeye çalışılırsa hata verir; yalnızca iade alınabilir (B3).
-7. **Yetkisiz geçiş (RPC):** Mühendis, arayüzde gizlenen `action_onayla` veya `action_teslim_et` metotlarını RPC/Python shell ile çağırırsa rol kontrolünden `AccessError` alır (B8).
-8. **Son durumdan çıkış:** `iade_edildi`, `reddedildi` veya `iptal` durumundaki kayıt tekrar bir aktif duruma geçirilemez (B5).
+6. **Teslim edilmiş kaydı iptal:** `teslim_edildi` durumundaki kayıt iptal edilmeye çalışılırsa hata verir; yalnızca iade alınabilir veya kayıp olarak işaretlenebilir (B3, B10).
+7. **Yetkisiz geçiş (RPC):** Mühendis, arayüzde gizlenen `action_onayla` veya `action_teslim_et` metotlarını RPC/Python shell ile çağırırsa rol kontrolünden `AccessError` alır; kayıp geçişi de yetkiliye özeldir (B8, B10).
+8. **Son durumdan çıkış:** `iade_edildi`, `kayip`, `reddedildi` veya `iptal` durumundaki kayıt tekrar bir aktif duruma geçirilemez (B1, B5).
 9. **Geri çekme:** Mühendis bekleyen talebi geri çeker, düzenler ve tekrar gönderir (B5).
 10. **Onaylı talebi geri çekme:** `onaylandi` durumundaki kayıt geri çekilemez, hata verir (B5).
 11. **Başkasının talebini geri çekme:** Talebin sahibi olmayan kullanıcı (yetkili dahil) `action_geri_cek` çağırırsa hata alır (B2).
@@ -28,6 +45,25 @@
 17. **Reddedilen talep akışı:** Yetkili tarihi yanlış talebi gerekçeyle reddeder, mühendis doğru tarihlerle yeni talep açar (B2, B3).
 18. **Geçmiş tarihli talep:** Başlangıç tarihi bugünden önce olan taslak gönderilemez ve taslak kalır; bugün başlayan talep gönderilebilir. Taslak geçmiş tarihle kaydedilebilir, tarih düzeltilip gönderilir (B2).
 19. **Red gerekçesinin sunucu kontrolü:** Mühendis RPC ile `red_gerekcesi` yazamaz; yetkili de onaylanmış veya reddedilmiş bir talebin gerekçesini sonradan değiştiremez (B3, D5).
+20. **Bitişi geçmiş talebin onayı:** Planlanan bitişi bugünden önce olan bekleyen talep onaylanamaz; başlangıcı geçmiş ama bitişi gelmemiş talep onaylanabilir (B2).
+
+### Süre uzatma (B9)
+21. **Uzatma mutlu yolu:** Teslim edilmiş kayıtta mühendis istenen bitişi yazıp "Uzatma İste"ye basar; durum `teslim_edildi` kalır. Yetkili onaylar; `planlanan_bitis` yeni tarih olur, `istenen_bitis` temizlenir, eski bitiş chatter'da görünür (B9, G6).
+22. **Onaylı kayıtta uzatma:** Henüz teslim edilmemiş onaylı kayıt için de uzatma istenip onaylanabilir (B9).
+23. **Geriye veya geçmişe uzatma:** İstenen bitiş mevcut planlanan bitişten önce veya ona eşitse, ya da bugünden önceyse hata verir (B9).
+24. **Çakışan uzatma:** Yeni aralık onaylı başka bir kayıtla çakışıyorsa uzatma onayı hata verir, mesaj çakışan kaydı gösterir ve kayıt değişmez (B9, C2, C6).
+25. **Gecikmiş kaydın uzatılması:** Gecikmiş kayıt uzatma ister; onaylanınca "Gecikenler" filtresinden çıkar (B9, B6, E3).
+26. **Uzatmanın reddi ve geri çekilmesi:** Yetkili reddedince veya mühendis geri çekince `istenen_bitis` temizlenir; durum ve planlanan bitiş değişmez (B9).
+27. **Bekleyen uzatma bloklamaz:** Uzatma beklerken aynı tarihlere başka bir talep onaylanabilir; bundan sonra uzatma onayı çakışma hatası verir (B9, C1).
+28. **Uzatma alanının korunması:** Talep sahibi olmayan kullanıcı veya `onaylandi`/`teslim_edildi` dışındaki bir kayıtta `istenen_bitis` RPC ile yazılamaz (B9, B8).
+29. **Bakımdaki cihazda uzatma:** Onaylı kaydın cihazı bakımdaysa uzatma onayı hata verir (B9, A7).
+
+### Kayıp ve hasarlı iade (B10)
+30. **Kayıp olarak işaretleme:** Yetkili teslim edilmiş kaydı kapanış notuyla "Kayıp" yapar. Kayıt `kayip` olur, `fiili_bitis` bugündür, cihazın kullanılabilirliği "Kayıp" olur, "şu an kimde" boşalır (B10, A7, E1).
+31. **Notsuz kayıp:** Kapanış notu boşken "Kayıp Olarak İşaretle" hata verir (B10).
+32. **Kayıp geçişinin sınırları:** Kayıp geçişi yalnızca `teslim_edildi` kayıttan ve yalnızca yetkili tarafından yapılabilir (B2, B10).
+33. **Hasarlı iade:** Yetkili kapanış notu yazarak normal iade alır, ardından cihazı bakıma alır; zimmet `iade_edildi` olur (B10, A7).
+34. **Kapanış notunun korunması:** Mühendis RPC ile `kapanis_notu` yazamaz; yetkili de bu alana yalnızca `teslim_edildi` durumunda yazabilir (B10, B8).
 
 ## C Bölümü - Çakışma ve Takvim Kontrolleri
 1. **İki çakışan bekleyen talep:** İlk onay geçer, ikincisi onaylanırken hata verir (C1, C2).
@@ -38,42 +74,51 @@
 6. **Çakışma mesajı:** Yetkili çakışan bir onayı denediğinde hata mesajında çakışan kaydın referansı ve tarihleri görünür. Bloklayan duruma geçmeye çalışan mühendis çakışma kontrolüne ulaşmadan rol kontrolünden yetki hatası alır (C6, B8).
 7. **Ters aralık:** Bitiş tarihi < başlangıç tarihi seçilirse hata verir (C3).
 8. **Kendi kaydını dışlama:** Onaylı bir kayıt, değişiklik yapılmadan tekrar kaydedildiğinde kendiyle çakışma hatası vermez (C2).
+9. **Veritabanı çakışma kısıtı:** Python kontrolü atlanarak doğrudan SQL ile aynı cihaza çakışan iki onaylı kayıt yazılmaya çalışılırsa `EXCLUDE` kısıtı işlemi reddeder (C5).
+10. **Veritabanı tek-zimmet indeksi:** Doğrudan SQL ile aynı cihaza ikinci bir `teslim_edildi` kayıt yazılmaya çalışılırsa kısmi benzersiz indeks işlemi reddeder (C5).
+11. **Eklentisiz kurulum:** Modül kurulduktan sonra `btree_gist` eklentisi kurulu değildir ve iki kısıt da veritabanında mevcuttur (`pg_extension`, `pg_constraint`, `pg_indexes` sorguları) (C5).
+12. **Kapalı durumlar bloklamaz:** Kayıp veya iptal edilmiş kaydın aralığına başka bir talep onaylanabilir (C1, B10).
 
 ## D Bölümü - Roller ve Güvenlik
 1. **Mühendis görünürlüğü:** Mühendis yalnızca kendi zimmet kayıtlarını listeler; başkasının kaydı görünmez (D2).
 2. **Ekipman yönetimi:** Mühendis ekipman veya kategori oluşturmaya çalışırsa hata alır; ekipmanı salt okunur görür ve talep formunda cihaz seçebilir (D4).
 3. **Kimde bilgisi:** Mühendis "şu an kimde" alanını ve geçmiş sekmesini göremez; yetkili görür (D6).
 4. **Yetkili görünürlüğü:** Yetkili tüm zimmet kayıtlarını görür; yönetici kullanıcı Yetkili grubundadır (D1, D5).
-5. **Yetkili haklarının kapsamı:** Yetkili, mühendisin yapabildiği her işlemi (kendi adına talep açma) yapabilir (D1).
+5. **Yetkili haklarının kapsamı:** Yetkili, mühendisin yapabildiği her işlemi (kendi adına talep açma, toplu talep, uzatma isteme) yapabilir (D1).
+6. **Kullanılabilirlik yetkisi:** Mühendis cihazın kullanılabilirliğini görür ama değiştiremez (RPC dahil); yetkili değiştirir (D4, A7).
+7. **Sihirbaz erişimi:** Mühendis toplu talep sihirbazını açıp kullanabilir (D5, A6).
 
 ## E Bölümü - Kimde, Geçmiş, Gecikme, Dolu Tarihler
-1. **Şu an kimde:** Teslim sonrası cihazın "kimde" alanı teslim alan çalışandır; iade sonrası boşalır (E1).
-2. **Geçmiş:** Cihaz geçmişinde yalnızca teslim edilmiş ve iade edilmiş kayıtlar görünür; reddedilen ve iptal edilenler görünmez (E2).
-3. **Geciken filtresi:** Teslim edilmiş ve bitişi geçmiş kayıt "Geciken" filtresinde ve menüsünde çıkar (E3).
+1. **Şu an kimde:** Teslim sonrası cihazın "kimde" alanı teslim alan çalışandır; iade veya kayıp sonrası boşalır (E1).
+2. **Geçmiş:** Cihaz geçmişinde yalnızca teslim edilmiş, iade edilmiş ve kayıp kayıtlar görünür; reddedilen ve iptal edilenler görünmez (E2).
+3. **Geciken filtresi:** Teslim edilmiş ve bitişi geçmiş kayıt "Gecikenler" filtresinde ve menüsünde çıkar (E3).
 4. **Süresi geçmiş onay:** Bitişi geçmiş ve hiç teslim edilmemiş onaylı kayıt "Süresi geçmiş onay" filtresinde çıkar (E3).
-5. **Dolu tarihler:** Onaylı kaydın aralığı mühendisin formunda görünür, isim ve referans görünmez. Bekleyen talebin aralığı ve bitişi geçmiş aralıklar görünmez (E4).
+5. **Dolu tarihler:** Onaylı kaydın aralığı mühendisin formunda görünür, isim ve referans görünmez. Bekleyen talebin, bekleyen uzatmanın ve bitişi geçmiş aralıkların görünmez (E4, B9).
 6. **Gecikmiş cihaz:** Gecikmiş cihaz dolu tarihlerde "şu an elde, iade bekleniyor" olarak görünür (E4).
 7. **Form görünürlüğü:** Dolu tarihler alanı talep formunda yalnızca taslak durumunda görünür (E4).
+8. **Kullanılamayan cihaz:** Bakımdaki veya kayıp cihazın dolu tarihler alanının başında bu durum yazılır (E4, A7).
+
 ## F Bölümü - Ekranlar ve Menüler
-1. **Menü görünürlüğü:** Zimmet Talepleri "Açık Talepler" filtresiyle açılır; iade edilen, reddedilen ve iptal edilen talepler filtre kaldırılınca görünür. Yetkili hesabında Zimmet Talepleri, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Ekipmanlar ve Kategoriler görünür. Mühendis hesabında yalnızca Zimmet Talepleri ve Ekipmanlar görünür (F1).
-2. **Kuyruk içerikleri:** Onay Bekleyenler yalnızca `talep_edildi`, Teslim Bekleyenler yalnızca `onaylandi` kayıtları listeler. Kuyruk menüsü ilgili filtreyi arama çubuğunda etiket olarak açar; filtre kaldırılınca tüm kayıtlar görünür (F1).
-3. **Buton görünürlüğü:** Taslakta sahibinde Talep Et ve Taslağı Sil (İptal Et görünmez); bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte yetkilide Teslim Et; teslim edilmişte yetkilide İade Al; kapalı durumlarda (iade, red, iptal) hiçbir buton görünmez. Yetkili başkasının taslağını açtığında Talep Et ve Taslağı Sil, bekleyen talebinde Geri Çek görünmez (F2).
+1. **Menü görünürlüğü:** Zimmet Talepleri "Açık Talepler" filtresiyle açılır; iade edilen, reddedilen ve iptal edilen talepler filtre kaldırılınca görünür. Yetkili hesabında Zimmet Talepleri, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Uzatma Bekleyenler, Kullanılamayan Cihaz Onayları, Ekipmanlar ve Kategoriler görünür. Mühendis hesabında yalnızca Zimmet Talepleri ve Ekipmanlar görünür (F1).
+2. **Kuyruk içerikleri:** Onay Bekleyenler yalnızca `talep_edildi`, Teslim Bekleyenler yalnızca `onaylandi`, Uzatma Bekleyenler yalnızca `istenen_bitis` dolu, Kullanılamayan Cihaz Onayları yalnızca cihazı kullanılabilir olmayan `onaylandi` kayıtları listeler. Kuyruk menüsü ilgili filtreyi arama çubuğunda etiket olarak açar; filtre kaldırılınca tüm kayıtlar görünür (F1).
+3. **Buton görünürlüğü:** Taslakta sahibinde Talep Et ve Taslağı Sil (İptal Et görünmez); bekleyen talepte sahibinde Geri Çek, yetkilide Onayla ve Reddet; onaylı talepte yetkilide Teslim Et, sahibinde Uzatma İste; teslim edilmişte yetkilide İade Al ve Kayıp Olarak İşaretle, sahibinde Uzatma İste; bekleyen uzatmada sahibinde Uzatmayı Geri Çek, yetkilide Uzatmayı Onayla ve Uzatmayı Reddet; kapalı durumlarda (iade, kayıp, red, iptal) hiçbir buton görünmez. Yetkili başkasının taslağını açtığında Talep Et ve Taslağı Sil, bekleyen talebinde Geri Çek görünmez (F2).
 4. **Statusbar:** Statusbar'a tıklanarak durum değiştirilemez (F2, B8).
 5. **Çalışan alanı:** Talep formunda çalışan kullanıcının kendi adıyla dolu ve düzenlenemezdir (F2, A4).
 6. **Fiili tarihler:** Fiili tarih alanları taslakta ve onaylı durumda gizlidir, teslimden sonra salt okunur görünür (F2).
 7. **Red gerekçesi alanı:** Yalnızca yetkiye ve yalnızca bekleyen talepte düzenlenebilir; reddedilen talepte salt okunur görünür; boşken Reddet hata verir (F2, B3).
-8. **Liste vurgusu:** Geciken satır kırmızı, süresi geçmiş onay sarı, bekleyen talep mavi, kapalı durumlar soluk görünür; sıralama planlanan başlangıca göre azalandır (F3).
-9. **Ekipman ekranı:** Ekipman listesinde "şu an kimde" kolonu yetkide görünür, mühendiste görünmez. Ekipman formunda "Geçmiş" sekmesi yalnızca yetkide görünür (F4, D6).
+8. **Liste vurgusu:** Geciken satır kırmızı, süresi geçmiş onay sarı, bekleyen talep mavi, kapalı durumlar (iade, kayıp, red, iptal) soluk görünür; sıralama planlanan başlangıca göre azalandır (F3).
+9. **Ekipman ekranı:** Ekipman listesinde kullanılabilirlik kolonu herkese, "şu an kimde" kolonu yalnızca yetkiye görünür. "Verilebilir" filtresi yalnızca kullanılabilir ve zimmette olmayan cihazları getirir. Ekipman formunda "Geçmiş" sekmesi yalnızca yetkide görünür; altta chatter vardır (F4, D6, G6).
 10. **Görünüm türleri:** Zimmet ve ekipman modelleri yalnızca liste ve form görünümü sunar; takvim, pivot ve kanban yoktur (F5).
-11. **Arama ve gruplama:** Referans, cihaz ve çalışana göre arama çalışır; Onay Bekleyenler, Teslim Bekleyenler, Gecikenler ve Süresi Geçmiş Onaylar filtreleri doğru kayıtları getirir; cihaz, çalışan ve duruma göre gruplama çalışır (F6).
+11. **Arama ve gruplama:** Referans, cihaz ve çalışana göre arama çalışır; Açık Talepler, Onay Bekleyenler, Teslim Bekleyenler, Gecikenler, Süresi Geçmiş Onaylar, Uzatma Bekleyenler ve Kullanılamayan Cihaz Onayları filtreleri doğru kayıtları getirir; cihaz, çalışan, durum ve toplu talebe göre gruplama çalışır (F6).
 12. **Arayüz dili:** Menüler, alan etiketleri, butonlar ve hata mesajları Türkçedir (F7).
+13. **Uzatma ve kapanış alanları:** İstenen bitiş alanı yalnızca `onaylandi`/`teslim_edildi` durumunda görünür. Kapanış notu teslim edilmiş kayıtta yetkiye düzenlenebilir, kapanmış kayıtta salt okunur görünür. Toplu talep referansı yalnızca doluysa görünür (F2).
 
 ## G Bölümü - Mimari ve Kurulum
 1. **Temiz kurulum:** Boş bir veritabanında modül kurulur; log'da `ERROR` veya modülümüze ait uyarı çıkmaz. Bağımlılık olarak yalnızca `mail` ve `hr` istenir (G2, G4, G9).
-2. **Yükleme sırası:** Modül ilk kurulumda ve güncellemede (`-u`) hatasız yüklenir; demo açık ve demo kapalı veritabanlarında kurulur (G4).
-3. **Referans numarası:** Yeni kayıt `ZMT/0001` biçiminde ad alır, ardışık kayıtlarda numara artar. Mühendis hesabıyla kayıt oluşturulunca da numara atanır (sıra yetkisi) (G5).
-4. **Kopyalama:** Bir kayıt kopyalanınca yeni referans numarası alır, eskisini taşımaz (G5).
-5. **Chatter:** Durum değişiklikleri chatter'da kullanıcı ve zamanla izlenir; aktivite planlama kullanılmaz (G6, B7).
+2. **Yükleme sırası:** Modül ilk kurulumda ve güncellemede (`-u`) hatasız yüklenir; demo açık ve demo kapalı veritabanlarında kurulur. Güncellemede veritabanı kısıtları varsa yeniden oluşturulmaz ve hata vermez; `-u` iki kez art arda çalıştırılarak denenir (G4, C5).
+3. **Referans numarası:** Yeni kayıt `ZMT/0001` biçiminde ad alır, ardışık kayıtlarda numara artar. Mühendis hesabıyla kayıt oluşturulunca da numara atanır (sıra yetkisi). Toplu talep `TPL/0001` biçiminde ayrı bir sıradan numara alır (G5, A6).
+4. **Kopyalama:** Kapanmış (ör. iade edilmiş) bir kayıt mühendis tarafından kopyalanınca hata vermez; yeni kayıt kopyalayanın adına, aynı cihaz ve planlanan tarihlerle bir taslaktır. Yeni referans numarası alır; durum, fiili tarihler, red gerekçesi, istenen bitiş, kapanış notu ve toplu talep referansı kopyalanmaz. Yetkili başkasının kaydını kopyalayınca kayıt yetkilinin adına oluşur (B8, G5, A4).
+5. **Chatter:** Zimmet durum değişiklikleri ve uzatmalar zimmet chatter'ında, kullanılabilirlik değişiklikleri cihaz chatter'ında kullanıcı ve zamanla izlenir; aktivite planlama kullanılmaz (G6, B7).
 6. **Benzersizlik:** Aynı etiket no ikinci bir cihaza verilirse anlaşılır bir hata alınır; seri no boş bırakılabilir (G7).
 7. **Adlandırma:** Kodda Odoo'nun kendi adları dışında İngilizce tanımlayıcı kalmamıştır (örneğin zimmet modelinde `calisan_id` yerine İngilizce isim olmamalıdır). Elle tarama veya `grep` ile kontrol edilir (G3).
 8. **Manifest:** Modül Uygulamalar listesinde uygulama olarak görünür, özet metni ve sürümü doğrudur (G9).
@@ -81,16 +126,19 @@
 
 ## H Bölümü - Demo Verisi
 1. **Demo kullanıcılar:** Beş demo kullanıcı kendi parolasıyla giriş yapar; her birinin bağlı bir çalışan kaydı ve doğru grubu vardır; yönetici kullanıcı Yetkili grubundadır (H1, D1).
-2. **Ekipman:** Üç kategori ve altı cihaz yüklenmiştir (H2).
-3. **Kayıtlar:** On iki zimmet kaydı doğru durum ve tarihlerle yüklenmiştir; cihazların fiziksel durumu ve "şu an kimde" bilgisi doğru hesaplanmıştır (örneğin OSC-001 Zimmette ve kimde Defne) (H3, E1).
-4. **Göreli tarihler:** Veritabanı farklı bir günde yeniden oluşturulunca gecikmiş ve süresi geçmiş kayıtlar yine gecikmiş görünür, bugünü kapsayan onay yine bugünü kapsar (H4).
+2. **Ekipman:** Üç kategori ve sekiz cihaz yüklenmiştir; OSC-003 bakımda, LTP-003 kayıp, diğerleri kullanılabilirdir (H2).
+3. **Kayıtlar:** On altı zimmet kaydı doğru durum ve tarihlerle yüklenmiştir; cihazların fiziksel durumu ve "şu an kimde" bilgisi doğru hesaplanmıştır (örneğin OSC-001 Zimmette ve kimde Defne; LTP-003 Zimmette değil ve kimde boş) (H3, E1).
+4. **Göreli tarihler:** Veritabanı farklı bir günde yeniden oluşturulunca gecikmiş ve süresi geçmiş kayıtlar yine gecikmiş görünür, bugünü kapsayan onaylar (2, 8, 15) yine bugünü kapsar (H4).
 5. **Demo kapalı veritabanı:** Demo kapalı oluşturulan veritabanında modül kurulur; gruplar ve yapı gelir, senaryo kayıtları gelmez (H5).
-6. **Sunum akışı:** H6'daki beş adım sırayla hatasız tamamlanır; her adımda beklenen hata ve sonuçlar görülür (H6).
+6. **Sunum akışı:** H6'daki adımlar (1, 2, 3, 3b, 3c, 3d, 4, 5) sırayla hatasız tamamlanır; her adımda beklenen hata ve sonuçlar görülür (H6).
 7. **Çakışan talepler:** 3 ve 4 numaralı bekleyen talepten biri onaylanır, diğeri onaylanmaya çalışılınca çakışma hatası verir (H3, C2).
 8. **Gecikmiş cihazın teslim hatası:** 2 numaralı kaydın aralığı bugünü kapsar; yetkili "Teslim Et"e basınca hata teslim zamanlaması kuralından (B4) değil, cihaz hâlâ 1 numaralı kayıtta olduğu için C4'ten gelir ("Önce iade alınması gerekir") (H3, C4).
+9. **Demo uzatmaları:** 7 numaralı kaydın uzatması onaylanır; 1 numaralı kaydın uzatması 2 ile çakıştığı için hata verir (H3, B9).
+10. **Demo toplu talep:** 13 ve 14 numaralı kayıtlar `TPL/0001` altında gruplanır ve birlikte onaylanabilir (H3, A6).
+11. **Demo bakım ve kayıp:** 15 numaralı kayıt "Kullanılamayan Cihaz Onayları" kuyruğunda görünür ve aralık bugünü kapsadığı halde teslimi kullanılabilirlik (A7) hatası verir; LTP-003'ün geçmişinde 16 numaralı kayıp kaydı ve kapanış notu görünür (H3, A7, B10).
 
 ## Otomatik / elle ayrımı (G8)
-Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir.
+Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir. v2 senaryolarının (A/7–A/20, B/20–B/34, C/9–C/12, D/6–D/7, E/8, F/13, H/9–H/11) testleri ilgili fazda eklenir ve bu tabloya işlenir.
 
 | Senaryo | Test |
 |---|---|
