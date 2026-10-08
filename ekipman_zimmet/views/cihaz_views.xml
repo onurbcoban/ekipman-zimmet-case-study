@@ -11,6 +11,7 @@
                 <field name="aciklama" optional="show"/>
                 <field name="seri_no" optional="hide"/>
                 <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'bosta'" decoration-warning="fiziksel_durum == 'zimmette'"/>
+                <field name="kullanilabilirlik" widget="badge" decoration-success="kullanilabilirlik == 'kullanilabilir'" decoration-warning="kullanilabilirlik in ('kontrolde', 'bakimda')" decoration-danger="kullanilabilirlik in ('kayip', 'hurda')"/>
                 <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
             </list>
         </field>
@@ -38,6 +39,7 @@
                         </group>
                         <group>
                             <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'bosta'" decoration-warning="fiziksel_durum == 'zimmette'"/>
+                            <field name="kullanilabilirlik" widget="badge" readonly="1" decoration-success="kullanilabilirlik == 'kullanilabilir'" decoration-warning="kullanilabilirlik in ('kontrolde', 'bakimda')" decoration-danger="kullanilabilirlik in ('kayip', 'hurda')"/>
                             <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                             <field name="active" invisible="1"/>
                         </group>
@@ -61,6 +63,7 @@
                         </page>
                     </notebook>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>

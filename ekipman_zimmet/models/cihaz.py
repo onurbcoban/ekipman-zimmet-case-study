@@ -4,12 +4,27 @@ from odoo.tools import format_date
 class EkipmanCihaz(models.Model):
     _name = 'ekipman.cihaz'
     _description = 'Ekipman Cihazı'
+    _inherit = ['mail.thread']
     _order = 'etiket_no, id'
 
     name = fields.Char(string='Cihaz Adı', required=True)
     etiket_no = fields.Char(string='Etiket No', required=True, copy=False)
     seri_no = fields.Char(string='Seri No')
     aciklama = fields.Text(string='Açıklama')
+    # Yalnızca butonlarla değişir (kontrol, bakım, kayıp, hurda); fiziksel durumdan bağımsızdır (A7).
+    kullanilabilirlik = fields.Selection(
+        selection=[
+            ('kullanilabilir', 'Kullanılabilir'),
+            ('kontrolde', 'Kontrolde'),
+            ('bakimda', 'Bakımda'),
+            ('kayip', 'Kayıp'),
+            ('hurda', 'Hurda'),
+        ],
+        string='Kullanılabilirlik',
+        default='kullanilabilir',
+        required=True,
+        tracking=True,
+    )
     kategori_id = fields.Many2one(
         'ekipman.kategori',
         string='Kategori',

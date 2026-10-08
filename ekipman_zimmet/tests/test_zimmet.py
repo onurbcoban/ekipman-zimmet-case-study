@@ -576,3 +576,8 @@ class TestZimmet(TransactionCase):
         gecikmis.write({'istenen_bitis': self.bugun + timedelta(days=6)})
         gecikmis.with_user(self.user_yetkili).action_iade_al()
         self.assertFalse(gecikmis.istenen_bitis)
+
+    def test_37_kullanilabilirlik_alani(self):
+        self.assertEqual(self.cihaz.kullanilabilirlik, 'kullanilabilir')
+        with self.assertRaises(AccessError):
+            self.cihaz.with_user(self.user2).write({'kullanilabilirlik': 'bakimda'})
