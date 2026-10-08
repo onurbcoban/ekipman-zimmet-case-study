@@ -14,33 +14,39 @@
 
         <!-- Cihazlar -->
         <record id="cihaz_osc_001" model="ekipman.cihaz">
-            <field name="name">OSC-001</field>
+            <field name="name">Tektronix TBS1102B Osiloskop</field>
             <field name="etiket_no">OSC-001</field>
+            <field name="aciklama">100 MHz, 2 kanal, 2 prob ile</field>
             <field name="kategori_id" ref="kategori_osiloskop"/>
         </record>
         <record id="cihaz_osc_002" model="ekipman.cihaz">
-            <field name="name">OSC-002</field>
+            <field name="name">Rigol DS1054Z Osiloskop</field>
             <field name="etiket_no">OSC-002</field>
+            <field name="aciklama">50 MHz, 4 kanal, 4 prob ile</field>
             <field name="kategori_id" ref="kategori_osiloskop"/>
         </record>
         <record id="cihaz_ltp_001" model="ekipman.cihaz">
-            <field name="name">LTP-001</field>
+            <field name="name">MacBook Pro 14 M1 Pro</field>
             <field name="etiket_no">LTP-001</field>
+            <field name="aciklama">16 GB RAM, 512 GB SSD, şarj adaptörü ile</field>
             <field name="kategori_id" ref="kategori_dizustu"/>
         </record>
         <record id="cihaz_ltp_002" model="ekipman.cihaz">
-            <field name="name">LTP-002</field>
+            <field name="name">Lenovo ThinkPad T14 Gen 3</field>
             <field name="etiket_no">LTP-002</field>
+            <field name="aciklama">32 GB RAM, 1 TB SSD, Windows 11, yerleştirme istasyonu ile</field>
             <field name="kategori_id" ref="kategori_dizustu"/>
         </record>
         <record id="cihaz_mlt_001" model="ekipman.cihaz">
-            <field name="name">MLT-001</field>
+            <field name="name">Fluke 87V Multimetre</field>
             <field name="etiket_no">MLT-001</field>
+            <field name="aciklama">True-RMS, test kabloları ve kılıf ile</field>
             <field name="kategori_id" ref="kategori_olcum"/>
         </record>
         <record id="cihaz_spk_001" model="ekipman.cihaz">
-            <field name="name">SPK-001</field>
+            <field name="name">Rigol DSA815 Spektrum Analizör</field>
             <field name="etiket_no">SPK-001</field>
+            <field name="aciklama">9 kHz–1,5 GHz, izleme üreteci ile</field>
             <field name="kategori_id" ref="kategori_olcum"/>
         </record>
     </data>

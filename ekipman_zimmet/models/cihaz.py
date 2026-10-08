@@ -9,6 +9,7 @@ class EkipmanCihaz(models.Model):
     name = fields.Char(string='Cihaz Adı', required=True)
     etiket_no = fields.Char(string='Etiket No', required=True, copy=False)
     seri_no = fields.Char(string='Seri No')
+    aciklama = fields.Text(string='Açıklama')
     kategori_id = fields.Many2one(
         'ekipman.kategori',
         string='Kategori',

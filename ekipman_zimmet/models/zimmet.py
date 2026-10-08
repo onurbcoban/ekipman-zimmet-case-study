@@ -39,6 +39,10 @@ class EkipmanZimmet(models.Model):
         ondelete='restrict',
         tracking=True,
     )
+    cihaz_aciklama = fields.Text(
+        related='cihaz_id.aciklama',
+        string='Cihaz Açıklaması',
+    )
     dolu_tarihler = fields.Text(
         related='cihaz_id.dolu_tarihler',
         string='Dolu Tarihler',

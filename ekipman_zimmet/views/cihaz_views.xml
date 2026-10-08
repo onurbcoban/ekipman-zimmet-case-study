@@ -8,6 +8,7 @@
                 <field name="etiket_no"/>
                 <field name="name"/>
                 <field name="kategori_id"/>
+                <field name="aciklama" optional="show"/>
                 <field name="seri_no" optional="hide"/>
                 <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'bosta'" decoration-warning="fiziksel_durum == 'zimmette'"/>
                 <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
@@ -27,6 +28,7 @@
                         <h1>
                             <field name="name" placeholder="Örn: Tektronix TBS1102B"/>
                         </h1>
+                        <field name="aciklama" placeholder="Örn: 100 MHz, 2 kanal, 2 prob ile"/>
                     </div>
                     <group>
                         <group>

@@ -51,6 +51,7 @@
                     <group>
                         <group string="Talep Bilgileri">
                             <field name="cihaz_id" readonly="state != 'taslak'"/>
+                            <field name="cihaz_aciklama" invisible="not cihaz_aciklama"/>
                             <field name="dolu_tarihler" invisible="state != 'taslak'"/>
                             <field name="calisan_id" readonly="1"/>
                         </group>
