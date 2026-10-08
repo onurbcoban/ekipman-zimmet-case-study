@@ -503,3 +503,36 @@ class TestZimmet(TransactionCase):
         self.assertEqual(Zimmet.search(self._arama_filtresi('acik_talepler') + kayitlar), acik)
         varsayilan = self.env.ref('ekipman_zimmet.action_ekipman_zimmet').context
         self.assertIn('search_default_guncel_talepler', varsayilan)
+
+    def test_34_uzatma_istegi(self):
+        zimmet = self._talep(self.user2, 0, 3)
+        with self.assertRaises(UserError):
+            zimmet.write({'istenen_bitis': self.bugun + timedelta(days=6)})
+        zimmet.action_gonder()
+        zimmet.with_user(self.user_yetkili).action_onayla()
+
+        zimmet.write({'istenen_bitis': self.bugun + timedelta(days=6)})
+        self.assertEqual(zimmet.istenen_bitis, self.bugun + timedelta(days=6))
+        zimmet.action_uzatmayi_geri_cek()
+        self.assertFalse(zimmet.istenen_bitis)
+
+        with self.assertRaises(UserError):
+            zimmet.write({'istenen_bitis': zimmet.planlanan_bitis})
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).write({'istenen_bitis': self.bugun + timedelta(days=6)})
+
+        # Gecikmiş kayıt: bitiş geçmişte; yeni bitiş mevcut bitişten sonra olsa da bugünden önce olamaz.
+        gecikmis = self._talep(self.user2, -7, -3)
+        gecikmis.sudo().write({'state': 'teslim_edildi', 'fiili_baslangic': self.bugun - timedelta(days=7)})
+        with self.assertRaises(UserError):
+            gecikmis.write({'istenen_bitis': self.bugun - timedelta(days=1)})
+        gecikmis.write({'istenen_bitis': self.bugun + timedelta(days=2)})
+        self.assertEqual(gecikmis.istenen_bitis, self.bugun + timedelta(days=2))
+
+        with self.assertRaises(UserError):
+            self.env['ekipman.zimmet'].with_user(self.user2).create({
+                'cihaz_id': self.cihaz.id,
+                'planlanan_baslangic': self.bugun,
+                'planlanan_bitis': self.bugun,
+                'istenen_bitis': self.bugun + timedelta(days=3),
+            })

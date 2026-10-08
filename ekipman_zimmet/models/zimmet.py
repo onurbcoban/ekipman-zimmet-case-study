@@ -103,6 +103,12 @@ class EkipmanZimmet(models.Model):
         copy=False,
         tracking=True,
     )
+    # Bekleyen uzatma ayrı bir durum değil, bu alanın dolu olmasıdır (B9).
+    istenen_bitis = fields.Date(
+        string='İstenen Bitiş',
+        copy=False,
+        tracking=True,
+    )
     # Güncel Talepler filtresi bu tarihe bakar; write_date kapandıktan sonraki her yazmada değişir.
     kapanis_tarihi = fields.Date(
         string='Kapanış Tarihi',
@@ -137,7 +143,7 @@ class EkipmanZimmet(models.Model):
                         raise UserError('Sadece kendi adınıza talep açabilirsiniz.')
                 vals['calisan_id'] = user_emp_id
                 # Web istemcisi yeni kayıtta varsayılan state='taslak' değerini de gönderir.
-                if vals.get('state', 'taslak') != 'taslak' or {'fiili_baslangic', 'fiili_bitis', 'kapanis_tarihi'} & vals.keys():
+                if vals.get('state', 'taslak') != 'taslak' or {'fiili_baslangic', 'fiili_bitis', 'kapanis_tarihi', 'istenen_bitis'} & vals.keys():
                     raise UserError('Kayıt yalnızca taslak olarak ve fiili tarihler olmadan oluşturulabilir.')
         return super().create(vals_list)
 
@@ -273,6 +279,12 @@ class EkipmanZimmet(models.Model):
                 raise UserError('İptal etmek için iptal nedeni doldurulmalıdır.')
             rec.sudo().write({'state': 'iptal', 'kapanis_tarihi': fields.Date.context_today(self)})
 
+    def action_uzatmayi_geri_cek(self):
+        for rec in self:
+            if not rec.istenen_bitis:
+                raise UserError('Bekleyen bir uzatma isteği yok.')
+            rec.write({'istenen_bitis': False})
+
     def action_taslagi_sil(self):
         self.unlink()
         return self.env['ir.actions.act_window']._for_xml_id('ekipman_zimmet.action_ekipman_zimmet')
@@ -287,6 +299,8 @@ class EkipmanZimmet(models.Model):
                     raise UserError('Red gerekçesini yalnızca yetkililer düzenleyebilir.')
                 if any(rec.state != 'talep_edildi' for rec in self):
                     raise UserError('Red gerekçesi yalnızca onay bekleyen taleplerde düzenlenebilir.')
+            if 'istenen_bitis' in vals:
+                self._uzatma_istegini_denetle(vals['istenen_bitis'])
             if 'iptal_nedeni' in vals:
                 yetkili = self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili')
                 if any(not yetkili and rec.calisan_id.user_id != self.env.user for rec in self):
@@ -300,6 +314,19 @@ class EkipmanZimmet(models.Model):
                 if rec.state != 'taslak':
                     raise UserError('Taslak durumunda olmayan kayıtların cihaz ve planlanan tarih bilgileri değiştirilemez.')
         return super().write(vals)
+
+    def _uzatma_istegini_denetle(self, istenen):
+        bugun = fields.Date.context_today(self)
+        istenen = fields.Date.to_date(istenen)
+        for rec in self:
+            if rec.calisan_id.user_id != self.env.user:
+                raise UserError('Uzatmayı yalnızca talep sahibi isteyebilir.')
+            if rec.state not in ('onaylandi', 'teslim_edildi'):
+                raise UserError('Uzatma yalnızca onaylı veya teslim edilmiş talepte istenebilir.')
+            if istenen and istenen <= rec.planlanan_bitis:
+                raise UserError('İstenen bitiş, mevcut bitiş tarihinden sonra olmalıdır.')
+            if istenen and istenen < bugun:
+                raise UserError('İstenen bitiş bugünden önce olamaz.')
 
     def unlink(self):
         for rec in self:
