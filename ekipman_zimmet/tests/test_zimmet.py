@@ -373,3 +373,13 @@ class TestZimmet(TransactionCase):
         self.assertIn(a.planlanan_baslangic.strftime('%d.%m.%Y'), mesaj)
         self.assertIn(a.planlanan_bitis.strftime('%d.%m.%Y'), mesaj)
 
+    def test_26_fiziksel_durum(self):
+        self.assertEqual(self.cihaz.fiziksel_durum, 'bosta')
+        zimmet = self._talep(self.user_yetkili, 0, 3)
+        zimmet.action_gonder()
+        zimmet.action_onayla()
+        zimmet.action_teslim_et()
+        self.assertEqual(self.cihaz.fiziksel_durum, 'zimmette')
+        zimmet.action_iade_al()
+        self.assertEqual(self.cihaz.fiziksel_durum, 'bosta')
+

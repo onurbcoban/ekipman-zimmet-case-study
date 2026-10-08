@@ -31,13 +31,13 @@ class EkipmanCihaz(models.Model):
     # A3 ve E1 Kararları
     fiziksel_durum = fields.Selection(
         selection=[
-            ('musait', 'Şu an müsait'),
+            ('bosta', 'Zimmette değil'),
             ('zimmette', 'Zimmette'),
         ],
         string='Fiziksel Durum',
         compute='_compute_durum_ve_kimde',
         store=True,
-        default='musait',
+        default='bosta',
     )
     su_an_kimde_id = fields.Many2one(
         'hr.employee',
@@ -65,7 +65,7 @@ class EkipmanCihaz(models.Model):
                 rec.fiziksel_durum = 'zimmette'
                 rec.su_an_kimde_id = aktif_zimmet[0].calisan_id
             else:
-                rec.fiziksel_durum = 'musait'
+                rec.fiziksel_durum = 'bosta'
                 rec.su_an_kimde_id = False
 
     @api.depends('zimmet_ids.state', 'zimmet_ids.planlanan_baslangic', 'zimmet_ids.planlanan_bitis')

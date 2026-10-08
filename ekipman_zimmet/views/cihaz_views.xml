@@ -9,7 +9,7 @@
                 <field name="name"/>
                 <field name="kategori_id"/>
                 <field name="seri_no" optional="hide"/>
-                <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'musait'" decoration-warning="fiziksel_durum == 'zimmette'"/>
+                <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'bosta'" decoration-warning="fiziksel_durum == 'zimmette'"/>
                 <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
             </list>
         </field>
@@ -35,7 +35,7 @@
                             <field name="kategori_id"/>
                         </group>
                         <group>
-                            <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'musait'" decoration-warning="fiziksel_durum == 'zimmette'"/>
+                            <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'bosta'" decoration-warning="fiziksel_durum == 'zimmette'"/>
                             <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                             <field name="active" invisible="1"/>
                         </group>
@@ -73,7 +73,7 @@
                 <field name="seri_no"/>
                 <field name="kategori_id"/>
                 <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
-                <filter string="Şu an müsait" name="musait" domain="[('fiziksel_durum', '=', 'musait')]"/>
+                <filter string="Zimmette değil" name="bosta" domain="[('fiziksel_durum', '=', 'bosta')]"/>
                 <filter string="Zimmetteki Cihazlar" name="zimmette" domain="[('fiziksel_durum', '=', 'zimmette')]"/>
                 <filter string="Şu An Kimde" name="su_an_kimde" domain="[('su_an_kimde_id', '!=', False)]" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                 <separator/>

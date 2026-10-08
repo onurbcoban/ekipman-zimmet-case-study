@@ -73,7 +73,7 @@ Birden fazla cihaza ihtiyacınız varsa her cihaz için ayrı talep açın.
 
 ### Ekipmanlara göz atma
 
-**Ekipmanlar** menüsünde tüm cihazları görebilirsiniz. **Fiziksel Durum** sütunu cihazın şu an birinde olup olmadığını ("Zimmette" / "Şu an müsait") gösterir. Cihazı açıp **Müsaitlik Bilgisi** sekmesinden dolu tarihlerine bakabilirsiniz. Cihazın kimde olduğu ve geçmiş kullanıcıları yalnızca yetkililere görünür.
+**Ekipmanlar** menüsünde tüm cihazları görebilirsiniz. **Fiziksel Durum** sütunu cihazın şu an birinde olup olmadığını ("Zimmette" / "Zimmette değil") gösterir. Cihazı açıp **Müsaitlik Bilgisi** sekmesinden dolu tarihlerine bakabilirsiniz. Cihazın kimde olduğu ve geçmiş kullanıcıları yalnızca yetkililere görünür.
 
 ## 4. Yetkili için
 
