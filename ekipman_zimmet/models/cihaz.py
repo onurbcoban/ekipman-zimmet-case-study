@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+from odoo.tools import format_date
 class EkipmanCihaz(models.Model):
     _name = 'ekipman.cihaz'
     _description = 'Ekipman Cihazı'
@@ -80,7 +81,7 @@ class EkipmanCihaz(models.Model):
             for z in bloklayanlar:
                 if z.planlanan_bitis >= today:
                     if z.planlanan_baslangic and z.planlanan_bitis:
-                        satirlar.append(f"{z.planlanan_baslangic.strftime('%d.%m.%Y')} - {z.planlanan_bitis.strftime('%d.%m.%Y')}")
+                        satirlar.append(f"{format_date(self.env, z.planlanan_baslangic)} - {format_date(self.env, z.planlanan_bitis)}")
                 elif z.state == 'teslim_edildi' and z.planlanan_bitis < today:
                     satirlar.append("Şu an elde, iade bekleniyor")
             rec.dolu_tarihler = "\n".join(satirlar) if satirlar else False

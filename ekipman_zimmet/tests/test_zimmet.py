@@ -1,6 +1,7 @@
 from odoo import fields
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
+from odoo.tools import format_date
 from odoo.exceptions import ValidationError, UserError
 from datetime import date, timedelta
 
@@ -370,8 +371,8 @@ class TestZimmet(TransactionCase):
             b.with_user(self.user_yetkili).action_onayla()
         mesaj = str(hata.exception)
         self.assertIn(a.name, mesaj)
-        self.assertIn(a.planlanan_baslangic.strftime('%d.%m.%Y'), mesaj)
-        self.assertIn(a.planlanan_bitis.strftime('%d.%m.%Y'), mesaj)
+        self.assertIn(format_date(self.user_yetkili.env, a.planlanan_baslangic), mesaj)
+        self.assertIn(format_date(self.user_yetkili.env, a.planlanan_bitis), mesaj)
 
     def test_26_fiziksel_durum(self):
         self.assertEqual(self.cihaz.fiziksel_durum, 'bosta')
@@ -383,3 +384,10 @@ class TestZimmet(TransactionCase):
         zimmet.action_iade_al()
         self.assertEqual(self.cihaz.fiziksel_durum, 'bosta')
 
+    def test_27_dolu_tarihler_kullanici_dil_bicimiyle(self):
+        zimmet = self._talep(self.user_yetkili, 1, 5)
+        zimmet.action_gonder()
+        zimmet.action_onayla()
+        dolu = self.cihaz.with_user(self.user2).dolu_tarihler
+        self.assertIn(format_date(self.user2.env, zimmet.planlanan_baslangic), dolu)
+        self.assertIn(format_date(self.user2.env, zimmet.planlanan_bitis), dolu)

@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError, AccessError
+from odoo.tools import format_date
 
 
 class EkipmanZimmet(models.Model):
@@ -131,8 +132,8 @@ class EkipmanZimmet(models.Model):
                 if cakisan_kayitlar:
                     cakisan = cakisan_kayitlar[0]
                     raise ValidationError(
-                        f"{cakisan.name} referanslı kayıtla {cakisan.planlanan_baslangic.strftime('%d.%m.%Y')} - "
-                        f"{cakisan.planlanan_bitis.strftime('%d.%m.%Y')} tarihleri arasında çakışıyor."
+                        f"{cakisan.name} referanslı kayıtla {format_date(self.env, cakisan.planlanan_baslangic)} - "
+                        f"{format_date(self.env, cakisan.planlanan_bitis)} tarihleri arasında çakışıyor."
                     )
 
     @api.constrains('cihaz_id', 'state')
