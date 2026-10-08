@@ -102,6 +102,7 @@ Kodlar [`docs/kararlar.md`](docs/kararlar.md)'deki kararlara karşılık gelir; 
 - **B6 — Gecikme bir durum değil, türetilmiş koşuldur.** Bugünün tarihine bağlı bir durum zamanlanmış görev gerektirirdi; filtre her zaman günceldir.
 - **B7 — Yetkili kendi talebini onaylayabilir.** Yasak, tek yetkilili şirkette süreci tıkardı; onaylayan chatter'da izlenir.
 - **B8, D5 — Yetki kontrolü sunucudadır.** Buton gizlemek yetki sağlamaz; durum ve fiili tarihler yalnızca geçiş metotlarıyla (`sudo`) yazılır, arayüz veya RPC ile doğrudan yazma hata verir.
+- **C5 — Eşzamanlı işlemlere karşı veritabanı kısıtları.** Python kontrolleri aynı anda yapılan iki onayı göremez; çakışma ve tek-teslim kuralları ertelenmiş `EXCLUDE` kısıtlarıyla veritabanında da garanti altındadır (ek eklenti gerekmez).
 - **D6 — "Kimde" ve geçmiş bilgisi yalnızca yetkiliye açık.** Mühendisin talep açmak için cihazın dolu tarihlerini bilmesi yeterlidir; bu bilgi isimsiz gösterilir.
 - **G1 — Hazır bakım modülü kullanılmadı.** `maintenance` cihazı bir çalışana atar ama tarih aralıklı rezervasyon, onay akışı ve atama geçmişi sunmaz.
 
@@ -109,10 +110,9 @@ Kurulan modüller: yalnızca `mail` (chatter ve durum izleme) ve `hr` (çalışa
 
 ## 5. Kapsam dışı ve bilinen sınırlamalar
 
-**Kapsam dışı:** çoklu cihazlı talep; başkası adına talep ve kullanıcısı olmayan personele zimmet; e-posta ve diğer bildirimler; zamanlanmış görevler; onaydan sonra geri alma; oluşturma anında çakışma uyarısı; eşzamanlı onaya karşı veritabanı kısıtı.
+**Kapsam dışı:** çoklu cihazlı talep; başkası adına talep ve kullanıcısı olmayan personele zimmet; e-posta ve diğer bildirimler; zamanlanmış görevler; onaydan sonra geri alma; oluşturma anında çakışma uyarısı.
 
 **Bilinen sınırlamalar:**
-- Eşzamanlı iki onay, çok nadir de olsa çakışan iki onay üretebilir; çözüm yolu `docs/kararlar.md` C5'te belirlenmiştir.
 - Ardışık zimmetler arasında en az bir gün boşluk kalır (C3).
 - İade kaydı geç girilirse kayıttaki tarih gerçek tarihten geç olur; geçmişe dönük düzeltme yoktur (A2).
 - Bekleyen talepler dolu tarihlerde görünmez; onay sonrası çakışan talepler otomatik reddedilmez (E4, C1).

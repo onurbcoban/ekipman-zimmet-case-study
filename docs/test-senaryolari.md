@@ -139,7 +139,7 @@
 11. **Demo bakım ve kayıp:** 15 numaralı kayıt "Kullanılamayan Cihaz Onayları" kuyruğunda görünür ve aralık bugünü kapsadığı halde teslimi kullanılabilirlik (A7) hatası verir; LTP-003'ün geçmişinde 16 numaralı kayıp kaydı ve kapanış notu görünür (H3, A7, B10).
 
 ## Otomatik / elle ayrımı (G8)
-Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir. v2 senaryolarının (A/7–A/20, B/20–B/34, C/9–C/12, D/6–D/7, E/8, F/13, H/9–H/11) testleri ilgili fazda eklenir ve bu tabloya işlenir.
+Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerle otomatik doğrulanır. Testler mühendis ve yetkili kullanıcılarıyla (`with_user`) çalışır. Diğer senaryolar elle denenir. v2 senaryolarının (A/7–A/20, B/21–B/34, C/12, D/6–D/7, E/8, F/13, H/9–H/11) testleri ilgili fazda eklenir ve bu tabloya işlenir.
 
 | Senaryo | Test |
 |---|---|
@@ -154,11 +154,19 @@ Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerl
 | B/14 | `test_17_create_korumalari` |
 | B/16 | `test_20_chatter_onaylayani_gosterir` |
 | B/18 | `test_16_gecmis_tarihli_talep_gonderilemez` |
+| B/20 | `test_23_bitisi_gecmis_talep_onaylanamaz` |
 | B/19 | `test_09_red_gerekcesi_yetki_kontrolu`, `test_18_red_gerekcesi_yalnizca_bekleyen_talepte` |
 | C/1 | `test_01_tarih_cakismasi` |
 | C/2 | `test_11_sinir_gunu` |
 | C/3 | `test_12_erken_iade` |
 | C/4 | `test_13_gecikmis_cihaz_teslim` |
+| C/6 | `test_25_cakisma_mesaji` |
+| C/9 | `test_28_veritabani_cakisma_kisiti` |
+| C/10 | `test_29_veritabani_tek_teslim_kisiti` |
+| C/11 | `test_30_kisitlar_eklentisiz_kurulu` |
+| A/1 | `test_26_fiziksel_durum` |
+| E/5 (tarih biçimi) | `test_27_dolu_tarihler_kullanici_dil_bicimiyle` |
+| G/4 | `test_24_kopya_kopyalayanin_adina_taslaktir` |
 | E/2, E/6 | `test_10_gecmis_zimmet_ve_dolu_tarihler_overdue` |
 | E/5 | `test_05_dolu_tarihler_related` (kısmen: onaylı aralığın görünmesi) |
 | F/3 | `test_19_talep_sahibi_mi` (sahiplik alanı; butonların görünürlüğü elle denenir) |

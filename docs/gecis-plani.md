@@ -20,7 +20,7 @@
 | Açık talepler filtresi, "Taslağı Sil" (v1.0 sonrası eklendi) | Tamam |
 | `int4range` ile eklentisiz `EXCLUDE` kısıtının doğrulanması | Tamam (geçici tabloda denendi) |
 | Onayda bitiş koşulu, `calisan_id` kopyalanmaması, C6 sadeleşmesi, `musait` → `bosta` | Faz B |
-| Veritabanı kısıtları | Faz C |
+| Veritabanı kısıtları | Tamam (Faz C) |
 
 ## Faz A — Belgelerin birleştirilmesi
 **Amaç:** v2 kararları ve senaryoları, `main`'deki kodla doğrulanmış belgelerin üzerine işlenir.
@@ -38,18 +38,17 @@
 
 ## Faz C — Veritabanı kısıtları (C5)
 **Amaç:** Eşzamanlı onay ve teslime karşı kesin garanti.
-**Değişecek yerler:** `zimmet.py` `init()`: kısmi benzersiz indeks (`IF NOT EXISTS`) ve `pg_constraint` kontrollü `EXCLUDE` kısıtı.
-**Testler:** C/9, C/10, C/11, G/2.
+**Değişenler:** `zimmet.py`: `_sql_constraints` ile iki ertelenmiş `EXCLUDE` kısıtı; onay ve teslim sonunda `_kisitlari_simdi_denetle()`.
+**Testler:** C/9, C/10, C/11 (`test_28`–`test_30`); G/2 elle.
 **Kabul:** Doğrudan SQL ile yazılan çakışan kayıt reddedilir; `-u` iki kez hatasız; `btree_gist` kurulu değil.
-**Tuzaklar:** Testte bütünlük hatası işlemi bozar; SQL denemesi `savepoint` içinde ve `mute_logger('odoo.sql_db')` ile yapılmalı. Demo verisi kısıtlara uymalı (bloklayan kayıtlar çakışmıyor; doğrulanacak).
-**Faz notu:** —
+**Faz notu:** Planlanan `init()` yerine Odoo'nun `_sql_constraints` mekanizması kullanıldı (tanımı saklar, yalnızca değişince yeniden kurar, ihlali kısıtın mesajıyla gösterir). İlk denemede anlık kısıt dört eski testi kırdı: Python kontrolünün `search()`'ü bekleyen yazmayı veritabanına gönderdiği için kısıt, ayrıntılı Python mesajından önce devreye giriyordu. Doğrudan SQL denendi ve geri alındı: aynı işlemdeki bekleyen değişiklikleri görmediği için olmayan çakışma buldu (test_10). Çözüm ertelenmiş kısıt ve geçiş sonunda `SET CONSTRAINTS ... IMMEDIATE` ile denetimi öne çekmek; `IMMEDIATE` modu işlem sonuna kadar kalıcı olduğu için ardından yeniden `DEFERRED`. İki ayrı bağlantıyla canlandırılan eşzamanlı onayda ikinci işlem `SerializationFailure` ile reddedildi; Odoo'nun tekrar denemesinde Python kontrolü ayrıntılı çakışma mesajını verdi. 30 test yeşil; demo verisi kısıtlara uyuyor.
 
 ## Faz D — Süre uzatma (B9)
 **Amaç:** Onaylı veya teslim edilmiş kayıtta ileri tarihli uzatma isteği; yetkili onaylarsa bitiş güncellenir.
 **Değişecek yerler:** `zimmet.py` (`istenen_bitis`; `action_uzatma_iste/onayla/reddet/geri_cek`; `write()` kuralları), `zimmet_views.xml` (butonlar, alan, filtre), `menu_views.xml` (Uzatma Bekleyenler), demo kayıt 1 ve 7.
 **Testler:** B/21–B/28.
 **Kabul:** Demoda kayıt 7'nin uzatması onaylanır, kayıt 1'inki çakışma hatası verir.
-**Tuzaklar:** Bugünkü `write()` taslak dışında tarih değişikliğini `sudo`'da da engelliyor; uzatma onayı bu yüzden takılır, kontrol `sudo` dışına alınmalı. Uzatma onayı C2 kısıtını ve Faz C'deki `EXCLUDE` kısıtını tetikler.
+**Tuzaklar:** Bugünkü `write()` taslak dışında tarih değişikliğini `sudo`'da da engelliyor; uzatma onayı bu yüzden takılır, kontrol `sudo` dışına alınmalı. Uzatma onayı bloklayan bir değişiklik olduğu için sonunda `_kisitlari_simdi_denetle()` çağrılmalı (C5).
 **Faz notu:** —
 
 ## Faz E — Kullanılabilirlik ve kayıp (A7, B10)
