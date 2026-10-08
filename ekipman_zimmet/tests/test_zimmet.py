@@ -5,6 +5,10 @@ from odoo.tools import format_date, mute_logger
 from odoo.exceptions import ValidationError, UserError
 from datetime import date, timedelta
 
+from dateutil.relativedelta import relativedelta
+from lxml import etree
+from odoo.tools.safe_eval import safe_eval
+
 from psycopg2 import errors
 
 class TestZimmet(TransactionCase):
@@ -475,3 +479,27 @@ class TestZimmet(TransactionCase):
                 'planlanan_bitis': self.bugun,
                 'kapanis_tarihi': self.bugun,
             })
+
+    def _arama_filtresi(self, ad):
+        """Arama görünümündeki filtrenin domain'ini web istemcisinin yaptığı gibi bugüne göre hesaplar."""
+        arch = self.env.ref('ekipman_zimmet.view_ekipman_zimmet_search').arch
+        filtre = etree.fromstring(arch).xpath(f"//filter[@name='{ad}']")[0]
+        return safe_eval(filtre.get('domain'), {
+            'context_today': lambda: self.bugun,
+            'relativedelta': relativedelta,
+        })
+
+    def test_33_guncel_ve_acik_talepler(self):
+        acik = self._talep(self.user2, 0, 3)
+        # Kapanmış kayıtlar zamanla oluşur; testte durum ve kapanış tarihi sudo ile kurulur.
+        yeni_red = self._talep(self.user2, 5, 8)
+        yeni_red.sudo().write({'state': 'reddedildi', 'kapanis_tarihi': self.bugun})
+        eski_iade = self._talep(self.user2, -20, -15)
+        eski_iade.sudo().write({'state': 'iade_edildi', 'kapanis_tarihi': self.bugun - timedelta(days=10)})
+        kayitlar = [('id', 'in', (acik | yeni_red | eski_iade).ids)]
+
+        Zimmet = self.env['ekipman.zimmet']
+        self.assertEqual(Zimmet.search(self._arama_filtresi('guncel_talepler') + kayitlar), acik | yeni_red)
+        self.assertEqual(Zimmet.search(self._arama_filtresi('acik_talepler') + kayitlar), acik)
+        varsayilan = self.env.ref('ekipman_zimmet.action_ekipman_zimmet').context
+        self.assertIn('search_default_guncel_talepler', varsayilan)

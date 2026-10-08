@@ -45,6 +45,7 @@
             <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=-20)).strftime('%Y-%m-%d')"/>
             <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-25)).strftime('%Y-%m-%d')"/>
             <field name="fiili_bitis" eval="(datetime.now() + timedelta(days=-21)).strftime('%Y-%m-%d')"/>
+            <field name="kapanis_tarihi" eval="(datetime.now() + timedelta(days=-21)).strftime('%Y-%m-%d')"/>
         </record>
         <!-- 6 -->
         <record id="zimmet_demo_6" model="ekipman.zimmet">
@@ -55,6 +56,7 @@
             <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=-8)).strftime('%Y-%m-%d')"/>
             <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-12)).strftime('%Y-%m-%d')"/>
             <field name="fiili_bitis" eval="(datetime.now() + timedelta(days=-9)).strftime('%Y-%m-%d')"/>
+            <field name="kapanis_tarihi" eval="(datetime.now() + timedelta(days=-9)).strftime('%Y-%m-%d')"/>
         </record>
         <!-- 7 -->
         <record id="zimmet_demo_7" model="ekipman.zimmet">
@@ -81,6 +83,7 @@
             <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')"/>
             <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=4)).strftime('%Y-%m-%d')"/>
             <field name="red_gerekcesi">Aynı tarihlerde başka bir talep onaylandı; lütfen farklı tarihlerle yeniden talep açın.</field>
+            <field name="kapanis_tarihi" eval="(datetime.now() + timedelta(days=-1)).strftime('%Y-%m-%d')"/>
         </record>
         <!-- 10 -->
         <record id="zimmet_demo_10" model="ekipman.zimmet">
@@ -97,6 +100,8 @@
             <field name="state">iptal</field>
             <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=10)).strftime('%Y-%m-%d')"/>
             <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=12)).strftime('%Y-%m-%d')"/>
+            <field name="kapanis_tarihi" eval="(datetime.now() + timedelta(days=-10)).strftime('%Y-%m-%d')"/>
+            <field name="iptal_nedeni">Proje ertelendi.</field>
         </record>
         <!-- 12 -->
         <record id="zimmet_demo_12" model="ekipman.zimmet">
