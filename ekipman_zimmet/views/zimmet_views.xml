@@ -65,6 +65,9 @@
                     <group string="Red Gerekçesi" invisible="state not in ('talep_edildi', 'reddedildi')">
                         <field name="red_gerekcesi" readonly="state != 'talep_edildi'"/>
                     </group>
+                    <group string="İptal Nedeni" invisible="state not in ('talep_edildi', 'onaylandi', 'iptal')">
+                        <field name="iptal_nedeni" readonly="state == 'iptal'"/>
+                    </group>
                 </sheet>
                 <chatter/>
             </form>

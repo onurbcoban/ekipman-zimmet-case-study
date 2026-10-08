@@ -98,6 +98,11 @@ class EkipmanZimmet(models.Model):
         copy=False,
         tracking=True,
     )
+    iptal_nedeni = fields.Text(
+        string='İptal Nedeni',
+        copy=False,
+        tracking=True,
+    )
     talep_sahibi_mi = fields.Boolean(compute='_compute_talep_sahibi_mi')
 
     @api.depends('calisan_id.user_id')
@@ -256,6 +261,8 @@ class EkipmanZimmet(models.Model):
                 raise UserError('Bu durumdaki bir kayıt iptal edilemez.')
             if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili') and rec.calisan_id.user_id != self.env.user:
                 raise UserError('Başkasının talebini iptal edemezsiniz.')
+            if not rec.iptal_nedeni:
+                raise UserError('İptal etmek için iptal nedeni doldurulmalıdır.')
             rec.sudo().write({'state': 'iptal'})
 
     def action_taslagi_sil(self):
@@ -272,6 +279,12 @@ class EkipmanZimmet(models.Model):
                     raise UserError('Red gerekçesini yalnızca yetkililer düzenleyebilir.')
                 if any(rec.state != 'talep_edildi' for rec in self):
                     raise UserError('Red gerekçesi yalnızca onay bekleyen taleplerde düzenlenebilir.')
+            if 'iptal_nedeni' in vals:
+                yetkili = self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili')
+                if any(not yetkili and rec.calisan_id.user_id != self.env.user for rec in self):
+                    raise UserError('İptal nedenini yalnızca talep sahibi veya yetkili yazabilir.')
+                if any(rec.state not in ('talep_edildi', 'onaylandi') for rec in self):
+                    raise UserError('İptal nedeni yalnızca onay bekleyen veya onaylı taleplerde yazılabilir.')
 
         restricted_fields = {'cihaz_id', 'planlanan_baslangic', 'planlanan_bitis'}
         if restricted_fields.intersection(vals.keys()):

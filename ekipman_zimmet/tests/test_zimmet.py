@@ -427,3 +427,20 @@ class TestZimmet(TransactionCase):
             {satir[0] for satir in self.env.cr.fetchall()},
             {'ekipman_zimmet_cakisma_engeli', 'ekipman_zimmet_tek_teslim'},
         )
+
+    def test_31_iptal_nedeni_zorunlu(self):
+        zimmet = self._talep(self.user2, 0, 3)
+        with self.assertRaises(UserError):
+            zimmet.write({'iptal_nedeni': 'Taslakta yazılamaz'})
+        zimmet.action_gonder()
+        zimmet.with_user(self.user_yetkili).action_onayla()
+
+        with self.assertRaises(UserError):
+            zimmet.action_iptal()
+        self.assertEqual(zimmet.state, 'onaylandi')
+
+        zimmet.write({'iptal_nedeni': 'Artık ihtiyacım kalmadı.'})
+        zimmet.action_iptal()
+        self.assertEqual(zimmet.state, 'iptal')
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).write({'iptal_nedeni': 'Sonradan değiştirildi.'})
