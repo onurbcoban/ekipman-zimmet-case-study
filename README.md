@@ -84,7 +84,7 @@ stateDiagram-v2
 | Reddet | Yetkili | Red gerekçesi dolu |
 | Teslim Et | Yetkili | Bugün planlanan aralıkta; cihaz başka birinde değil |
 | İade Al | Yetkili | — (fiili bitiş bugün yazılır) |
-| İptal Et | Talep sahibi veya yetkili | Onay bekliyor veya onaylanmış (teslim edilmemiş) |
+| İptal Et | Talep sahibi veya yetkili | Onay bekliyor veya onaylanmış (teslim edilmemiş); iptal nedeni dolu |
 | Taslağı Sil | Talep sahibi | Taslak; taslaklar iptal edilmez, silinir |
 
 Mühendis yalnızca kendi kayıtlarını görür; yetkili tüm kayıtları görür, onay, teslim, iade ve ekipman yönetimini yapar. "Gecikmiş" ayrı bir durum değil, teslim edilmiş ve planlanan bitişi geçmiş kayıttır; yetkili bunları "Gecikenler" menüsünde görür.

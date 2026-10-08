@@ -21,7 +21,7 @@
 | `int4range` ile eklentisiz `EXCLUDE` kısıtının doğrulanması | Tamam (geçici tabloda denendi) |
 | Onayda bitiş koşulu, `calisan_id` kopyalanmaması, C6 sadeleşmesi, `musait` → `bosta` | Faz B |
 | Veritabanı kısıtları | Tamam (Faz C) |
-| Güncel Talepler filtresi, zorunlu iptal nedeni | Faz C2 |
+| Güncel Talepler filtresi, zorunlu iptal nedeni, kapanış tarihi | Tamam (Faz C2) |
 
 ## Faz A — Belgelerin birleştirilmesi
 **Amaç:** v2 kararları ve senaryoları, `main`'deki kodla doğrulanmış belgelerin üzerine işlenir.
@@ -49,8 +49,8 @@
 **Değişecek yerler:** `zimmet_views.xml` (Güncel Talepler ve Açık Talepler filtreleri aynı grupta, menünün varsayılanı Güncel Talepler; iptal nedeni alanı), `zimmet.py` (`iptal_nedeni`; `action_iptal`'de zorunluluk; `kapanis_tarihi` ve onu yazan kapanış geçişleri: iade, red, iptal; `write()` kuralları, B8 tablosu), demo (kapanış tarihleri ve kayıt 11'in iptal nedeni, H3).
 **Testler:** B/36, F/15.
 **Kabul:** Genel kabul; demoda yeni reddedilmiş 9 numaralı kayıt Güncel Talepler'de görünür, eski iptal edilmiş 11 numaralı kayıt görünmez.
-**Tuzaklar:** "Son 7 gün" `write_date`'e değil kapanış anında bir kez yazılan `kapanis_tarihi`'ne bağlı (B3); filtre ifadesi bugünün tarihini `context_today()` ile almalı. Kayıp geçişi Faz E'de geldiğinde o da kapanış tarihini yazmalı.
-**Faz notu:** —
+**Tuzaklar:** "Son 7 gün" `write_date`'e değil kapanış anında bir kez yazılan `kapanis_tarihi`'ne bağlı (B3); filtre ifadesi bugünün tarihini `context_today()` ile almalı. Kayıp geçişi Faz E'de geldiğinde o da kapanış tarihini yazmalı ve "Açık Talepler" ile "Güncel Talepler"in kapalı durum listesine `kayip` eklenmeli.
+**Faz notu:** Üç adım, üç kod commit'i, her biri önce kırmızı yanan bir testle (`test_31`–`test_33`); 33 test yeşil. Filtre testi, görünüm dosyasındaki filtre ifadesini okuyup web istemcisinin yaptığı gibi bugüne göre hesaplıyor; böylece testte yeniden yazılmış bir kopya değil, gerçek filtre sınanıyor. Aynı `context_today() - relativedelta(...)` kalıbını Odoo'nun kendi modülleri (`project`, `stock`) de kullanıyor. Demoda dün reddedilen 09 numaralı kayıt Güncel Talepler'de görünüyor, eski iade ve iptaller görünmüyor.
 
 ## Faz D — Süre uzatma (B9)
 **Amaç:** Onaylı veya teslim edilmiş kayıtta ileri tarihli uzatma isteği; yetkili onaylarsa bitiş güncellenir.
