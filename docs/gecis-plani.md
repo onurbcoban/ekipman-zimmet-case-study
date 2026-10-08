@@ -21,6 +21,7 @@
 | `int4range` ile eklentisiz `EXCLUDE` kısıtının doğrulanması | Tamam (geçici tabloda denendi) |
 | Onayda bitiş koşulu, `calisan_id` kopyalanmaması, C6 sadeleşmesi, `musait` → `bosta` | Faz B |
 | Veritabanı kısıtları | Tamam (Faz C) |
+| Güncel Talepler filtresi, zorunlu iptal nedeni | Faz C2 |
 
 ## Faz A — Belgelerin birleştirilmesi
 **Amaç:** v2 kararları ve senaryoları, `main`'deki kodla doğrulanmış belgelerin üzerine işlenir.
@@ -43,6 +44,14 @@
 **Kabul:** Doğrudan SQL ile yazılan çakışan kayıt reddedilir; `-u` iki kez hatasız; `btree_gist` kurulu değil.
 **Faz notu:** Planlanan `init()` yerine Odoo'nun `_sql_constraints` mekanizması kullanıldı (tanımı saklar, yalnızca değişince yeniden kurar, ihlali kısıtın mesajıyla gösterir). İlk denemede anlık kısıt dört eski testi kırdı: Python kontrolünün `search()`'ü bekleyen yazmayı veritabanına gönderdiği için kısıt, ayrıntılı Python mesajından önce devreye giriyordu. Doğrudan SQL denendi ve geri alındı: aynı işlemdeki bekleyen değişiklikleri görmediği için olmayan çakışma buldu (test_10). Çözüm ertelenmiş kısıt ve geçiş sonunda `SET CONSTRAINTS ... IMMEDIATE` ile denetimi öne çekmek; `IMMEDIATE` modu işlem sonuna kadar kalıcı olduğu için ardından yeniden `DEFERRED`. İki ayrı bağlantıyla canlandırılan eşzamanlı onayda ikinci işlem `SerializationFailure` ile reddedildi; Odoo'nun tekrar denemesinde Python kontrolü ayrıntılı çakışma mesajını verdi. 30 test yeşil; demo verisi kısıtlara uyuyor.
 
+## Faz C2 — Çekirdek ek: Güncel Talepler ve iptal nedeni (B3)
+**Amaç:** Bildirim olmadan kullanıcıyı bilgisiz bırakmamak: kapanan talep bir hafta görünür kalır, her iptalin nedeni yazılır.
+**Değişecek yerler:** `zimmet_views.xml` (Güncel Talepler ve Açık Talepler filtreleri aynı grupta, menünün varsayılanı Güncel Talepler; iptal nedeni alanı), `zimmet.py` (`iptal_nedeni`; `action_iptal`'de zorunluluk; `kapanis_tarihi` ve onu yazan kapanış geçişleri: iade, red, iptal; `write()` kuralları, B8 tablosu), demo (kapanış tarihleri ve kayıt 11'in iptal nedeni, H3).
+**Testler:** B/36, F/15.
+**Kabul:** Genel kabul; demoda yeni reddedilmiş 9 numaralı kayıt Güncel Talepler'de görünür, eski iptal edilmiş 11 numaralı kayıt görünmez.
+**Tuzaklar:** "Son 7 gün" `write_date`'e değil kapanış anında bir kez yazılan `kapanis_tarihi`'ne bağlı (B3); filtre ifadesi bugünün tarihini `context_today()` ile almalı. Kayıp geçişi Faz E'de geldiğinde o da kapanış tarihini yazmalı.
+**Faz notu:** —
+
 ## Faz D — Süre uzatma (B9)
 **Amaç:** Onaylı veya teslim edilmiş kayıtta ileri tarihli uzatma isteği; yetkili onaylarsa bitiş güncellenir.
 **Değişecek yerler:** `zimmet.py` (`istenen_bitis`; `action_uzatma_iste/onayla/reddet/geri_cek`; `write()` kuralları), `zimmet_views.xml` (butonlar, alan, filtre), `menu_views.xml` (Uzatma Bekleyenler), demo kayıt 1 ve 7.
@@ -51,12 +60,22 @@
 **Tuzaklar:** Bugünkü `write()` taslak dışında tarih değişikliğini `sudo`'da da engelliyor; uzatma onayı bu yüzden takılır, kontrol `sudo` dışına alınmalı. Uzatma onayı bloklayan bir değişiklik olduğu için sonunda `_kisitlari_simdi_denetle()` çağrılmalı (C5).
 **Faz notu:** —
 
-## Faz E — Kullanılabilirlik ve kayıp (A7, B10)
-**Amaç:** Bakım, kayıp ve hurda cihazların verilememesi; zimmetteyken kaybın `kayip` durumuyla kapatılması.
-**Değişecek yerler:** `cihaz.py` (`mail.thread`, `kullanilabilirlik`, `write()` engeli, onchange uyarısı), `zimmet.py` (`kayip` durumu, `kapanis_notu`, `action_kayip`, kullanılabilirlik kısıtı, `create`/`action_gonder` engeli), görünümler (cihaz listesi ve formu, kayıp butonu, Kullanılamayan Cihaz Onayları menüsü, soluk durumlar), demo (OSC-003, LTP-003, kayıt 15–16).
-**Testler:** A/13–A/20, B/29, B/30–B/34, C/12.
-**Kabul:** Demoda kayıt 15'in teslimi kullanılabilirlik hatası verir; LTP-003 geçmişinde kayıp kaydı görünür.
-**Tuzaklar:** Demo verisinde kullanılabilirlik, zimmet kayıtlarından sonra güncellenmeli; aksi halde yeni kurallar demo kayıtlarını reddeder. `kayip` durumu C4 indeksine ve bloklayan durumlara girmemeli.
+## Faz E — Kullanılabilirlik, kontrol, kayıp ve hurda (A7, B10)
+**Amaç:** Yalnızca kullanılabilir cihaz talep edilir; her iade cihazı kontrole alır; kullanılamaz duruma geçen cihazın mevcut talepleri korunur ve kullanıcıya gösterilir; hurda açık talepleri nedeniyle iptal eder; kayıp zimmet `kayip` durumuyla kapanır.
+**Değişecek yerler:**
+- `cihaz.py`: `mail.thread`; `kullanilabilirlik` (kullanilabilir, kontrolde, bakimda, kayip, hurda); "Kontrol Tamamlandı", "Bakıma Al", "Kullanılabilir Yap", "Hurdaya Ayır" metotları; zimmetteki cihazın kontrole/bakıma/hurdaya alınma engeli (`write()`); son iadenin bilgileri (saklanmayan hesaplanan alanlar).
+- `zimmet.py`: `kayip` durumu ve `action_kayip`; `kullanici_geri_bildirimi`, `kapanis_notu` (İade / Kayıp Notu) kuralları; iade sonrası cihazı kontrole alma; oluşturma, gönderme, onay, teslim ve uzatma onayında kullanılabilirlik kontrolü; cihaz alanının seçim süzgeci; "Cihaz Durumu" alanı ve uyarı bandı.
+- Görünümler: cihaz listesi (kullanımdaki cihazlar filtresi, kullanılabilirlik), cihaz formu (butonlar, son iade bilgileri), talep formu (uyarı bandı, cihaz durumu, notlar, kayıp butonu), Onay Bekleyenler'de kullanılabilirlik sütunu, soluk durumlar.
+- Menüler: Kontrol Bekleyen Cihazlar, Kullanılamayan Cihaz Onayları.
+- Demo: OSC-003 bakımda, LTP-003 kayıp, en az bir cihaz kontrolde; kayıt 15–16.
+**Testler:** A/13–A/24, B/29, B/30–B/35, C/3, C/12, E/8, F/16.
+**Kabul:** Demoda kontroldeki ve bakımdaki cihazlar talep formunda seçilemez; kayıt 15'in teslimi kullanılabilirlik hatası verir; bir iade sonrası cihaz Kontrol Bekleyen Cihazlar'da görünür; "Hurdaya Ayır" bir cihazın açık taleplerini aşamaya göre nedenleriyle iptal eder ve cihazı arşivler.
+**Tuzaklar:**
+- Demo verisinde kullanılabilirlik, zimmet kayıtlarından sonra güncellenmeli; aksi halde yeni kurallar demo kayıtlarını reddeder.
+- `kayip` durumu bloklayan durumlara ve tek-teslim kısıtına girmemeli (C5).
+- İadenin cihazı kontrole alması `test_12`'yi (erken iade sonrası yeni onay) değiştirir: araya "Kontrol Tamamlandı" adımı girer.
+- "Hurdaya Ayır" taslakları da iptal eder; bu, kullanıcının taslağı iptal edememesi kuralını (B3) delmemeli — sistem geçişi `sudo` ile yazılır, `action_iptal` taslağı reddetmeye devam eder. İptallerden sonra aktif zimmet kalmadığı için arşivleme (A5) mümkün olur; sıra önemli.
+- Cihaz alanının seçim süzgeci yalnızca arayüzü kapatır; sunucu kontrolü ayrıca gerekir (D5).
 **Faz notu:** —
 
 ## Faz F — Toplu talep (A6)
@@ -64,7 +83,7 @@
 **Değişecek yerler:** `wizard/` (`ekipman.zimmet.toplu`), `zimmet.py` (`toplu_ref`), `data/sequence.xml` (`TPL/`), erişim dosyası, liste başlığında toplu onay butonu, arama gruplaması, demo kayıt 13–14.
 **Testler:** A/7–A/12.
 **Kabul:** Sihirbaz bir geçersiz cihazda hiçbir kayıt oluşturmaz; toplu onayda tek çakışma tüm seçimi geri alır.
-**Tuzaklar:** Sihirbaz kayıtları `sudo` ile oluşturur; `uid` değişmediği için çalışan varsayılanı korunur, bu bir testle doğrulanmalı. Toplu talepten geri çekilip taslağa dönen kayıt, sahibi tarafından "Taslağı Sil" ile silinebilir (ek kural gerekmez).
+**Tuzaklar:** Sihirbazın cihaz seçimi yalnızca kullanılabilir cihazları dolu tarihleriyle göstermeli (A7). Sihirbaz kayıtları `sudo` ile oluşturur; `uid` değişmediği için çalışan varsayılanı korunur, bu bir testle doğrulanmalı. Toplu talepten geri çekilip taslağa dönen kayıt, sahibi tarafından "Taslağı Sil" ile silinebilir (ek kural gerekmez).
 **Faz notu:** —
 
 ## Faz G — Kapanış
