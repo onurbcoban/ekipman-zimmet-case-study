@@ -76,6 +76,11 @@
                     <group string="İptal Nedeni" invisible="state not in ('talep_edildi', 'onaylandi', 'iptal')">
                         <field name="iptal_nedeni" readonly="state == 'iptal'"/>
                     </group>
+                    <group string="Notlar" invisible="state not in ('teslim_edildi', 'iade_edildi', 'kayip')">
+                        <field name="yetkili_mi" invisible="1"/>
+                        <field name="kullanici_geri_bildirimi" readonly="state != 'teslim_edildi' or not talep_sahibi_mi"/>
+                        <field name="kapanis_notu" readonly="state != 'teslim_edildi' or not yetkili_mi"/>
+                    </group>
                 </sheet>
                 <chatter/>
             </form>

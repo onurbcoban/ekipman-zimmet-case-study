@@ -64,6 +64,18 @@ class EkipmanCihaz(models.Model):
         groups="ekipman_zimmet.group_zimmet_yetkili",
     )
 
+    # Kontrol eden yetkili, son iadenin notlarını cihaz formunda görür (A7, B10).
+    son_iade_id = fields.Many2one(
+        'ekipman.zimmet',
+        string='Son İade',
+        compute='_compute_son_iade',
+        groups="ekipman_zimmet.group_zimmet_yetkili",
+    )
+    son_iade_eden_id = fields.Many2one('hr.employee', string='İade Eden', compute='_compute_son_iade', groups="ekipman_zimmet.group_zimmet_yetkili")
+    son_iade_tarihi = fields.Date(string='İade Tarihi', compute='_compute_son_iade', groups="ekipman_zimmet.group_zimmet_yetkili")
+    son_iade_geri_bildirimi = fields.Text(string='Kullanıcı Geri Bildirimi', compute='_compute_son_iade', groups="ekipman_zimmet.group_zimmet_yetkili")
+    son_iade_notu = fields.Text(string='İade Notu', compute='_compute_son_iade', groups="ekipman_zimmet.group_zimmet_yetkili")
+
     # E4 Kararı
     dolu_tarihler = fields.Text(
         string='Dolu Tarihler',
@@ -101,6 +113,20 @@ class EkipmanCihaz(models.Model):
                 elif z.state == 'teslim_edildi' and z.planlanan_bitis < today:
                     satirlar.append("Şu an elde, iade bekleniyor")
             rec.dolu_tarihler = "\n".join(satirlar) if satirlar else False
+
+    @api.depends('zimmet_ids.state', 'zimmet_ids.kullanici_geri_bildirimi', 'zimmet_ids.kapanis_notu')
+    def _compute_son_iade(self):
+        Zimmet = self.env['ekipman.zimmet'].sudo()
+        for rec in self:
+            son = Zimmet.search([
+                ('cihaz_id', '=', rec.id),
+                ('state', '=', 'iade_edildi'),
+            ], order='kapanis_tarihi desc, id desc', limit=1)
+            rec.son_iade_id = son.id
+            rec.son_iade_eden_id = son.calisan_id.id
+            rec.son_iade_tarihi = son.fiili_bitis
+            rec.son_iade_geri_bildirimi = son.kullanici_geri_bildirimi
+            rec.son_iade_notu = son.kapanis_notu
 
     def _compute_display_name(self):
         for rec in self:

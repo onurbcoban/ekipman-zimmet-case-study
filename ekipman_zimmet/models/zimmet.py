@@ -120,13 +120,28 @@ class EkipmanZimmet(models.Model):
         readonly=True,
         copy=False,
     )
+    kullanici_geri_bildirimi = fields.Text(
+        string='Kullanıcı Geri Bildirimi',
+        copy=False,
+        tracking=True,
+    )
+    kapanis_notu = fields.Text(
+        string='İade / Kayıp Notu',
+        copy=False,
+        tracking=True,
+    )
     talep_sahibi_mi = fields.Boolean(compute='_compute_talep_sahibi_mi')
+    yetkili_mi = fields.Boolean(compute='_compute_yetkili_mi')
 
     @api.depends('calisan_id.user_id')
     @api.depends_context('uid')
     def _compute_talep_sahibi_mi(self):
         for rec in self:
             rec.talep_sahibi_mi = rec.calisan_id.user_id == self.env.user
+
+    @api.depends_context('uid')
+    def _compute_yetkili_mi(self):
+        self.yetkili_mi = self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili')
 
     @api.model
     def _default_calisan_id(self):
@@ -340,6 +355,16 @@ class EkipmanZimmet(models.Model):
                     raise UserError('Red gerekçesi yalnızca onay bekleyen taleplerde düzenlenebilir.')
             if 'istenen_bitis' in vals:
                 self._uzatma_istegini_denetle(vals['istenen_bitis'])
+            if 'kullanici_geri_bildirimi' in vals:
+                if any(rec.calisan_id.user_id != self.env.user for rec in self):
+                    raise UserError('Geri bildirimi yalnızca talep sahibi yazabilir.')
+                if any(rec.state != 'teslim_edildi' for rec in self):
+                    raise UserError('Geri bildirim yalnızca cihaz sizdeyken yazılabilir.')
+            if 'kapanis_notu' in vals:
+                if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
+                    raise UserError('İade / kayıp notunu yalnızca yetkililer yazabilir.')
+                if any(rec.state != 'teslim_edildi' for rec in self):
+                    raise UserError('İade / kayıp notu yalnızca teslim edilmiş talepte yazılabilir.')
             if 'iptal_nedeni' in vals:
                 yetkili = self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili')
                 if any(not yetkili and rec.calisan_id.user_id != self.env.user for rec in self):

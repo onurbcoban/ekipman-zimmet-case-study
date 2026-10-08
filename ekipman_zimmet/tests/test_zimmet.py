@@ -641,3 +641,25 @@ class TestZimmet(TransactionCase):
 
         with self.assertRaises(UserError):
             cihaz.write({'kullanilabilirlik': 'bakimda'})
+
+    def test_41_iade_notlari_ve_son_iade(self):
+        zimmet = self._onayli_talep(self.user2, 0, 3)
+        with self.assertRaises(UserError):
+            zimmet.write({'kullanici_geri_bildirimi': 'Henüz teslim almadım.'})
+        zimmet.with_user(self.user_yetkili).action_teslim_et()
+
+        zimmet.write({'kullanici_geri_bildirimi': 'Kanal 3 zaman zaman sinyal kaçırıyor.'})
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).write({'kullanici_geri_bildirimi': 'Yetkili yazamaz.'})
+        with self.assertRaises(UserError):
+            zimmet.write({'kapanis_notu': 'Mühendis yazamaz.'})
+        zimmet.with_user(self.user_yetkili).write({'kapanis_notu': 'Kasada çizik var.'})
+
+        zimmet.with_user(self.user_yetkili).action_iade_al()
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).write({'kapanis_notu': 'Sonradan değiştirildi.'})
+
+        cihaz = self.cihaz.with_user(self.user_yetkili)
+        self.assertEqual(cihaz.son_iade_id, zimmet)
+        self.assertEqual(cihaz.son_iade_id.kullanici_geri_bildirimi, 'Kanal 3 zaman zaman sinyal kaçırıyor.')
+        self.assertEqual(cihaz.son_iade_id.kapanis_notu, 'Kasada çizik var.')

@@ -49,6 +49,17 @@
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
+                    <group string="Son İade" invisible="kullanilabilirlik != 'kontrolde' or not son_iade_id" groups="ekipman_zimmet.group_zimmet_yetkili">
+                        <group>
+                            <field name="son_iade_id"/>
+                            <field name="son_iade_eden_id"/>
+                            <field name="son_iade_tarihi"/>
+                        </group>
+                        <group>
+                            <field name="son_iade_geri_bildirimi"/>
+                            <field name="son_iade_notu"/>
+                        </group>
+                    </group>
                     <notebook>
                         <page string="Müsaitlik Bilgisi" name="musaitlik">
                             <group>
