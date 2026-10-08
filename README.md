@@ -123,3 +123,4 @@ Kurulan modüller: yalnızca `mail` (chatter ve durum izleme) ve `hr` (çalışa
 - [`docs/kararlar.md`](docs/kararlar.md) — tüm tasarım kararları, alternatifler ve gerekçeler
 - [`docs/test-senaryolari.md`](docs/test-senaryolari.md) — test senaryoları ve otomatik testlerle eşlemesi
 - [`docs/kurulum-notlari.md`](docs/kurulum-notlari.md) — kurulum ortamı, sorunlar ve çözümleri
+- [`docs/egitim-dokumani.md`](docs/egitim-dokumani.md) — kullanıcılar için eğitim dokümanı
