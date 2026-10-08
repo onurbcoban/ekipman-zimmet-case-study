@@ -48,6 +48,7 @@ class EkipmanZimmet(models.Model):
         required=True,
         ondelete='restrict',
         tracking=True,
+        copy=False,
         default=lambda self: self._default_calisan_id(),
     )
     planlanan_baslangic = fields.Date(

@@ -347,3 +347,15 @@ class TestZimmet(TransactionCase):
         baslangici_gecmis.with_user(self.user_yetkili).action_onayla()
         self.assertEqual(baslangici_gecmis.state, 'onaylandi')
 
+    def test_24_kopya_kopyalayanin_adina_taslaktir(self):
+        kayit = self._talep(self.user2, 0, 3)
+        kayit.sudo().write({'state': 'iade_edildi', 'fiili_baslangic': self.bugun, 'fiili_bitis': self.bugun})
+
+        kopya = kayit.with_user(self.user_yetkili).copy()
+        self.assertEqual(kopya.state, 'taslak')
+        self.assertEqual(kopya.calisan_id, self.employee1)
+        self.assertEqual(kopya.cihaz_id, kayit.cihaz_id)
+        self.assertEqual(kopya.planlanan_baslangic, kayit.planlanan_baslangic)
+        self.assertNotEqual(kopya.name, kayit.name)
+        self.assertFalse(kopya.fiili_baslangic)
+
