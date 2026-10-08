@@ -444,3 +444,34 @@ class TestZimmet(TransactionCase):
         self.assertEqual(zimmet.state, 'iptal')
         with self.assertRaises(UserError):
             zimmet.with_user(self.user_yetkili).write({'iptal_nedeni': 'Sonradan değiştirildi.'})
+
+    def test_32_kapanis_tarihi(self):
+        reddedilen = self._talep(self.user2, 0, 3)
+        reddedilen.action_gonder()
+        reddedilen.with_user(self.user_yetkili).write({'red_gerekcesi': 'Uygun değil.'})
+        reddedilen.with_user(self.user_yetkili).action_reddet()
+        self.assertEqual(reddedilen.kapanis_tarihi, self.bugun)
+
+        iade_edilen = self._talep(self.user_yetkili, 0, 3)
+        iade_edilen.action_gonder()
+        iade_edilen.action_onayla()
+        iade_edilen.action_teslim_et()
+        self.assertFalse(iade_edilen.kapanis_tarihi)
+        iade_edilen.action_iade_al()
+        self.assertEqual(iade_edilen.kapanis_tarihi, self.bugun)
+
+        iptal_edilen = self._talep(self.user2, 5, 8)
+        iptal_edilen.action_gonder()
+        iptal_edilen.write({'iptal_nedeni': 'Vazgeçtim.'})
+        iptal_edilen.action_iptal()
+        self.assertEqual(iptal_edilen.kapanis_tarihi, self.bugun)
+
+        with self.assertRaises(UserError):
+            iptal_edilen.with_user(self.user_yetkili).write({'kapanis_tarihi': self.bugun - timedelta(days=30)})
+        with self.assertRaises(UserError):
+            self.env['ekipman.zimmet'].with_user(self.user2).create({
+                'cihaz_id': self.cihaz.id,
+                'planlanan_baslangic': self.bugun,
+                'planlanan_bitis': self.bugun,
+                'kapanis_tarihi': self.bugun,
+            })

@@ -103,6 +103,12 @@ class EkipmanZimmet(models.Model):
         copy=False,
         tracking=True,
     )
+    # Güncel Talepler filtresi bu tarihe bakar; write_date kapandıktan sonraki her yazmada değişir.
+    kapanis_tarihi = fields.Date(
+        string='Kapanış Tarihi',
+        readonly=True,
+        copy=False,
+    )
     talep_sahibi_mi = fields.Boolean(compute='_compute_talep_sahibi_mi')
 
     @api.depends('calisan_id.user_id')
@@ -131,7 +137,7 @@ class EkipmanZimmet(models.Model):
                         raise UserError('Sadece kendi adınıza talep açabilirsiniz.')
                 vals['calisan_id'] = user_emp_id
                 # Web istemcisi yeni kayıtta varsayılan state='taslak' değerini de gönderir.
-                if vals.get('state', 'taslak') != 'taslak' or 'fiili_baslangic' in vals or 'fiili_bitis' in vals:
+                if vals.get('state', 'taslak') != 'taslak' or {'fiili_baslangic', 'fiili_bitis', 'kapanis_tarihi'} & vals.keys():
                     raise UserError('Kayıt yalnızca taslak olarak ve fiili tarihler olmadan oluşturulabilir.')
         return super().create(vals_list)
 
@@ -223,7 +229,7 @@ class EkipmanZimmet(models.Model):
                 raise UserError('Yalnızca talep edildi durumundaki kayıtlar reddedilebilir.')
             if not rec.red_gerekcesi:
                 raise UserError('Reddetmek için red gerekçesi doldurulmalıdır.')
-            rec.sudo().write({'state': 'reddedildi'})
+            rec.sudo().write({'state': 'reddedildi', 'kapanis_tarihi': fields.Date.context_today(self)})
 
     def action_teslim_et(self):
         if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
@@ -248,9 +254,11 @@ class EkipmanZimmet(models.Model):
         for rec in self:
             if rec.state != 'teslim_edildi':
                 raise UserError('Yalnızca teslim edilmiş kayıtlar iade alınabilir.')
+            bugun = fields.Date.context_today(self)
             rec.sudo().write({
                 'state': 'iade_edildi',
-                'fiili_bitis': fields.Date.context_today(self)
+                'fiili_bitis': bugun,
+                'kapanis_tarihi': bugun,
             })
 
     def action_iptal(self):
@@ -263,7 +271,7 @@ class EkipmanZimmet(models.Model):
                 raise UserError('Başkasının talebini iptal edemezsiniz.')
             if not rec.iptal_nedeni:
                 raise UserError('İptal etmek için iptal nedeni doldurulmalıdır.')
-            rec.sudo().write({'state': 'iptal'})
+            rec.sudo().write({'state': 'iptal', 'kapanis_tarihi': fields.Date.context_today(self)})
 
     def action_taslagi_sil(self):
         self.unlink()
@@ -271,9 +279,9 @@ class EkipmanZimmet(models.Model):
 
     def write(self, vals):
         if not self.env.su:
-            restricted_for_all = {'state', 'fiili_baslangic', 'fiili_bitis', 'calisan_id'}
+            restricted_for_all = {'state', 'fiili_baslangic', 'fiili_bitis', 'calisan_id', 'kapanis_tarihi'}
             if restricted_for_all.intersection(vals.keys()):
-                raise UserError('Durum, çalışan ve fiili tarihler doğrudan güncellenemez.')
+                raise UserError('Durum, çalışan, fiili tarihler ve kapanış tarihi doğrudan güncellenemez.')
             if 'red_gerekcesi' in vals:
                 if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
                     raise UserError('Red gerekçesini yalnızca yetkililer düzenleyebilir.')
