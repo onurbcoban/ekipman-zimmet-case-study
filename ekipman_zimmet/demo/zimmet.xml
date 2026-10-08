@@ -113,5 +113,34 @@
             <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=0)).strftime('%Y-%m-%d')"/>
             <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
         </record>
+        <!-- 15 -->
+        <record id="zimmet_demo_15" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_osc_003"/>
+            <field name="calisan_id" ref="employee_kaan_bayrak"/>
+            <field name="state">onaylandi</field>
+            <!-- Aralık bugünü kapsar: teslim hatası tarih kuralından değil, cihazın bakımda olmasından (A7) gelmeli. -->
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-1)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
+        </record>
+        <!-- 16 -->
+        <record id="zimmet_demo_16" model="ekipman.zimmet">
+            <field name="cihaz_id" ref="cihaz_ltp_003"/>
+            <field name="calisan_id" ref="employee_isil_tezcan"/>
+            <field name="state">kayip</field>
+            <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-30)).strftime('%Y-%m-%d')"/>
+            <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=-20)).strftime('%Y-%m-%d')"/>
+            <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-30)).strftime('%Y-%m-%d')"/>
+            <field name="fiili_bitis" eval="(datetime.now() + timedelta(days=-22)).strftime('%Y-%m-%d')"/>
+            <field name="kapanis_tarihi" eval="(datetime.now() + timedelta(days=-22)).strftime('%Y-%m-%d')"/>
+            <field name="kapanis_notu">Saha ziyaretinde kayboldu.</field>
+        </record>
+
+        <!-- Kullanılabilirlik zimmet kayıtlarından sonra yazılır; kullanılamayan cihaza kayıt açılamaz (A7). -->
+        <record id="cihaz_osc_003" model="ekipman.cihaz">
+            <field name="kullanilabilirlik">bakimda</field>
+        </record>
+        <record id="cihaz_ltp_003" model="ekipman.cihaz">
+            <field name="kullanilabilirlik">kayip</field>
+        </record>
     </data>
 </odoo>
