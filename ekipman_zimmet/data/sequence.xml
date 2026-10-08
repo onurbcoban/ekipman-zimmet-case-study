@@ -8,5 +8,12 @@
             <field name="padding">4</field>
             <field name="company_id" eval="False"/>
         </record>
+        <record id="seq_ekipman_zimmet_toplu" model="ir.sequence">
+            <field name="name">Toplu Talep Referans</field>
+            <field name="code">ekipman.zimmet.toplu</field>
+            <field name="prefix">TPL/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
     </data>
 </odoo>

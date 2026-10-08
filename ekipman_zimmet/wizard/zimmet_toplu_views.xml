@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ekipman_zimmet_toplu_form" model="ir.ui.view">
+        <field name="name">ekipman.zimmet.toplu.form</field>
+        <field name="model">ekipman.zimmet.toplu</field>
+        <field name="arch" type="xml">
+            <form string="Toplu Talep">
+                <p class="text-muted">
+                    Aynı tarihler için birden çok cihaz isteyin. Her cihaz için ayrı bir talep açılır ve yetkiliye gönderilir.
+                </p>
+                <group>
+                    <field name="planlanan_baslangic"/>
+                    <field name="planlanan_bitis"/>
+                </group>
+                <field name="cihaz_ids">
+                    <list>
+                        <field name="etiket_no"/>
+                        <field name="name"/>
+                        <field name="aciklama"/>
+                        <field name="dolu_tarihler"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_talep_et" string="Talep Et" type="object" class="oe_highlight"/>
+                    <button string="Vazgeç" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ekipman_zimmet_toplu" model="ir.actions.act_window">
+        <field name="name">Toplu Talep</field>
+        <field name="res_model">ekipman.zimmet.toplu</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_ekipman_zimmet_toplu"
+              name="Toplu Talep"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_zimmet_toplu"
+              sequence="11"/>
+</odoo>

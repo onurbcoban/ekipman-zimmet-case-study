@@ -801,3 +801,64 @@ class TestZimmet(TransactionCase):
         self.assertFalse(Cihaz.search(self._arama_filtresi('verilebilir', gorunum) + hepsi))
         self.assertEqual(Cihaz.search(self._arama_filtresi('kontrol_bekleyenler', gorunum) + hepsi), kontrolde)
         self.assertIn('search_default_kullanimdaki', self.env.ref('ekipman_zimmet.action_ekipman_cihaz').context)
+
+    def _toplu_talep(self, user, cihazlar, baslangic, bitis):
+        sihirbaz = self.env['ekipman.zimmet.toplu'].with_user(user).create({
+            'cihaz_ids': [(6, 0, cihazlar.ids)],
+            'planlanan_baslangic': self.bugun + timedelta(days=baslangic),
+            'planlanan_bitis': self.bugun + timedelta(days=bitis),
+        })
+        sihirbaz.action_talep_et()
+        return self.env['ekipman.zimmet'].search([('cihaz_id', 'in', cihazlar.ids)])
+
+    def _ikinci_cihaz(self):
+        return self.env['ekipman.cihaz'].create({
+            'name': 'Test Cihaz 2', 'etiket_no': 'ETK-002', 'kategori_id': self.kategori.id,
+        })
+
+    def test_50_toplu_talep_olusturma(self):
+        cihaz2 = self._ikinci_cihaz()
+        kayitlar = self._toplu_talep(self.user2, self.cihaz | cihaz2, 3, 5)
+        self.assertEqual(len(kayitlar), 2)
+        self.assertEqual(set(kayitlar.mapped('state')), {'talep_edildi'})
+        self.assertEqual(kayitlar.calisan_id, self.employee2)
+        self.assertEqual(len(set(kayitlar.mapped('toplu_ref'))), 1)
+        self.assertTrue(kayitlar[0].toplu_ref.startswith('TPL/'))
+        self.assertTrue(all(k.name.startswith('ZMT/') for k in kayitlar))
+        self.assertFalse(self._talep(self.user2, 10, 12).toplu_ref)
+
+        # Kayıtlar oluştuktan sonra bağımsızdır (A/10).
+        birinci, ikinci = kayitlar.with_user(self.user2)
+        birinci.action_geri_cek()
+        ikinci.with_user(self.user_yetkili).action_onayla()
+        self.assertEqual((birinci.state, ikinci.state), ('taslak', 'onaylandi'))
+
+    def test_51_toplu_talep_tek_islem(self):
+        cihaz2 = self._ikinci_cihaz()
+        cihaz2.sudo().write({'kullanilabilirlik': 'kayip'})
+        with self.assertRaises(UserError):
+            self._toplu_talep(self.user2, self.cihaz | cihaz2, 3, 5)
+        with self.assertRaises(UserError):
+            self._toplu_talep(self.user2, self.cihaz, -1, 5)
+        self.assertFalse(self.env['ekipman.zimmet'].search([('cihaz_id', 'in', (self.cihaz | cihaz2).ids)]))
+
+    def test_52_sihirbaz_yalnizca_kullanilabilir_cihazlari_listeler(self):
+        cihaz2 = self._ikinci_cihaz()
+        cihaz2.sudo().write({'kullanilabilirlik': 'kontrolde'})
+        alan = self.env['ekipman.zimmet.toplu']._fields['cihaz_ids']
+        secenekler = self.env['ekipman.cihaz'].search(alan.domain + [('id', 'in', (self.cihaz | cihaz2).ids)])
+        self.assertEqual(secenekler, self.cihaz)
+        arch = self.env.ref('ekipman_zimmet.view_ekipman_zimmet_toplu_form').arch
+        self.assertIn('dolu_tarihler', arch)
+
+    def test_53_toplu_ref_korunur(self):
+        with self.assertRaises(UserError):
+            self.env['ekipman.zimmet'].with_user(self.user2).create({
+                'cihaz_id': self.cihaz.id,
+                'planlanan_baslangic': self.bugun,
+                'planlanan_bitis': self.bugun + timedelta(days=2),
+                'toplu_ref': 'TPL/9999',
+            })
+        taslak = self._talep(self.user2, 0, 2)
+        with self.assertRaises(UserError):
+            taslak.write({'toplu_ref': 'TPL/9999'})

@@ -17,6 +17,7 @@
         'views/cihaz_views.xml',
         'views/zimmet_views.xml',
         'views/menu_views.xml',
+        'wizard/zimmet_toplu_views.xml',
     ],
     'demo': [
         'demo/kullanicilar.xml',

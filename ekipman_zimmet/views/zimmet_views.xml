@@ -79,6 +79,7 @@
                             <field name="cihaz_kullanilabilirlik" invisible="not cihaz_id" widget="badge" decoration-success="cihaz_kullanilabilirlik == 'kullanilabilir'" decoration-warning="cihaz_kullanilabilirlik in ('kontrolde', 'bakimda')" decoration-danger="cihaz_kullanilabilirlik in ('kayip', 'hurda')"/>
                             <field name="dolu_tarihler" invisible="state != 'taslak'"/>
                             <field name="calisan_id" readonly="1"/>
+                            <field name="toplu_ref" invisible="not toplu_ref"/>
                         </group>
                         <group string="Tarihler">
                             <field name="planlanan_baslangic" readonly="state != 'taslak'"/>

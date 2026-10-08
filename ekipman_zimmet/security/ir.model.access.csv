@@ -5,5 +5,6 @@ access_ekipman_kategori_muhendis,ekipman.kategori.muhendis,model_ekipman_kategor
 access_ekipman_zimmet_yetkili,ekipman.zimmet.yetkili,model_ekipman_zimmet,ekipman_zimmet.group_zimmet_yetkili,1,1,1,1
 access_ekipman_cihaz_yetkili,ekipman.cihaz.yetkili,model_ekipman_cihaz,ekipman_zimmet.group_zimmet_yetkili,1,1,1,1
 access_ekipman_kategori_yetkili,ekipman.kategori.yetkili,model_ekipman_kategori,ekipman_zimmet.group_zimmet_yetkili,1,1,1,1
+access_ekipman_zimmet_toplu_muhendis,ekipman.zimmet.toplu.muhendis,model_ekipman_zimmet_toplu,ekipman_zimmet.group_zimmet_muhendis,1,1,1,1
 access_hr_employee_muhendis,hr.employee.muhendis,hr.model_hr_employee,ekipman_zimmet.group_zimmet_muhendis,1,0,0,0
 access_hr_employee_yetkili,hr.employee.yetkili,hr.model_hr_employee,ekipman_zimmet.group_zimmet_yetkili,1,0,0,0

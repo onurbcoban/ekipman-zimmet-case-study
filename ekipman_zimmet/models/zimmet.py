@@ -129,6 +129,13 @@ class EkipmanZimmet(models.Model):
         readonly=True,
         copy=False,
     )
+    # Yalnızca birlikte istendiğini gösterir; kayıtlar birbirinden bağımsız işler (A6).
+    toplu_ref = fields.Char(
+        string='Toplu Talep',
+        readonly=True,
+        copy=False,
+        index=True,
+    )
     kullanici_geri_bildirimi = fields.Text(
         string='Kullanıcı Geri Bildirimi',
         copy=False,
@@ -186,6 +193,8 @@ class EkipmanZimmet(models.Model):
                 surec_alanlari = ('fiili_baslangic', 'fiili_bitis', 'kapanis_tarihi', 'istenen_bitis')
                 if vals.get('state', 'taslak') != 'taslak' or any(vals.get(alan) for alan in surec_alanlari):
                     raise UserError('Kayıt yalnızca taslak olarak ve süreç tarihleri olmadan oluşturulabilir.')
+                if vals.get('toplu_ref'):
+                    raise UserError('Toplu talep referansı yalnızca Toplu Talep sihirbazıyla verilir.')
         kayitlar = super().create(vals_list)
         if not self.env.su:
             kayitlar._cihaz_kullanilabilir_olmali('talep edilemez')
@@ -384,6 +393,8 @@ class EkipmanZimmet(models.Model):
             restricted_for_all = {'state', 'fiili_baslangic', 'fiili_bitis', 'calisan_id', 'kapanis_tarihi'}
             if restricted_for_all.intersection(vals.keys()):
                 raise UserError('Durum, çalışan, fiili tarihler ve kapanış tarihi doğrudan güncellenemez.')
+            if 'toplu_ref' in vals:
+                raise UserError('Toplu talep referansı yalnızca Toplu Talep sihirbazıyla verilir.')
             if 'red_gerekcesi' in vals:
                 if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili'):
                     raise UserError('Red gerekçesini yalnızca yetkililer düzenleyebilir.')
