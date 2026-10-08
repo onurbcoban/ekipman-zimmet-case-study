@@ -40,9 +40,15 @@
                     <button name="action_iade_al" string="İade Al" type="object" class="oe_highlight" invisible="state != 'teslim_edildi'" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                     <button name="action_iptal" string="İptal Et" type="object" invisible="state not in ('talep_edildi', 'onaylandi')"/>
                     <button name="action_taslagi_sil" string="Taslağı Sil" type="object" invisible="state != 'taslak' or not talep_sahibi_mi" confirm="Bu taslak kalıcı olarak silinecek. Emin misiniz?"/>
+                    <button name="action_uzatmayi_onayla" string="Uzatmayı Onayla" type="object" class="oe_highlight" invisible="not istenen_bitis" groups="ekipman_zimmet.group_zimmet_yetkili"/>
+                    <button name="action_uzatmayi_reddet" string="Uzatmayı Reddet" type="object" invisible="not istenen_bitis" groups="ekipman_zimmet.group_zimmet_yetkili"/>
+                    <button name="action_uzatmayi_geri_cek" string="Uzatmayı Geri Çek" type="object" invisible="not istenen_bitis or not talep_sahibi_mi"/>
                     <field name="state" widget="statusbar" statusbar_visible="taslak,talep_edildi,onaylandi,teslim_edildi,iade_edildi"/>
                 </header>
                 <sheet>
+                    <div class="alert alert-info" role="alert" invisible="not istenen_bitis">
+                        Uzatma isteği yetkili onayını bekliyor.
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
@@ -58,6 +64,7 @@
                         <group string="Tarihler">
                             <field name="planlanan_baslangic" readonly="state != 'taslak'"/>
                             <field name="planlanan_bitis" readonly="state != 'taslak'"/>
+                            <field name="istenen_bitis" invisible="state not in ('onaylandi', 'teslim_edildi')" readonly="not talep_sahibi_mi"/>
                             <field name="fiili_baslangic" invisible="state in ('taslak', 'talep_edildi', 'onaylandi')" readonly="1"/>
                             <field name="fiili_bitis" invisible="state in ('taslak', 'talep_edildi', 'onaylandi')" readonly="1"/>
                         </group>
@@ -96,6 +103,7 @@
                 <filter string="İade Edildi" name="iade_edildi" domain="[('state', '=', 'iade_edildi')]"/>
                 <separator/>
                 <filter string="Gecikenler" name="gecikenler" domain="[('state', '=', 'teslim_edildi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Uzatma Bekleyenler" name="uzatma_bekleyenler" domain="[('istenen_bitis', '!=', False)]"/>
                 <filter string="Süresi Geçmiş Onaylar" name="suresi_gecmis_onaylar" domain="[('state', '=', 'onaylandi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
                 <separator/>
                 <group expand="0" string="Grupla">

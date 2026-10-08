@@ -9,6 +9,7 @@
             <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-10)).strftime('%Y-%m-%d')"/>
             <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=-3)).strftime('%Y-%m-%d')"/>
             <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-10)).strftime('%Y-%m-%d')"/>
+            <field name="istenen_bitis" eval="(datetime.now() + timedelta(days=4)).strftime('%Y-%m-%d')"/>
         </record>
         <!-- 2 -->
         <record id="zimmet_demo_2" model="ekipman.zimmet">
@@ -66,6 +67,7 @@
             <field name="planlanan_baslangic" eval="(datetime.now() + timedelta(days=-2)).strftime('%Y-%m-%d')"/>
             <field name="planlanan_bitis" eval="(datetime.now() + timedelta(days=3)).strftime('%Y-%m-%d')"/>
             <field name="fiili_baslangic" eval="(datetime.now() + timedelta(days=-2)).strftime('%Y-%m-%d')"/>
+            <field name="istenen_bitis" eval="(datetime.now() + timedelta(days=8)).strftime('%Y-%m-%d')"/>
         </record>
         <!-- 8 -->
         <record id="zimmet_demo_8" model="ekipman.zimmet">
