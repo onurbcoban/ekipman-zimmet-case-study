@@ -58,6 +58,7 @@
                         <group string="Talep Bilgileri">
                             <field name="cihaz_id" readonly="state != 'taslak'"/>
                             <field name="cihaz_aciklama" invisible="not cihaz_aciklama"/>
+                            <field name="cihaz_kullanilabilirlik" invisible="not cihaz_id" widget="badge" decoration-success="cihaz_kullanilabilirlik == 'kullanilabilir'" decoration-warning="cihaz_kullanilabilirlik in ('kontrolde', 'bakimda')" decoration-danger="cihaz_kullanilabilirlik in ('kayip', 'hurda')"/>
                             <field name="dolu_tarihler" invisible="state != 'taslak'"/>
                             <field name="calisan_id" readonly="1"/>
                         </group>

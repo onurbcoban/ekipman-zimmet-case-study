@@ -581,3 +581,38 @@ class TestZimmet(TransactionCase):
         self.assertEqual(self.cihaz.kullanilabilirlik, 'kullanilabilir')
         with self.assertRaises(AccessError):
             self.cihaz.with_user(self.user2).write({'kullanilabilirlik': 'bakimda'})
+
+    def _cihaz_durumu(self, durum):
+        self.cihaz.sudo().write({'kullanilabilirlik': durum})
+
+    def test_38_yalnizca_kullanilabilir_cihaz(self):
+        self._cihaz_durumu('kontrolde')
+        with self.assertRaises(UserError):
+            self._talep(self.user2, 0, 3)
+
+        self._cihaz_durumu('kullanilabilir')
+        taslak = self._talep(self.user2, 0, 3)
+        bekleyen = self._talep(self.user2, 10, 12)
+        bekleyen.action_gonder()
+        onayli = self._onayli_talep(self.user2, 20, 22)
+
+        self._cihaz_durumu('bakimda')
+        with self.assertRaises(UserError):
+            taslak.action_gonder()
+        with self.assertRaises(UserError):
+            bekleyen.with_user(self.user_yetkili).action_onayla()
+        onayli.write({'istenen_bitis': self.bugun + timedelta(days=25)})
+        with self.assertRaises(UserError):
+            onayli.with_user(self.user_yetkili).action_uzatmayi_onayla()
+        self.assertEqual((taslak.state, bekleyen.state, onayli.state), ('taslak', 'talep_edildi', 'onaylandi'))
+
+        self._cihaz_durumu('kullanilabilir')
+        taslak.action_gonder()
+        self.assertEqual(taslak.state, 'talep_edildi')
+
+    def test_39_kullanilamayan_cihaz_teslim_edilemez(self):
+        onayli = self._onayli_talep(self.user2, 0, 3)
+        self._cihaz_durumu('kontrolde')
+        with self.assertRaises(UserError):
+            onayli.with_user(self.user_yetkili).action_teslim_et()
+        self.assertEqual(onayli.state, 'onaylandi')

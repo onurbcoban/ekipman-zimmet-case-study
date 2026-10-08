@@ -53,10 +53,15 @@ class EkipmanZimmet(models.Model):
         required=True,
         ondelete='restrict',
         tracking=True,
+        domain=[('kullanilabilirlik', '=', 'kullanilabilir')],
     )
     cihaz_aciklama = fields.Text(
         related='cihaz_id.aciklama',
         string='Cihaz Açıklaması',
+    )
+    cihaz_kullanilabilirlik = fields.Selection(
+        related='cihaz_id.kullanilabilirlik',
+        string='Cihaz Durumu',
     )
     dolu_tarihler = fields.Text(
         related='cihaz_id.dolu_tarihler',
@@ -147,7 +152,10 @@ class EkipmanZimmet(models.Model):
                 surec_alanlari = ('fiili_baslangic', 'fiili_bitis', 'kapanis_tarihi', 'istenen_bitis')
                 if vals.get('state', 'taslak') != 'taslak' or any(vals.get(alan) for alan in surec_alanlari):
                     raise UserError('Kayıt yalnızca taslak olarak ve süreç tarihleri olmadan oluşturulabilir.')
-        return super().create(vals_list)
+        kayitlar = super().create(vals_list)
+        if not self.env.su:
+            kayitlar._cihaz_kullanilabilir_olmali('talep edilemez')
+        return kayitlar
 
     @api.constrains('planlanan_baslangic', 'planlanan_bitis')
     def _check_tarihler(self):
@@ -207,6 +215,7 @@ class EkipmanZimmet(models.Model):
                 raise UserError('Yalnızca kendi taleplerinizi iletebilirsiniz.')
             if rec.planlanan_baslangic < bugun:
                 raise UserError('Başlangıç tarihi geçmiş bir talep gönderilemez. Lütfen tarihleri güncelleyin.')
+            rec._cihaz_kullanilabilir_olmali('gönderilemez')
             rec.sudo().write({'state': 'talep_edildi'})
 
     def action_geri_cek(self):
@@ -226,6 +235,7 @@ class EkipmanZimmet(models.Model):
                 raise UserError('Yalnızca talep edildi durumundaki kayıtlar onaylanabilir.')
             if rec.planlanan_bitis < bugun:
                 raise UserError('Bitiş tarihi geçmiş bir talep onaylanamaz; teslim edilemeyeceği için reddedilmelidir.')
+            rec._cihaz_kullanilabilir_olmali('onaylanamaz')
             rec.sudo().write({'state': 'onaylandi'})
         self._kisitlari_simdi_denetle()
 
@@ -249,7 +259,8 @@ class EkipmanZimmet(models.Model):
             bugun = fields.Date.context_today(self)
             if not (rec.planlanan_baslangic <= bugun <= rec.planlanan_bitis):
                 raise UserError('Teslimat yalnızca planlanan tarih aralığında yapılabilir. Erken veya süresi geçmiş teslimat yapılamaz.')
-                
+            rec._cihaz_kullanilabilir_olmali('teslim edilemez')
+
             rec.sudo().write({
                 'state': 'teslim_edildi',
                 'fiili_baslangic': bugun
@@ -292,6 +303,7 @@ class EkipmanZimmet(models.Model):
         for rec in self:
             if not rec.istenen_bitis:
                 raise UserError('Bekleyen bir uzatma isteği yok.')
+            rec._cihaz_kullanilabilir_olmali('uzatma onaylanamaz')
             rec.sudo().write({'planlanan_bitis': rec.istenen_bitis, 'istenen_bitis': False})
         self._kisitlari_simdi_denetle()
 
@@ -339,7 +351,18 @@ class EkipmanZimmet(models.Model):
                 for rec in self:
                     if rec.state != 'taslak':
                         raise UserError('Taslak durumunda olmayan kayıtların cihaz ve planlanan tarih bilgileri değiştirilemez.')
-        return super().write(vals)
+        sonuc = super().write(vals)
+        if 'cihaz_id' in vals and not self.env.su:
+            self._cihaz_kullanilabilir_olmali('talep edilemez')
+        return sonuc
+
+    def _cihaz_kullanilabilir_olmali(self, islem):
+        # Yalnızca yeni işlemleri engeller; cihaz kullanılamaz olunca mevcut kayıtlar değişmez (A7).
+        for rec in self:
+            cihaz = rec.cihaz_id
+            if cihaz.kullanilabilirlik != 'kullanilabilir':
+                durum = dict(cihaz._fields['kullanilabilirlik'].selection)[cihaz.kullanilabilirlik]
+                raise UserError(f"Cihaz şu an {durum.lower()}; {islem}.")
 
     def _uzatma_istegini_denetle(self, istenen):
         bugun = fields.Date.context_today(self)
