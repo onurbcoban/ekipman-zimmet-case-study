@@ -2,6 +2,13 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError, AccessError
 from odoo.tools import format_date
 
+# Kullanılamayan cihazda talebin hangi adımı beklediği ve kullanıcının seçenekleri (A7).
+CIHAZ_UYARILARI = {
+    'taslak': 'Talep edilebilmesi için kullanılabilir duruma dönmesi gerekir. İsterseniz taslağınızı silebilirsiniz.',
+    'talep_edildi': 'Onaylanabilmesi için kullanılabilir duruma dönmesi gerekir. İsterseniz talebinizi geri çekebilir veya iptal edebilirsiniz.',
+    'onaylandi': 'Teslim edilebilmesi için kullanılabilir duruma dönmesi gerekir. İsterseniz talebinizi iptal edebilirsiniz.',
+}
+
 
 class EkipmanZimmet(models.Model):
     _name = 'ekipman.zimmet'
@@ -64,6 +71,7 @@ class EkipmanZimmet(models.Model):
         related='cihaz_id.kullanilabilirlik',
         string='Cihaz Durumu',
     )
+    cihaz_uyarisi = fields.Char(compute='_compute_cihaz_uyarisi')
     dolu_tarihler = fields.Text(
         related='cihaz_id.dolu_tarihler',
         string='Dolu Tarihler',
@@ -143,6 +151,16 @@ class EkipmanZimmet(models.Model):
     @api.depends_context('uid')
     def _compute_yetkili_mi(self):
         self.yetkili_mi = self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili')
+
+    @api.depends('state', 'cihaz_id.kullanilabilirlik')
+    def _compute_cihaz_uyarisi(self):
+        etiketler = dict(self.env['ekipman.cihaz']._fields['kullanilabilirlik'].selection)
+        for rec in self:
+            durum = rec.cihaz_id.kullanilabilirlik
+            if durum and durum != 'kullanilabilir' and rec.state in CIHAZ_UYARILARI:
+                rec.cihaz_uyarisi = f"Cihaz şu an {etiketler[durum].lower()}. {CIHAZ_UYARILARI[rec.state]}"
+            else:
+                rec.cihaz_uyarisi = False
 
     @api.model
     def _default_calisan_id(self):

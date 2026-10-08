@@ -17,6 +17,7 @@
         <field name="name">Onay Bekleyenler</field>
         <field name="res_model">ekipman.zimmet</field>
         <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_ekipman_zimmet_list_kuyruk"/>
         <field name="context">{'search_default_onay_bekleyenler': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
@@ -73,6 +74,31 @@
         </field>
     </record>
 
+    <record id="action_ekipman_zimmet_kullanilamayan_cihaz_onaylari" model="ir.actions.act_window">
+        <field name="name">Kullanılamayan Cihaz Onayları</field>
+        <field name="res_model">ekipman.zimmet</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_ekipman_zimmet_list_kuyruk"/>
+        <field name="context">{'search_default_kullanilamayan_cihaz_onaylari': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cihazı kullanılamaz durumda olan onaylı talep bulunmamaktadır.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_ekipman_cihaz_kontrol_bekleyenler" model="ir.actions.act_window">
+        <field name="name">Kontrol Bekleyen Cihazlar</field>
+        <field name="res_model">ekipman.cihaz</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_kontrol_bekleyenler': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Kontrol bekleyen cihaz bulunmamaktadır.
+            </p>
+        </field>
+    </record>
+
     <!-- Kuyruk Menüleri -->
     <menuitem id="menu_ekipman_zimmet_onay_bekleyenler"
               name="Onay Bekleyenler"
@@ -106,6 +132,20 @@
               name="Uzatma Bekleyenler"
               parent="menu_ekipman_zimmet_root"
               action="action_ekipman_zimmet_uzatma_bekleyenler"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
+              sequence="19"/>
+
+    <menuitem id="menu_ekipman_zimmet_kullanilamayan_cihaz_onaylari"
+              name="Kullanılamayan Cihaz Onayları"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_zimmet_kullanilamayan_cihaz_onaylari"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
+              sequence="19"/>
+
+    <menuitem id="menu_ekipman_cihaz_kontrol_bekleyenler"
+              name="Kontrol Bekleyen Cihazlar"
+              parent="menu_ekipman_zimmet_root"
+              action="action_ekipman_cihaz_kontrol_bekleyenler"
               groups="ekipman_zimmet.group_zimmet_yetkili"
               sequence="19"/>
 

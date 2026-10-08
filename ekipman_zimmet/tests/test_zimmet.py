@@ -483,9 +483,9 @@ class TestZimmet(TransactionCase):
                 'kapanis_tarihi': self.bugun,
             })
 
-    def _arama_filtresi(self, ad):
+    def _arama_filtresi(self, ad, gorunum='ekipman_zimmet.view_ekipman_zimmet_search'):
         """Arama görünümündeki filtrenin domain'ini web istemcisinin yaptığı gibi bugüne göre hesaplar."""
-        arch = self.env.ref('ekipman_zimmet.view_ekipman_zimmet_search').arch
+        arch = self.env.ref(gorunum).arch
         filtre = etree.fromstring(arch).xpath(f"//filter[@name='{ad}']")[0]
         return safe_eval(filtre.get('domain'), {
             'context_today': lambda: self.bugun,
@@ -764,3 +764,40 @@ class TestZimmet(TransactionCase):
             self.cihaz.with_user(self.user_yetkili).action_hurdaya_ayir()
         self.assertEqual(sonraki.state, 'onaylandi')
         self.assertTrue(self.cihaz.active)
+
+    def test_48_kullanilamayan_cihaz_uyarisi(self):
+        taslak = self._talep(self.user2, 0, 2)
+        bekleyen = self._talep(self.user2, 3, 5)
+        bekleyen.action_gonder()
+        onayli = self._onayli_talep(self.user2, 6, 8)
+        self.assertFalse(onayli.cihaz_uyarisi)
+
+        self._cihaz_durumu('bakimda')
+        self.assertTrue(taslak.cihaz_uyarisi.startswith('Cihaz şu an bakımda. Talep edilebilmesi'))
+        self.assertIn('Onaylanabilmesi', bekleyen.cihaz_uyarisi)
+        self.assertEqual(
+            onayli.cihaz_uyarisi,
+            'Cihaz şu an bakımda. Teslim edilebilmesi için kullanılabilir duruma dönmesi gerekir. '
+            'İsterseniz talebinizi iptal edebilirsiniz.',
+        )
+        self.assertEqual(self.cihaz.dolu_tarihler.splitlines()[0], 'Cihaz bakımda')
+
+        kuyruk = self.env['ekipman.zimmet'].search(
+            self._arama_filtresi('kullanilamayan_cihaz_onaylari') + [('cihaz_id', '=', self.cihaz.id)])
+        self.assertEqual(kuyruk, onayli)
+
+    def test_49_ekipman_filtreleri(self):
+        gorunum = 'ekipman_zimmet.view_ekipman_cihaz_search'
+        Cihaz = self.env['ekipman.cihaz']
+        kontrolde = Cihaz.create({'name': 'Kontrolde', 'etiket_no': 'ETK-002', 'kategori_id': self.kategori.id})
+        kayip = Cihaz.create({'name': 'Kayıp', 'etiket_no': 'ETK-003', 'kategori_id': self.kategori.id})
+        kontrolde.sudo().write({'kullanilabilirlik': 'kontrolde'})
+        kayip.sudo().write({'kullanilabilirlik': 'kayip'})
+        zimmette = self._onayli_talep(self.user_yetkili, 0, 3)
+        zimmette.action_teslim_et()
+        hepsi = [('id', 'in', (self.cihaz | kontrolde | kayip).ids)]
+
+        self.assertEqual(Cihaz.search(self._arama_filtresi('kullanimdaki', gorunum) + hepsi), self.cihaz | kontrolde)
+        self.assertFalse(Cihaz.search(self._arama_filtresi('verilebilir', gorunum) + hepsi))
+        self.assertEqual(Cihaz.search(self._arama_filtresi('kontrol_bekleyenler', gorunum) + hepsi), kontrolde)
+        self.assertIn('search_default_kullanimdaki', self.env.ref('ekipman_zimmet.action_ekipman_cihaz').context)

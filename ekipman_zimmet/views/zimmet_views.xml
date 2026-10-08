@@ -12,6 +12,7 @@
                 <field name="name"/>
                 <field name="cihaz_id"/>
                 <field name="calisan_id"/>
+                <field name="cihaz_kullanilabilirlik" optional="hide" widget="badge" decoration-success="cihaz_kullanilabilirlik == 'kullanilabilir'" decoration-warning="cihaz_kullanilabilirlik in ('kontrolde', 'bakimda')" decoration-danger="cihaz_kullanilabilirlik in ('kayip', 'hurda')"/>
                 <field name="planlanan_baslangic"/>
                 <field name="planlanan_bitis"/>
                 <field name="fiili_baslangic" optional="hide"/>
@@ -22,6 +23,19 @@
                        decoration-success="state == 'teslim_edildi'"
                        decoration-muted="state in ('iade_edildi', 'kayip', 'reddedildi', 'iptal')"/>
             </list>
+        </field>
+    </record>
+
+    <!-- Kuyruklarda yetkili, cihazın şu an verilebilir olup olmadığını listede görür (A7, F3). -->
+    <record id="view_ekipman_zimmet_list_kuyruk" model="ir.ui.view">
+        <field name="name">ekipman.zimmet.list.kuyruk</field>
+        <field name="model">ekipman.zimmet</field>
+        <field name="inherit_id" ref="view_ekipman_zimmet_list"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="cihaz_kullanilabilirlik" position="attributes">
+                <attribute name="optional">show</attribute>
+            </field>
         </field>
     </record>
 
@@ -47,6 +61,9 @@
                     <field name="state" widget="statusbar" statusbar_visible="taslak,talep_edildi,onaylandi,teslim_edildi,iade_edildi"/>
                 </header>
                 <sheet>
+                    <div class="alert alert-warning" role="alert" invisible="not cihaz_uyarisi">
+                        <field name="cihaz_uyarisi"/>
+                    </div>
                     <div class="alert alert-info" role="alert" invisible="not istenen_bitis">
                         Uzatma isteği yetkili onayını bekliyor.
                     </div>
@@ -113,6 +130,7 @@
                 <filter string="Gecikenler" name="gecikenler" domain="[('state', '=', 'teslim_edildi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
                 <filter string="Uzatma Bekleyenler" name="uzatma_bekleyenler" domain="[('istenen_bitis', '!=', False)]"/>
                 <filter string="Süresi Geçmiş Onaylar" name="suresi_gecmis_onaylar" domain="[('state', '=', 'onaylandi'), ('planlanan_bitis', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Kullanılamayan Cihaz Onayları" name="kullanilamayan_cihaz_onaylari" domain="[('state', '=', 'onaylandi'), ('cihaz_id.kullanilabilirlik', '!=', 'kullanilabilir')]"/>
                 <separator/>
                 <group expand="0" string="Grupla">
                     <filter string="Cihaz" name="group_cihaz" context="{'group_by': 'cihaz_id'}"/>

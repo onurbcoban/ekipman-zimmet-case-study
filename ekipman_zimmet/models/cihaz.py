@@ -106,15 +106,18 @@ class EkipmanCihaz(models.Model):
                 rec.fiziksel_durum = 'bosta'
                 rec.su_an_kimde_id = False
 
-    @api.depends('zimmet_ids.state', 'zimmet_ids.planlanan_baslangic', 'zimmet_ids.planlanan_bitis')
+    @api.depends('kullanilabilirlik', 'zimmet_ids.state', 'zimmet_ids.planlanan_baslangic', 'zimmet_ids.planlanan_bitis')
     def _compute_dolu_tarihler(self):
         today = fields.Date.context_today(self)
+        etiketler = dict(self._fields['kullanilabilirlik'].selection)
         for rec in self:
             bloklayanlar = rec.sudo().zimmet_ids.filtered(
                 lambda z: z.state in ('onaylandi', 'teslim_edildi') and z.planlanan_bitis
             ).sorted(key=lambda z: z.planlanan_baslangic or today)
 
             satirlar = []
+            if rec.kullanilabilirlik != 'kullanilabilir':
+                satirlar.append(f"Cihaz {etiketler[rec.kullanilabilirlik].lower()}")
             for z in bloklayanlar:
                 if z.planlanan_bitis >= today:
                     if z.planlanan_baslangic and z.planlanan_bitis:

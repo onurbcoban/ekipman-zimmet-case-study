@@ -97,6 +97,10 @@
                 <field name="seri_no"/>
                 <field name="kategori_id"/>
                 <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
+                <filter string="Kullanımdaki Cihazlar" name="kullanimdaki" domain="[('kullanilabilirlik', 'not in', ('kayip', 'hurda'))]"/>
+                <separator/>
+                <filter string="Verilebilir" name="verilebilir" domain="[('kullanilabilirlik', '=', 'kullanilabilir'), ('fiziksel_durum', '=', 'bosta')]"/>
+                <filter string="Kontrol Bekleyenler" name="kontrol_bekleyenler" domain="[('kullanilabilirlik', '=', 'kontrolde')]"/>
                 <filter string="Zimmette değil" name="bosta" domain="[('fiziksel_durum', '=', 'bosta')]"/>
                 <filter string="Zimmetteki Cihazlar" name="zimmette" domain="[('fiziksel_durum', '=', 'zimmette')]"/>
                 <filter string="Şu An Kimde" name="su_an_kimde" domain="[('su_an_kimde_id', '!=', False)]" groups="ekipman_zimmet.group_zimmet_yetkili"/>
@@ -105,6 +109,7 @@
                 <group expand="0" string="Grupla">
                     <filter string="Kategori" name="group_kategori" context="{'group_by': 'kategori_id'}"/>
                     <filter string="Fiziksel Durum" name="group_fiziksel_durum" context="{'group_by': 'fiziksel_durum'}"/>
+                    <filter string="Kullanılabilirlik" name="group_kullanilabilirlik" context="{'group_by': 'kullanilabilirlik'}"/>
                     <filter string="Şu An Kimde" name="group_su_an_kimde" context="{'group_by': 'su_an_kimde_id'}" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                 </group>
             </search>
@@ -115,6 +120,7 @@
         <field name="name">Ekipmanlar</field>
         <field name="res_model">ekipman.cihaz</field>
         <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_kullanimdaki': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Yeni bir ekipman kaydı oluşturun.
