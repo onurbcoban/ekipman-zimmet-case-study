@@ -316,3 +316,21 @@ class TestZimmet(TransactionCase):
         self.assertEqual(len(onay_mesaji), 1)
         self.assertEqual(onay_mesaji.author_id, self.user_yetkili.partner_id)
 
+    def test_21_taslak_iptal_edilemez(self):
+        zimmet = self._talep(self.user2, 0, 3)
+        with self.assertRaises(UserError):
+            zimmet.action_iptal()
+        self.assertEqual(zimmet.state, 'taslak')
+
+    def test_22_taslagi_yalnizca_sahibi_siler(self):
+        zimmet = self._talep(self.user2, 0, 3)
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).action_taslagi_sil()
+        with self.assertRaises(UserError):
+            zimmet.with_user(self.user_yetkili).unlink()
+
+        zimmet_id = zimmet.id
+        action = zimmet.action_taslagi_sil()
+        self.assertFalse(self.env['ekipman.zimmet'].browse(zimmet_id).exists())
+        self.assertEqual(action['res_model'], 'ekipman.zimmet')
+

@@ -212,11 +212,17 @@ class EkipmanZimmet(models.Model):
 
     def action_iptal(self):
         for rec in self:
-            if rec.state not in ['taslak', 'talep_edildi', 'onaylandi']:
+            if rec.state == 'taslak':
+                raise UserError('Taslak talepler iptal edilmez; Taslağı Sil ile silinebilir.')
+            if rec.state not in ['talep_edildi', 'onaylandi']:
                 raise UserError('Bu durumdaki bir kayıt iptal edilemez.')
             if not self.env.user.has_group('ekipman_zimmet.group_zimmet_yetkili') and rec.calisan_id.user_id != self.env.user:
                 raise UserError('Başkasının talebini iptal edemezsiniz.')
             rec.sudo().write({'state': 'iptal'})
+
+    def action_taslagi_sil(self):
+        self.unlink()
+        return self.env['ir.actions.act_window']._for_xml_id('ekipman_zimmet.action_ekipman_zimmet')
 
     def write(self, vals):
         if not self.env.su:
@@ -240,4 +246,6 @@ class EkipmanZimmet(models.Model):
         for rec in self:
             if rec.state != 'taslak':
                 raise UserError('Yalnızca taslak durumundaki kayıtlar silinebilir.')
+            if not self.env.su and rec.calisan_id.user_id != self.env.user:
+                raise UserError('Yalnızca kendi taslaklarınızı silebilirsiniz.')
         return super().unlink()
