@@ -53,7 +53,9 @@ Bu doküman, Ekipman Zimmet uygulamasını günlük işinde kullanacak mühendis
 4. Kaydedin. Talep **Taslak** olarak saklanır; bu aşamada istediğiniz kadar düzenleyebilirsiniz.
 5. Hazır olduğunuzda **Talep Et**'e basın. Talep **Talep Edildi** aşamasına geçer ve yetkiliye ulaşır.
 
-> **[Ekran görüntüsü 1 — `img/egitim/01-talep-formu.png`]** Mühendis hesabıyla taslak bir talep formu: cihaz, dolu tarihler, planlanan tarihler ve "Talep Et" butonu.
+![Mühendis hesabıyla taslak bir talep formu: cihaz, dolu tarihler, planlanan tarihler ve "Talep Et" butonu](img/egitim/01-talep-formu.png)
+
+*Şekil 1: Mühendis hesabıyla taslak bir talep formu: cihaz, dolu tarihler, planlanan tarihler ve "Talep Et" butonu.*
 
 ### Birden çok cihazı birlikte isteme (Toplu Talep)
 
@@ -61,7 +63,9 @@ Aynı tarihler için birden fazla cihaza ihtiyacınız varsa (ör. bir osiloskop
 
 Talepler açıldıktan sonra birbirinden bağımsızdır: biri onaylanırken diğeri reddedilebilir; birini geri çekip düzeltebilir veya iptal edebilirsiniz.
 
-> **[Ekran görüntüsü 2 — `img/egitim/02-toplu-talep.png`]** Toplu Talep sihirbazı: planlanan tarihler, seçilen cihazlar ve dolu tarihleri, "Talep Et" butonu.
+![Toplu Talep sihirbazı: planlanan tarihler, seçilen cihazlar ve dolu tarihleri, "Talep Et" butonu](img/egitim/02-toplu-talep.png)
+
+*Şekil 2: Toplu Talep sihirbazı: planlanan tarihler, seçilen cihazlar ve dolu tarihleri, "Talep Et" butonu.*
 
 ### Talebi düzeltme, geri çekme ve iptal
 
@@ -74,7 +78,9 @@ Talepler açıldıktan sonra birbirinden bağımsızdır: biri onaylanırken di�
 
 **Zimmet Talepleri** listesinde yalnızca kendi talepleriniz görünür. Liste varsayılan olarak **Güncel Talepler** filtresiyle açılır: açık talepleriniz ve son bir hafta içinde kapanmış (iade edilen, kayıp olarak kapatılan, reddedilen, iptal edilen) talepleriniz görünür. Böylece reddedilen veya iptal edilen bir talebinizi fark eder, nedenini formda okursunuz. Yalnızca açık talepleri görmek için arama çubuğundan **Açık Talepler**'i seçin; daha eski kapanmış talepler için filtreyi kaldırın. Satır renkleri: mavi = onay bekliyor, sarı = onaylanmış ama tarihi geçmiş (teslim edilmemiş), kırmızı = iadesi gecikmiş, soluk = tamamlanmış (iade, kayıp, red, iptal). Sütun ayarlarından isteğe bağlı **Cihaz Durumu** sütununu açabilirsiniz.
 
-> **[Ekran görüntüsü 3 — `img/egitim/03-muhendis-liste.png`]** Mühendisin kendi talepleri listesi; farklı aşamalardaki talepler ve renkler.
+![Mühendisin kendi talepleri listesi; farklı aşamalardaki talepler ve renkler](img/egitim/03-muhendis-liste.png)
+
+*Şekil 3: Mühendisin kendi talepleri listesi; farklı aşamalardaki talepler ve renkler.*
 
 - **Reddedildiyse:** Talebi açın; yetkilinin yazdığı **Red Gerekçesi** formda görünür. Genellikle farklı tarihlerle yeni bir talep açmanız yeterlidir.
 - **Onaylandıysa:** Planlanan başlangıç tarihinde cihazı yetkiliden alın. Yetkili teslimi sisteme işlediğinde talebiniz **Teslim Edildi** olur.
@@ -83,7 +89,9 @@ Talepler açıldıktan sonra birbirinden bağımsızdır: biri onaylanırken di�
 - **Cihaz kontrole, bakıma veya kayba girdiyse:** Talebiniz iptal edilmez, olduğu yerde bekler; formun üstünde turuncu bir bant cihazın durumunu ve sıradaki adımı yazar (ör. "Cihaz şu an bakımda. Teslim edilebilmesi için kullanılabilir duruma dönmesi gerekir. İsterseniz talebinizi iptal edebilirsiniz."). Cihaz kullanılabilir olunca süreç kaldığı yerden sürer. Cihazın ne zaman döneceği bilinmez; acil ihtiyacınız varsa talebi iptal edip başka bir cihaz için talep açın.
 - **Cihaz hurdaya ayrıldıysa:** Açık talepleriniz sistem tarafından iptal edilir; iptal nedeni hangi cihaz yüzünden ve hangi aşamada iptal edildiğini yazar. Bu talepler bir hafta **Güncel Talepler**'de görünür.
 
-> **[Ekran görüntüsü 4 — `img/egitim/04-uyari-bandi.png`]** Cihazı bakımda olan onaylı bir talebin formu: üstte "Cihaz şu an bakımda…" uyarı bandı ve Cihaz Durumu alanı.
+![Cihazı bakımda olan onaylı bir talebin formu: üstte "Cihaz şu an bakımda…" uyarı bandı ve Cihaz Durumu alanı](img/egitim/04-uyari-bandi.png)
+
+*Şekil 4: Cihazı bakımda olan onaylı bir talebin formu: üstte "Cihaz şu an bakımda…" uyarı bandı ve Cihaz Durumu alanı.*
 
 ### Cihazla ilgili sorun bildirme
 
@@ -119,7 +127,9 @@ Yalnızca yetkililere görünen **Bekleyen İşler** menüsünde, günlük işin
 | **Kontrol Bekleyen Cihazlar** | İade edilmiş, kontrol bekleyen cihazlar | Cihazı kontrol edip Kontrol Tamamlandı veya Bakıma Al demek |
 
 **Onay Bekleyenler** ve **Kullanılamayan Cihaz Onayları** listelerinde **Cihaz Durumu** sütunu görünür; hangi talebin şu an onaylanabilir olduğunu listeden anlarsınız.
-> **[Ekran görüntüsü 5 — `img/egitim/05-onay-bekleyenler.png`]** Yetkili hesabıyla "Onay Bekleyenler" listesi; arama çubuğundaki filtre etiketi.
+![Yetkili hesabıyla "Onay Bekleyenler" listesi; arama çubuğundaki filtre etiketi](img/egitim/05-onay-bekleyenler.png)
+
+*Şekil 5: Yetkili hesabıyla "Onay Bekleyenler" listesi; arama çubuğundaki filtre etiketi.*
 
 ### Onaylama ve reddetme
 
@@ -127,11 +137,15 @@ Yalnızca yetkililere görünen **Bekleyen İşler** menüsünde, günlük işin
 2. Uygunsa **Onayla**'ya basın. Sistem, aynı cihazın aynı tarihlerde onaylanmış başka bir talebi olup olmadığını kontrol eder; çakışma varsa onaya izin vermez ve çakışan talebin numarasını ve tarihlerini gösterir.
 3. Uygun değilse **Red Gerekçesi** alanına nedenini yazın ve **Reddet**'e basın. Gerekçe boşken reddetme yapılamaz. Gerekçe, talep sahibine formda görünür; karar verildikten sonra değiştirilemez.
 
-> **[Ekran görüntüsü 6 — `img/egitim/06-onay-formu.png`]** Onay bekleyen bir talebin formu: Onayla, Reddet ve Red Gerekçesi alanı.
+![Onay bekleyen bir talebin formu: Onayla, Reddet ve Red Gerekçesi alanı](img/egitim/06-onay-formu.png)
+
+*Şekil 6: Onay bekleyen bir talebin formu: Onayla, Reddet ve Red Gerekçesi alanı.*
 
 Aynı cihaz için aynı tarihlere iki ayrı talep gelebilir. Birini onayladığınızda diğeri kendiliğinden reddedilmez; onu gerekçe yazarak siz reddedersiniz (örneğin "Aynı tarihlerde başka bir talep onaylandı; lütfen farklı tarihlerle yeniden talep açın.").
 
-> **[Ekran görüntüsü 7 — `img/egitim/07-cakisma-uyarisi.png`]** Çakışan ikinci talep onaylanmaya çalışıldığında çıkan uyarı.
+![Çakışan ikinci talep onaylanmaya çalışıldığında çıkan uyarı](img/egitim/07-cakisma-uyarisi.png)
+
+*Şekil 7: Çakışan ikinci talep onaylanmaya çalışıldığında çıkan uyarı.*
 
 Kendi talebinizi de onaylayabilirsiniz; işlem formun altındaki kayıt geçmişinde adınızla görünür.
 
@@ -148,7 +162,9 @@ Kendi talebinizi de onaylayabilirsiniz; işlem formun altındaki kayıt geçmiş
 - **İade Al:** Cihaz geri geldiği gün ilgili talebi (örneğin **Gecikenler**'den) açıp **İade Al**'a basın. Fiili bitiş tarihi bugün olarak yazılır. İadeyi cihazın geldiği gün işleyin; tarih sonradan geriye düzeltilemez. İlk gözleminizi (ör. "Kasada çizik var.") iade öncesi **İade / Kayıp Notu** alanına yazabilirsiniz. İade edilen cihaz kendiliğinden **Kontrolde** olur ve kontrol bitene kadar yeniden verilemez.
 - **Kayıp Olarak İşaretle:** Cihaz kişideyken kaybolduysa önce **İade / Kayıp Notu**'na ne olduğunu yazın (zorunlu), sonra **Kayıp Olarak İşaretle**'ye basın. Kayıt **Kayıp** olarak kapanır, cihazın durumu **Kayıp** olur.
 
-> **[Ekran görüntüsü 8 — `img/egitim/08-gecikenler.png`]** "Gecikenler" listesi; kırmızı satırlar.
+!["Gecikenler" listesi; kırmızı satırlar](img/egitim/08-gecikenler.png)
+
+*Şekil 8: "Gecikenler" listesi; kırmızı satırlar.*
 
 ### Süresi geçmiş onaylar
 
@@ -163,7 +179,9 @@ Bu işlemler cihaz formunun üstündeki butonlarladır; cihazın durumu başka y
 - **Kayıp:** Kimsede olmayan bir cihaz kaybolduysa cihaz formunda **Kayıp Olarak İşaretle**'ye basın. Kayıp cihaz bulunursa **Bulundu**'ya basın; cihaz kontrole girer ve **Son İade** bölümünde kayıp kaydı görünür.
 - **Hurdaya Ayır:** Cihaz kalıcı olarak kullanılamayacaksa **Hurdaya Ayır**'a basın (onay sorulur, geri alınamaz). Cihazın taslak, onay bekleyen ve onaylı bütün talepleri nedeni yazılarak iptal edilir; cihaz **Hurda** olur ve arşivlenir. Hiçbir kayıt silinmez.
 
-> **[Ekran görüntüsü 9 — `img/egitim/09-kontrol-son-iade.png`]** Kontroldeki bir cihazın formu: "Son İade" bölümü (iade eden, tarih, geri bildirim, iade notu) ve üstte Kontrol Tamamlandı / Bakıma Al butonları.
+![Kontroldeki bir cihazın formu: "Son İade" bölümü (iade eden, tarih, geri bildirim, iade notu) ve üstte Kontrol Tamamlandı / Bakıma Al butonları](img/egitim/09-kontrol-son-iade.png)
+
+*Şekil 9: Kontroldeki bir cihazın formu: "Son İade" bölümü (iade eden, tarih, geri bildirim, iade notu) ve üstte Kontrol Tamamlandı / Bakıma Al butonları.*
 
 Kontrol, bakım ve kayıp cihazın mevcut taleplerini iptal etmez; talepler cihaz kullanılabilir olunca kaldığı yerden sürer ve bu sürede **Kullanılamayan Cihaz Onayları**'nda görünür.
 
@@ -178,7 +196,9 @@ Kontrol, bakım ve kayıp cihazın mevcut taleplerini iptal etmez; talepler ciha
 - **Ekipmanlar** listesindeki **Şu An Kimde** sütunu cihazın kimde olduğunu gösterir. **Zimmetteki Cihazlar** filtresi yalnızca şu an birinde olan cihazları listeler.
 - Cihazı açtığınızda **Zimmet Geçmişi** sekmesi, cihazı daha önce teslim alan herkesi tarihleriyle gösterir.
 
-> **[Ekran görüntüsü 10 — `img/egitim/10-ekipman-gecmis.png`]** Yetkili hesabıyla bir cihaz formu: "Şu An Kimde" alanı ve "Zimmet Geçmişi" sekmesi.
+![Yetkili hesabıyla bir cihaz formu: "Şu An Kimde" alanı ve "Zimmet Geçmişi" sekmesi](img/egitim/10-ekipman-gecmis.png)
+
+*Şekil 10: Yetkili hesabıyla bir cihaz formu: "Şu An Kimde" alanı ve "Zimmet Geçmişi" sekmesi.*
 
 ## 5. Uyarı mesajları ve ne yapmalı
 
