@@ -14,6 +14,7 @@
         'security/ir_rule.xml',
         'data/sequence.xml',
         'views/kategori_views.xml',
+        'views/lokasyon_views.xml',
         'views/cihaz_views.xml',
         'views/zimmet_views.xml',
         'views/menu_views.xml',

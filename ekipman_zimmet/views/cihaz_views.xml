@@ -8,6 +8,7 @@
                 <field name="etiket_no"/>
                 <field name="name"/>
                 <field name="kategori_id"/>
+                <field name="lokasyon_id" optional="show"/>
                 <field name="aciklama" optional="show"/>
                 <field name="seri_no" optional="hide"/>
                 <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'bosta'" decoration-warning="fiziksel_durum == 'zimmette'"/>
@@ -44,6 +45,7 @@
                             <field name="etiket_no"/>
                             <field name="seri_no"/>
                             <field name="kategori_id"/>
+                            <field name="lokasyon_id"/>
                         </group>
                         <group>
                             <field name="fiziksel_durum" widget="badge" decoration-success="fiziksel_durum == 'bosta'" decoration-warning="fiziksel_durum == 'zimmette'"/>
@@ -96,6 +98,7 @@
                 <field name="etiket_no"/>
                 <field name="seri_no"/>
                 <field name="kategori_id"/>
+                <field name="lokasyon_id"/>
                 <field name="su_an_kimde_id" groups="ekipman_zimmet.group_zimmet_yetkili"/>
                 <filter string="Kullanımdaki Cihazlar" name="kullanimdaki" domain="[('kullanilabilirlik', 'not in', ('kayip', 'hurda'))]"/>
                 <separator/>
@@ -108,6 +111,7 @@
                 <filter string="Arşivlenenler" name="archived" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Grupla">
                     <filter string="Kategori" name="group_kategori" context="{'group_by': 'kategori_id'}"/>
+                    <filter string="Lokasyon" name="group_lokasyon" context="{'group_by': 'lokasyon_id'}"/>
                     <filter string="Fiziksel Durum" name="group_fiziksel_durum" context="{'group_by': 'fiziksel_durum'}"/>
                     <filter string="Kullanılabilirlik" name="group_kullanilabilirlik" context="{'group_by': 'kullanilabilirlik'}"/>
                     <filter string="Şu An Kimde" name="group_su_an_kimde" context="{'group_by': 'su_an_kimde_id'}" groups="ekipman_zimmet.group_zimmet_yetkili"/>

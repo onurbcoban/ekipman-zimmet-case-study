@@ -12,53 +12,72 @@
             <field name="name">Ölçüm cihazı</field>
         </record>
 
+        <!-- Lokasyonlar -->
+        <record id="lokasyon_arge" model="ekipman.lokasyon">
+            <field name="name">Ar-Ge Laboratuvarı</field>
+        </record>
+        <record id="lokasyon_test" model="ekipman.lokasyon">
+            <field name="name">Test Laboratuvarı</field>
+        </record>
+        <record id="lokasyon_bt" model="ekipman.lokasyon">
+            <field name="name">BT Deposu</field>
+        </record>
+
         <!-- Cihazlar -->
         <record id="cihaz_osc_001" model="ekipman.cihaz">
             <field name="name">Tektronix TBS1102B Osiloskop</field>
             <field name="etiket_no">OSC-001</field>
             <field name="aciklama">100 MHz, 2 kanal, 2 prob ile</field>
+            <field name="lokasyon_id" ref="lokasyon_arge"/>
             <field name="kategori_id" ref="kategori_osiloskop"/>
         </record>
         <record id="cihaz_osc_002" model="ekipman.cihaz">
             <field name="name">Rigol DS1054Z Osiloskop</field>
             <field name="etiket_no">OSC-002</field>
             <field name="aciklama">50 MHz, 4 kanal, 4 prob ile</field>
+            <field name="lokasyon_id" ref="lokasyon_arge"/>
             <field name="kategori_id" ref="kategori_osiloskop"/>
         </record>
         <record id="cihaz_osc_003" model="ekipman.cihaz">
             <field name="name">Keysight DSOX1204G Osiloskop</field>
             <field name="etiket_no">OSC-003</field>
             <field name="aciklama">70 MHz, 4 kanal, dahili dalga üreteci, 4 prob ile</field>
+            <field name="lokasyon_id" ref="lokasyon_arge"/>
             <field name="kategori_id" ref="kategori_osiloskop"/>
         </record>
         <record id="cihaz_ltp_001" model="ekipman.cihaz">
             <field name="name">MacBook Pro 14 M1 Pro</field>
             <field name="etiket_no">LTP-001</field>
             <field name="aciklama">16 GB RAM, 512 GB SSD, şarj adaptörü ile</field>
+            <field name="lokasyon_id" ref="lokasyon_bt"/>
             <field name="kategori_id" ref="kategori_dizustu"/>
         </record>
         <record id="cihaz_ltp_002" model="ekipman.cihaz">
             <field name="name">Lenovo ThinkPad T14 Gen 3</field>
             <field name="etiket_no">LTP-002</field>
             <field name="aciklama">32 GB RAM, 1 TB SSD, Windows 11, yerleştirme istasyonu ile</field>
+            <field name="lokasyon_id" ref="lokasyon_bt"/>
             <field name="kategori_id" ref="kategori_dizustu"/>
         </record>
         <record id="cihaz_ltp_003" model="ekipman.cihaz">
             <field name="name">Dell Latitude 5440</field>
             <field name="etiket_no">LTP-003</field>
             <field name="aciklama">16 GB RAM, 512 GB SSD, Ubuntu 24.04, şarj adaptörü ile</field>
+            <field name="lokasyon_id" ref="lokasyon_bt"/>
             <field name="kategori_id" ref="kategori_dizustu"/>
         </record>
         <record id="cihaz_mlt_001" model="ekipman.cihaz">
             <field name="name">Fluke 87V Multimetre</field>
             <field name="etiket_no">MLT-001</field>
             <field name="aciklama">True-RMS, test kabloları ve kılıf ile</field>
+            <field name="lokasyon_id" ref="lokasyon_test"/>
             <field name="kategori_id" ref="kategori_olcum"/>
         </record>
         <record id="cihaz_spk_001" model="ekipman.cihaz">
             <field name="name">Rigol DSA815 Spektrum Analizör</field>
             <field name="etiket_no">SPK-001</field>
             <field name="aciklama">9 kHz–1,5 GHz, izleme üreteci ile</field>
+            <field name="lokasyon_id" ref="lokasyon_test"/>
             <field name="kategori_id" ref="kategori_olcum"/>
         </record>
     </data>

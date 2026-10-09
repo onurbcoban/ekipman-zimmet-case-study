@@ -177,4 +177,11 @@
               action="action_ekipman_kategori"
               groups="ekipman_zimmet.group_zimmet_yetkili"
               sequence="20"/>
+
+    <menuitem id="menu_ekipman_lokasyon"
+              name="Lokasyonlar"
+              parent="menu_ekipman_ekipman"
+              action="action_ekipman_lokasyon"
+              groups="ekipman_zimmet.group_zimmet_yetkili"
+              sequence="30"/>
 </odoo>

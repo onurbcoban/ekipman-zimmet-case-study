@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ekipman_lokasyon_list" model="ir.ui.view">
+        <field name="name">ekipman.lokasyon.list</field>
+        <field name="model">ekipman.lokasyon</field>
+        <field name="arch" type="xml">
+            <list string="Lokasyonlar">
+                <field name="name"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ekipman_lokasyon_form" model="ir.ui.view">
+        <field name="name">ekipman.lokasyon.form</field>
+        <field name="model">ekipman.lokasyon</field>
+        <field name="arch" type="xml">
+            <form string="Lokasyon">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ekipman_lokasyon" model="ir.actions.act_window">
+        <field name="name">Lokasyonlar</field>
+        <field name="res_model">ekipman.lokasyon</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Yeni bir lokasyon ekleyin (ör. laboratuvar, depo).
+            </p>
+        </field>
+    </record>
+</odoo>

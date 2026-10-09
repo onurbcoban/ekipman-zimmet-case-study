@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 from lxml import etree
 from odoo.tools.safe_eval import safe_eval
 
-from psycopg2 import errors
+from psycopg2 import errors, IntegrityError
 
 class TestZimmet(TransactionCase):
 
@@ -906,3 +906,23 @@ class TestZimmet(TransactionCase):
             self.assertEqual(ust(f'menu_ekipman_zimmet_{ad}'), bekleyen)
         self.assertEqual(ust('menu_ekipman_cihaz_kontrol_bekleyenler'), bekleyen)
         self.assertEqual(bekleyen.groups_id, self.group_yetkili)
+
+    def test_57_lokasyon(self):
+        lokasyon = self.env['ekipman.lokasyon'].with_user(self.user_yetkili).create({'name': 'Ar-Ge Laboratuvarı'})
+        self.cihaz.with_user(self.user_yetkili).write({'lokasyon_id': lokasyon.id})
+        self.assertEqual(self.cihaz.with_user(self.user2).lokasyon_id.name, 'Ar-Ge Laboratuvarı')
+        with self.assertRaises(AccessError):
+            self.env['ekipman.lokasyon'].with_user(self.user2).create({'name': 'Depo'})
+
+        # İçinde cihaz olan lokasyon silinemez; geçmiş ve kayıtlı yer bilgisi korunur.
+        with self.assertRaises(IntegrityError), mute_logger('odoo.sql_db'):
+            lokasyon.with_user(self.user_yetkili).unlink()
+
+    def test_58_lokasyon_arayuzde(self):
+        liste = etree.fromstring(self.env.ref('ekipman_zimmet.view_ekipman_cihaz_list').arch)
+        self.assertTrue(liste.xpath("//field[@name='lokasyon_id']"))
+        arama = self.env.ref('ekipman_zimmet.view_ekipman_cihaz_search').arch
+        self.assertIn("'group_by': 'lokasyon_id'", arama)
+        menu = self.env.ref('ekipman_zimmet.menu_ekipman_lokasyon')
+        self.assertEqual(menu.parent_id, self.env.ref('ekipman_zimmet.menu_ekipman_ekipman'))
+        self.assertEqual(menu.groups_id, self.group_yetkili)

@@ -39,6 +39,13 @@ class EkipmanCihaz(models.Model):
         required=True,
         ondelete='restrict',
     )
+    # Cihazın bağlı olduğu, kullanılmadığında durduğu yer; anlık konum değildir ("kimde" zimmetten gelir).
+    lokasyon_id = fields.Many2one(
+        'ekipman.lokasyon',
+        string='Lokasyon',
+        ondelete='restrict',
+        tracking=True,
+    )
     active = fields.Boolean(string='Aktif', default=True)
 
     zimmet_ids = fields.One2many(
