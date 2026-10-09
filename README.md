@@ -46,6 +46,7 @@ cp ekipman-zimmet-case-study/odoo.conf.example odoo.conf   # addons_path ve db_*
 erDiagram
     direction TB
     ekipman_kategori ||--o{ ekipman_cihaz : "kategori_id"
+    ekipman_lokasyon |o--o{ ekipman_cihaz : "lokasyon_id"
     ekipman_cihaz ||--o{ ekipman_zimmet : "cihaz_id"
     hr_employee ||--o{ ekipman_zimmet : "calisan_id"
     hr_employee |o--o{ ekipman_cihaz : "su_an_kimde_id (hesaplanan)"
@@ -54,8 +55,8 @@ erDiagram
 
 | Model | Ana alanlar |
 |---|---|
-| `ekipman.kategori` | `name`, `description` |
-| `ekipman.cihaz` | `name`, `etiket_no` (benzersiz), `aciklama`, `seri_no`, `kategori_id`, `active`, `kullanilabilirlik`; chatter; hesaplanan: `fiziksel_durum` ve `su_an_kimde_id` (saklanan), `dolu_tarihler` |
+| `ekipman.kategori`, `ekipman.lokasyon` | `name`, `description` |
+| `ekipman.cihaz` | `name`, `etiket_no` (benzersiz), `aciklama`, `seri_no`, `kategori_id`, `lokasyon_id`, `active`, `kullanilabilirlik`; chatter; hesaplanan: `fiziksel_durum` ve `su_an_kimde_id` (saklanan), `dolu_tarihler` |
 | `ekipman.zimmet` | `name` (`ZMT/0001`), `state`, `cihaz_id`, `calisan_id`, `planlanan_baslangic/bitis`, `fiili_baslangic/bitis`, `red_gerekcesi`, `iptal_nedeni`, `istenen_bitis`, `kullanici_geri_bildirimi`, `kapanis_notu`, `kapanis_tarihi`, `toplu_ref` (`TPL/0001`); chatter |
 | `ekipman.zimmet.toplu` (geçici) | `cihaz_ids`, `planlanan_baslangic/bitis`: Toplu Talep sihirbazı |
 

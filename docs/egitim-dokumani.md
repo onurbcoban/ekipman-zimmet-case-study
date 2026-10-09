@@ -189,6 +189,7 @@ Kontrol, bakım ve kayıp cihazın mevcut taleplerini iptal etmez; talepler ciha
 
 - **Ekipman → Ekipmanlar → Yeni:** **Cihaz Adı** (herkesin tanıyacağı ad, ör. "MacBook Pro 14 M1 Pro"), **Etiket No** (cihazın üzerindeki demirbaş etiketi, ör. "LTP-001"), **Açıklama** (cihazı benzerlerinden ayıran ayrıntılar, ör. "16 GB RAM, 512 GB SSD, şarj adaptörü ile"), **Seri No** (isteğe bağlı) ve **Kategori** girilir. Etiket numarası her cihaz için farklı olmalıdır.
 - **Ekipman → Kategoriler** menüsünden yeni kategori eklenebilir (örneğin "Osiloskop", "Dizüstü bilgisayar").
+- **Ekipman → Lokasyonlar** menüsünden cihazların bağlı olduğu yerler tanımlanır (örneğin "Ar-Ge Laboratuvarı", "BT Deposu"); cihaz formundaki **Lokasyon** alanı, cihazın kullanılmadığında durduğu ve iade edildiği yeri gösterir.
 - **Kullanımdan kaldırma:** Cihazı silmek yerine arşivleyin (form üzerindeki işlem menüsünden **Arşivle**). Geçmiş zimmet kaydı olan cihaz silinemez. Onaylı veya teslim edilmiş talebi olan cihaz arşivlenemez; önce o talepleri tamamlayın veya iptal edin. Arşivlenen cihazlar ekipman listesinde **Arşivlenenler** filtresiyle görülür. Cihaz bozulduğu veya ömrünü doldurduğu için kaldırılıyorsa arşivlemek yerine **Hurdaya Ayır**'ı kullanın; açık talepleri de nedeniyle kapatır.
 
 ### Cihaz şu an kimde, daha önce kimdeydi?

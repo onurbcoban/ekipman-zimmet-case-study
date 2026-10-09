@@ -28,6 +28,8 @@
 22. **Kayıp ve bulunma:** Cihaz kayba girince onaylı talepleri iptal edilmez; bulunan cihaz kontrole alınır ve eski kayıp zimmet kaydı geçmişte kalır (A7, B10).
 23. **Ekipmanlar listesi:** Liste varsayılan olarak kayıp ve hurda dışındaki cihazları durumlarıyla gösterir; filtre kaldırılınca kayıp cihazlar, "Arşivlenenler" filtresiyle hurda cihazlar görünür (A7, F4).
 24. **Kullanılabilirlik izi:** Kullanılabilirlik değişikliği cihazın chatter'ında değiştiren kullanıcıyla görünür (A7, G6).
+### Lokasyon (A8)
+25. **Lokasyon:** Yetkili lokasyon tanımlar ve cihaza atar; mühendis cihazın lokasyonunu görür ama lokasyon oluşturamaz. İçinde cihaz olan lokasyon silinemez. Ekipman listesinde lokasyon sütunu ve "Lokasyon" gruplaması vardır; "Lokasyonlar" menüsü yalnızca yetkiliye görünür (A8).
 
 ## B Bölümü - Süreç Akışı ve Geçişler
 1. **Mutlu yol:** Mühendis taslak oluşturur, gönderir (talep_edildi), yetkili onaylar (onaylandi), aralığı gelince teslim eder (teslim_edildi), iade alır (iade_edildi). Fiili tarihler butonlarla yazılır.
@@ -199,6 +201,7 @@ Aşağıdaki senaryolar `ekipman_zimmet/tests/test_zimmet.py` içindeki testlerl
 | A/20, A/21 | `test_46_hurdaya_ayir` |
 | A/22, C/12 | `test_43_kayip_onayli_talepleri_korur_ve_bloklamaz` |
 | A/23 | `test_49_ekipman_filtreleri` |
+| A/25 | `test_57_lokasyon`, `test_58_lokasyon_arayuzde` |
 | B/30, B/31, B/32, E/2 (kayıp kayıt) | `test_42_kayip_olarak_isaretleme` |
 | B/34, B/35 | `test_41_iade_notlari_ve_son_iade` |
 | D/6 | `test_37_kullanilabilirlik_alani`, `test_40_iade_kontrol_ve_bakim` |
